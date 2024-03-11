@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'application'
+    id 'org.graalvm.buildtools.native' version '0.10.1'
+}
+
+group = 'io.github.secpwdman'
+version = '0.7'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation files('lib/javacsv.jar', 'lib/swt.jar')
+}
+
+jar {
+	manifest {
+	    attributes 'Class-Path': 'swt.jar javacsv.jar'
+		attributes 'Main-Class': 'io.github.secpwdman.SecPwdMan'
+	}
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+application {
+    mainClass = 'io.github.secpwdman.SecPwdMan'
+}
+
+graalvmNative {
+    testSupport = false
+    toolchainDetection = true
+    
+    binaries {
+        main {
+            imageName = 'SecPwdMan'
+            mainClass = 'io.github.secpwdman.SecPwdMan'
+            buildArgs.add('-march=x86-64-v3')
+            buildArgs.add('--enable-http')
+            buildArgs.add('--enable-https')
+            buildArgs.add('--no-fallback')
+            // buildArgs.add('--pgo-instrument')
+            buildArgs.add('--pgo=default.iprof')
+            buildArgs.add('--strict-image-heap')
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:+BuildReport')
+            buildArgs.add('-R:MinHeapSize=32m')
+            buildArgs.add('-R:MaxHeapSize=4g')
+            buildArgs.add('-R:MaxNewSize=32m')
+            useFatJar = true
+        }
+    }
+}

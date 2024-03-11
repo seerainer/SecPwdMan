@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Class-Path: swt.jar javacsv.jar
+Main-Class: io.github.secpwdman.SecPwdMan
