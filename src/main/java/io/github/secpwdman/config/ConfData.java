@@ -2,7 +2,7 @@
  * Secure Password Manager
  * Copyright (C) 2024  Philipp Seerainer
  * philipp@seerainer.com
- * http://www.seerainer.com/
+ * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.7.240310"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.7.1"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + " " + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 	public static final String APP_HEAD = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
@@ -59,9 +59,6 @@ public class ConfData {
 
 	private String file = null;
 	private String header = null;
-	private String license = null;
-
-	public final String licenseUrl = "https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
 	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
@@ -213,13 +210,6 @@ public class ConfData {
 	}
 
 	/**
-	 * @return the license
-	 */
-	public String getLicense() {
-		return license;
-	}
-
-	/**
 	 * @return the linkColor
 	 */
 	public Color getLinkColor() {
@@ -343,13 +333,6 @@ public class ConfData {
 	 */
 	public void setIterCount(final int iterCount) {
 		this.iterCount = iterCount;
-	}
-
-	/**
-	 * @param license the license to set
-	 */
-	public void setLicense(final String license) {
-		this.license = license;
 	}
 
 	/**
