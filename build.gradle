@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.7'
+version = '0.7.1'
 
 repositories {
     mavenCentral()
@@ -14,11 +14,17 @@ repositories {
 
 dependencies {
     implementation files('lib/javacsv.jar', 'lib/swt.jar')
+    implementation('commons-validator:commons-validator:1.8.0') {
+        exclude group: 'commons-beanutils', module: 'commons-beanutils'
+        exclude group: 'commons-collections', module: 'commons-collections'
+        exclude group: 'commons-digester', module: 'commons-digester'
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
 }
 
 jar {
 	manifest {
-	    attributes 'Class-Path': 'swt.jar javacsv.jar'
+	    attributes 'Class-Path': 'swt.jar javacsv.jar commons-validator-1.8.0.jar'
 		attributes 'Main-Class': 'io.github.secpwdman.SecPwdMan'
 	}
 }
@@ -42,14 +48,12 @@ graalvmNative {
             imageName = 'SecPwdMan'
             mainClass = 'io.github.secpwdman.SecPwdMan'
             buildArgs.add('-march=x86-64-v3')
-            buildArgs.add('--enable-http')
-            buildArgs.add('--enable-https')
             buildArgs.add('--no-fallback')
             // buildArgs.add('--pgo-instrument')
-            // buildArgs.add('--pgo=default.iprof')
+            buildArgs.add('--pgo=default.iprof')
             buildArgs.add('--strict-image-heap')
-            // buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            // buildArgs.add('-H:+BuildReport')
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:+BuildReport')
             buildArgs.add('-R:MinHeapSize=32m')
             buildArgs.add('-R:MaxHeapSize=4g')
             buildArgs.add('-R:MaxNewSize=32m')
