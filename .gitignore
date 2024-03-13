@@ -13,6 +13,7 @@ build
 *.ear
 /.settings
 /.classpath
+/.project
 
 /bin
 
