@@ -123,7 +123,6 @@ public class ConfData {
 	public final String menuHpwd = getString("Menu.View.HidePassword"); //$NON-NLS-1$
 	public final String menuPref = getString("Menu.View.Preferences"); //$NON-NLS-1$
 	public final String menuInfo = getString("Menu.Info"); //$NON-NLS-1$
-	public final String menuLice = getString("Menu.InfoLicense"); //$NON-NLS-1$
 	public final String menuSysI = getString("Menu.InfoSystem"); //$NON-NLS-1$
 	public final String cfgTitle = getString("Dialog.Config.Title"); //$NON-NLS-1$
 	public final String cfgColWh = getString("Dialog.Config.ColW"); //$NON-NLS-1$
