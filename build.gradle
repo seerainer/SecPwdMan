@@ -57,7 +57,7 @@ graalvmNative {
         main {
             imageName = 'SecPwdMan'
             mainClass = 'io.github.secpwdman.SecPwdMan'
-            buildArgs.add('-march=x86-64-v3')
+            buildArgs.add('-march=x86-64')
             buildArgs.add('--no-fallback')
             buildArgs.add('--strict-image-heap')
             buildArgs.add('-R:MinHeapSize=32m')
