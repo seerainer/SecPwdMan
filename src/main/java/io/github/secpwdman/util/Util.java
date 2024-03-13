@@ -81,12 +81,7 @@ public class Util {
 	 * @return true, if is url
 	 */
 	public static boolean isUrl(final String url) {
-		try {
-			// URI.create(url).toURL();
-			return UrlValidator.getInstance().isValid(url);
-		} catch (final Exception e) {
-			return false;
-		}
+		return UrlValidator.getInstance().isValid(url);
 	}
 
 	private Util() {
