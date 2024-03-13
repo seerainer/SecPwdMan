@@ -9,7 +9,7 @@ jobs:
         with:
           java-version: '21'      # See 'Options' section below for all supported versions
           distribution: 'graalvm' # See 'Options' section below for all available distributions
-          github-token: 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
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Example step
         run: |
           echo "GRAALVM_HOME: $GRAALVM_HOME"
@@ -17,4 +17,6 @@ jobs:
           java --version
           native-image --version
       - name: Example step using Gradle plugin # https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
-        run: ./gradlew build
+        run: |
+          chmod +x gradlew
+          ./gradlew build
