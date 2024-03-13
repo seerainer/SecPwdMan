@@ -30,7 +30,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
 	public static final String APP_VERS = "0.7.1"; //$NON-NLS-1$
-	public static final String APP_INFO = APP_NAME + " " + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 	public static final String APP_HEAD = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
