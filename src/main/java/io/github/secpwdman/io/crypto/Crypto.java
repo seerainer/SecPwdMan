@@ -2,7 +2,7 @@
  * Secure Password Manager
  * Copyright (C) 2024  Philipp Seerainer
  * philipp@seerainer.com
- * http://www.seerainer.com/
+ * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
