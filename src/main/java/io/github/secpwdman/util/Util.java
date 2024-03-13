@@ -2,7 +2,7 @@
  * Secure Password Manager
  * Copyright (C) 2024  Philipp Seerainer
  * philipp@seerainer.com
- * http://www.seerainer.com/
+ * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,8 @@
 package io.github.secpwdman.util;
 
 import java.io.File;
-import java.net.URI;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.eclipse.swt.widgets.Table;
 
 /**
@@ -82,8 +82,8 @@ public class Util {
 	 */
 	public static boolean isUrl(final String url) {
 		try {
-			URI.create(url).toURL();
-			return true;
+			// URI.create(url).toURL();
+			return UrlValidator.getInstance().isValid(url);
 		} catch (final Exception e) {
 			return false;
 		}
