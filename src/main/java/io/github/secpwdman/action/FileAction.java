@@ -188,6 +188,13 @@ public class FileAction extends Action {
 
 		clearClipboard();
 
+		final var toolBar = (ToolBar) shell.getChildren()[0];
+		for (var i = 0; i < toolBar.getItemCount(); i++) {
+			final var image = toolBar.getItem(i).getImage();
+			if (image != null)
+				image.dispose();
+		}
+
 		return true;
 	}
 
