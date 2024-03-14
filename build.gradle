@@ -72,6 +72,10 @@ tasks.withType(Jar).configureEach {
     exclude("META-INF/*.SF")
     exclude("META-INF/*.RSA")
     manifest {
-	attributes 'Main-Class': 'io.github.secpwdman.SecPwdMan'
+	    attributes 'Main-Class': application.mainClass
+    }
+    from("${projectDir}") {
+        include 'LICENSE'
+        into "META-INF"
     }
 }
