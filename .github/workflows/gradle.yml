@@ -1,4 +1,4 @@
-name: GraalVM build
+name: GraalVM Native Image builds
 on: [push, pull_request]
 jobs:
   build:
@@ -15,12 +15,6 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
-      - name: Example step
-        run: |
-          echo "GRAALVM_HOME: $GRAALVM_HOME"
-          echo "JAVA_HOME: $JAVA_HOME"
-          java --version
-          native-image --version
       - name: Example step using Gradle plugin # https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
         run: |
           chmod +x gradlew
