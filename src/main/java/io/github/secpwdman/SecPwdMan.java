@@ -429,17 +429,6 @@ public class SecPwdMan {
 		toolItem(toolBar, IMG.NOTE, copyNotes, cData.menuCnot);
 		toolItemSeparator(toolBar);
 		toolItem(toolBar, IMG.WEB, openURL, cData.menuOurl);
-
-		toolBar.getItem(0).getImage().dispose();
-		toolBar.getItem(1).getImage().dispose();
-		toolBar.getItem(3).getImage().dispose();
-		toolBar.getItem(5).getImage().dispose();
-		toolBar.getItem(6).getImage().dispose();
-		toolBar.getItem(8).getImage().dispose();
-		toolBar.getItem(9).getImage().dispose();
-		toolBar.getItem(10).getImage().dispose();
-		toolBar.getItem(11).getImage().dispose();
-		toolBar.getItem(13).getImage().dispose();
 	}
 
 	/**
