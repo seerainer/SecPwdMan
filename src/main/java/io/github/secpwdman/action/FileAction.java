@@ -23,6 +23,7 @@ package io.github.secpwdman.action;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
+import static io.github.secpwdman.util.Util.passWarning;
 import static io.github.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
@@ -38,6 +39,7 @@ import org.eclipse.swt.widgets.ToolBar;
 
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.dialog.PasswordDialog;
+import io.github.secpwdman.dialog.TextDialog;
 import io.github.secpwdman.io.IO;
 
 /**
@@ -222,12 +224,11 @@ public class FileAction extends Action {
 				enableItems();
 				setText();
 			}
-		} else {
+		} else if (style == SWT.SAVE) {
 			if (!cData.isCustomHeader() && msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnExpo) == SWT.NO)
 				return;
 
 			final var f = dialog.open();
-
 			if (!isEmptyString(f))
 				io.saveFile(null, f);
 		}
@@ -267,11 +268,10 @@ public class FileAction extends Action {
 	 * @param style the style
 	 */
 	public void openSave(final int style) {
-		final var dialog = fileDialog(shell, style);
-
 		if (style == SWT.SAVE && isFileOpen(cData.getFile()))
 			new PasswordDialog(true, this);
 		else {
+			final var dialog = fileDialog(shell, style);
 			dialog.setFilterNames(new String[] { cData.passFile });
 			dialog.setFilterExtensions(new String[] { cData.passExte });
 			final var f = dialog.open();
@@ -291,6 +291,14 @@ public class FileAction extends Action {
 
 		enableItems();
 		setText();
+	}
+
+	/**
+	 * Open text editor.
+	 */
+	public void openTextEdit() {
+		if (passWarning(cData, shell))
+			new TextDialog(this);
 	}
 
 	/**

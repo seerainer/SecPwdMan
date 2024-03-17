@@ -55,9 +55,7 @@ public class PasswordDialog {
 	 */
 	private void open(final boolean confirm) {
 		final var cData = action.getCData();
-		final var shell = action.getShell();
-		final var table = action.getTable();
-		final var dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL);
+		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL);
 		final var layout = new GridLayout(4, false);
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
@@ -65,6 +63,7 @@ public class PasswordDialog {
 		dialog.setLayout(layout);
 
 		if (cData.isDarkTheme()) {
+			final var table = action.getTable();
 			dialog.setBackground(table.getBackground());
 			dialog.setForeground(table.getForeground());
 			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
@@ -85,7 +84,7 @@ public class PasswordDialog {
 		} else
 			dialog.setSize(500, 100);
 
-		final var r = shell.getDisplay().getBounds();
+		final var r = dialog.getDisplay().getBounds();
 		final var s = dialog.getBounds();
 		dialog.setLocation((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5);
 		dialog.setText(cData.passTitl);

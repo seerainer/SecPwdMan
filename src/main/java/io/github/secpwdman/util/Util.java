@@ -20,10 +20,16 @@
  */
 package io.github.secpwdman.util;
 
+import static io.github.secpwdman.widgets.Widgets.msg;
+
 import java.io.File;
 
 import org.apache.commons.validator.routines.UrlValidator;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+
+import io.github.secpwdman.config.ConfData;
 
 /**
  * The Class Util.
@@ -64,24 +70,32 @@ public class Util {
 	/**
 	 * Checks if is url.
 	 *
-	 * @param count the count
-	 * @param table the table
-	 * @return true, if is url
-	 */
-	public static boolean isUrl(final boolean count, final Table table) {
-		if (count)
-			return isUrl(table.getSelection()[0].getText(3));
-		return false;
-	}
-
-	/**
-	 * Checks if is url.
-	 *
 	 * @param url the url
 	 * @return true, if is url
 	 */
 	public static boolean isUrl(final String url) {
 		return UrlValidator.getInstance().isValid(url);
+	}
+
+	/**
+	 * Checks if is url.
+	 *
+	 * @param table the table
+	 * @return true, if is url
+	 */
+	public static boolean isUrl(final Table table) {
+		return isUrl(table.getSelection()[0].getText(3));
+	}
+
+	/**
+	 * Asks to show passwords in cleartext.
+	 *
+	 * @param cData the cData
+	 * @param shell the shell
+	 * @return true, if is yes
+	 */
+	public static boolean passWarning(final ConfData cData, final Shell shell) {
+		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES;
 	}
 
 	private Util() {

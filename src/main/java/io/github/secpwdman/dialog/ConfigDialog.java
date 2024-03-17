@@ -82,9 +82,8 @@ public class ConfigDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var shell = action.getShell();
 		final var darkTheme = cData.isDarkTheme();
-		final var dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout(3, false);
 		layout.horizontalSpacing = 25;
 		layout.marginBottom = 10;

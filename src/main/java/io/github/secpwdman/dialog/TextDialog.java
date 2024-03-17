@@ -20,31 +20,33 @@
  */
 package io.github.secpwdman.dialog;
 
-import java.util.Enumeration;
+import static io.github.secpwdman.widgets.Widgets.msg;
+import static io.github.secpwdman.widgets.Widgets.newText;
+import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
+
+import java.io.IOException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 
-import io.github.secpwdman.action.Action;
+import io.github.secpwdman.action.FileAction;
 import io.github.secpwdman.images.IMG;
+import io.github.secpwdman.io.IO;
 
 /**
- * The Class SystemInfoDialog.
+ * The Class TextDialog.
  */
-public class SystemInfoDialog {
-	private final Action action;
+public class TextDialog {
+	private final FileAction action;
 
 	/**
-	 * Instantiates a new system info dialog.
+	 * Instantiates a new text dialog.
 	 *
 	 * @param action the action
 	 */
-	public SystemInfoDialog(final Action action) {
+	public TextDialog(final FileAction action) {
 		this.action = action;
 		open();
 	}
@@ -54,43 +56,44 @@ public class SystemInfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
+		final var tableData = new IO(action).extractData(cData).toString();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
-		final var layout = new GridLayout();
+		final var isWriteable = !cData.isReadOnly();
+		final var layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 		dialog.setImage(image);
 		dialog.setLayout(layout);
+		dialog.setText(cData.textView);
 		image.dispose();
 
-		final var sysTable = new Table(dialog, SWT.FULL_SELECTION);
-		sysTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sysTable.setLinesVisible(true);
+		if (isWriteable)
+			dialog.setText(cData.textView + cData.textWarn);
 
 		if (cData.isDarkTheme()) {
 			final var table = action.getTable();
-			sysTable.setBackground(table.getBackground());
-			sysTable.setForeground(table.getForeground());
+			dialog.setBackground(table.getBackground());
+			dialog.setForeground(table.getForeground());
+			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
 		}
 
-		final var col1 = new TableColumn(sysTable, SWT.LEFT, 0);
-		final var col2 = new TableColumn(sysTable, SWT.LEFT, 1);
+		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		text.setEditable(isWriteable);
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		text.setText(tableData);
 
-		final var properties = System.getProperties();
-		for (final Enumeration<?> e = properties.keys(); e.hasMoreElements();) {
-			final var item = new TableItem(sysTable, SWT.NONE);
-			final Object key = e.nextElement();
-			item.setText(new String[] { (String) key, (String) properties.get(key) });
-		}
+		dialog.addShellListener(shellClosedAdapter(e -> {
+			final var textData = text.getText();
+			if (isWriteable && !tableData.equals(textData))
+				try {
+					cData.setModified(true);
+					new IO(action).fillTable(textData);
+				} catch (final IOException ex) {
+					msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
+				}
+		}));
 
-		final var env = System.getenv();
-		for (final String envName : env.keySet())
-			new TableItem(sysTable, SWT.NONE).setText(new String[] { envName, env.get(envName) });
-
-		col1.pack();
-		col2.pack();
-
-		dialog.setText(cData.systInfo);
 		dialog.open();
 	}
 }

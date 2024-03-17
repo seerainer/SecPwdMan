@@ -87,12 +87,38 @@ public class IO {
 	}
 
 	/**
+	 * Extract data from table.
+	 *
+	 * @param cData the cdata
+	 */
+	public StringBuilder extractData(final ConfData cData) {
+		final var sb = new StringBuilder();
+		final var table = action.getTable();
+		final var items = table.getItems();
+
+		sb.append(cData.getHeader() + cData.newLine);
+
+		for (final TableItem item : items) {
+			final var itemText = new String[table.getColumnCount()];
+			for (var i = 0; i < itemText.length; i++)
+				itemText[i] = escapeSpecialChar(cData, item.getText(i));
+			final var line = new StringBuilder();
+			for (var j = 0; j < itemText.length - 1; j++)
+				line.append(itemText[j]).append(cData.comma);
+			line.append(itemText[itemText.length - 1]).append(cData.newLine);
+			sb.append(line.toString());
+		}
+
+		return sb;
+	}
+
+	/**
 	 * Fill table.
 	 *
 	 * @param str the string
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	private void fillTable(final String str) throws IOException {
+	public void fillTable(final String str) throws IOException {
 		final var cData = action.getCData();
 		final var table = action.getTable();
 		final var csv = CsvReader.parse(str);
@@ -176,22 +202,7 @@ public class IO {
 
 		try {
 			final var fos = new FileOutputStream(file);
-			final var sb = new StringBuilder();
-			final var table = action.getTable();
-			final var items = table.getItems();
-
-			sb.append(cData.getHeader() + cData.newLine);
-
-			for (final TableItem item : items) {
-				final var itemText = new String[table.getColumnCount()];
-				for (var i = 0; i < itemText.length; i++)
-					itemText[i] = escapeSpecialChar(cData, item.getText(i));
-				final var line = new StringBuilder();
-				for (var j = 0; j < itemText.length - 1; j++)
-					line.append(itemText[j]).append(cData.comma);
-				line.append(itemText[itemText.length - 1]).append(cData.newLine);
-				sb.append(line.toString());
-			}
+			final var sb = extractData(cData);
 
 			if (isEmptyString(pwd))
 				fos.write(sb.toString().getBytes());

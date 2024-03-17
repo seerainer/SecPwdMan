@@ -20,9 +20,8 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.widgets.Widgets.msg;
+import static io.github.secpwdman.util.Util.passWarning;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
@@ -70,7 +69,7 @@ public class ViewAction extends Action {
 		if (viewMenu.getItem(5).getSelection())
 			hidePasswordColumn();
 		else if (((MenuItem) e.widget).getSelection())
-			if (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES) {
+			if (passWarning(cData, shell)) {
 				table.getColumn(5).setResizable(true);
 				resizeColumns();
 				table.getColumn(2).setText(cData.headerOp);

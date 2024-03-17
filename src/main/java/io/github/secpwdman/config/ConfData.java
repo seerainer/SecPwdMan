@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.7.1"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.7.2"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 	public static final String APP_HEAD = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
@@ -121,6 +121,7 @@ public class ConfData {
 	public final String menuPcol = getString("Menu.View.ResizeColumns"); //$NON-NLS-1$
 	public final String menuSpwd = getString("Menu.View.ShowPassword"); //$NON-NLS-1$
 	public final String menuHpwd = getString("Menu.View.HidePassword"); //$NON-NLS-1$
+	public final String menuText = getString("Menu.View.TextView"); //$NON-NLS-1$
 	public final String menuPref = getString("Menu.View.Preferences"); //$NON-NLS-1$
 	public final String menuInfo = getString("Menu.Info"); //$NON-NLS-1$
 	public final String menuSysI = getString("Menu.InfoSystem"); //$NON-NLS-1$
@@ -145,10 +146,11 @@ public class ConfData {
 	public final String entrSpac = getString("Dialog.Entry.Space"); //$NON-NLS-1$
 	public final String entrOkay = getString("Dialog.Entry.OK"); //$NON-NLS-1$
 	public final String entrCanc = getString("Dialog.Entry.Cancel"); //$NON-NLS-1$
-	public final String licenseD = getString("Dialog.License"); //$NON-NLS-1$
 	public final String passTitl = getString("Dialog.Password.Title"); //$NON-NLS-1$
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$
+	public final String textView = getString("Dialog.TextView"); //$NON-NLS-1$
+	public final String textWarn = getString("Dialog.TextWarning"); //$NON-NLS-1$
 	public final String systInfo = getString("Dialog.SystemInfo"); //$NON-NLS-1$
 	public final String titleErr = getString("MessageBox.Title.Error"); //$NON-NLS-1$
 	public final String titleInf = getString("MessageBox.Title.Info"); //$NON-NLS-1$

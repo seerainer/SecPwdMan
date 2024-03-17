@@ -247,6 +247,8 @@ public class SecPwdMan {
 		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuSpwd);
 		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuHpwd, true);
 		menuItemSeparator(view);
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.openTextEdit()), cData.menuText);
+		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new ConfigDialog(viewAction)), cData.menuPref, IMG.GEAR);
 
 		final var info = newMenu(shell, SWT.DROP_DOWN, enableItems);
@@ -439,6 +441,7 @@ public class SecPwdMan {
 	 */
 	private void trayItem(final Display display, final Image image) {
 		final var tray = display.getSystemTray();
+
 		if (tray != null) {
 			final var trayItem = new TrayItem(tray, SWT.NONE);
 			trayItem.addListener(SWT.DefaultSelection, e -> {

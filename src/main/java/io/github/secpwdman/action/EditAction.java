@@ -61,12 +61,12 @@ public class EditAction extends Action {
 	 * @param index the index
 	 */
 	public void copyToClipboard(final int index) {
-		final var display = shell.getDisplay();
 		var text = table.getItem(table.getSelectionIndex()).getText(index);
 
 		if (isEmptyString(text))
 			text = cData.nullStr;
 
+		final var display = shell.getDisplay();
 		final var cb = new Clipboard(display);
 		cb.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
 		cb.dispose();
