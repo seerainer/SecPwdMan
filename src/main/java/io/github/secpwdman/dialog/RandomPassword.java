@@ -99,18 +99,16 @@ public class RandomPassword {
 	}
 
 	/**
-	 * Checks if is weak password.
+	 * Checks if it is a weak password.
 	 *
 	 * @param cData the cdata
 	 * @param pwd   the pwd
-	 * @return true, if is weak password
+	 * @return true, if it is a weak password
 	 */
-	private boolean isWeakPwd(final ConfData cData, final String pwd) {
-		final boolean[] b = { false, false, false, false, false };
+	public boolean isWeakPwd(final ConfData cData, final String pwd) {
+		final boolean[] b = { false, false, false, false, false, false };
 
-		for (var i = 0; i < pwd.length(); i++) {
-			final var c = pwd.charAt(i);
-
+		for (final char c : pwd.toCharArray())
 			if (Character.isLowerCase(c))
 				b[0] = true;
 			else if (Character.isUpperCase(c))
@@ -121,9 +119,10 @@ public class RandomPassword {
 				b[3] = true;
 			else if (cData.rSpecia2.contains(Character.toString(c)))
 				b[4] = true;
-		}
+			else
+				b[5] = true;
 
-		if (b[0] && b[1] && b[2] && (b[3] || b[4]))
+		if (b[0] && b[1] && b[2] && (b[3] || b[4] || b[5]))
 			return false;
 
 		return true;

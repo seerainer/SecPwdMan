@@ -90,7 +90,7 @@ public class FileAction extends Action {
 		final var pwdStr = pwd.getText();
 		pwd.selectAll();
 
-		if (dialog.getBounds().height == 130) {
+		if (dialog.getBounds().height == 150) {
 			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
 			pwdConfirm.selectAll();
 

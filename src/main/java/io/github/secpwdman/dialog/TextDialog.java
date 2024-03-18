@@ -84,7 +84,7 @@ public class TextDialog {
 		text.setText(tableData);
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
-			final var textData = text.getText();
+			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 			if (isWriteable && !tableData.equals(textData))
 				try {
 					cData.setModified(true);

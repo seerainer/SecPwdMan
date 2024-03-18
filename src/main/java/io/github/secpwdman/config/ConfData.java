@@ -149,6 +149,11 @@ public class ConfData {
 	public final String passTitl = getString("Dialog.Password.Title"); //$NON-NLS-1$
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$
+	public final String passGood = getString("Dialog.Password.Good"); //$NON-NLS-1$
+	public final String passStro = getString("Dialog.Password.Strong"); //$NON-NLS-1$
+	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
+	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$
+	public final String passWeak = getString("Dialog.Password.Weak"); //$NON-NLS-1$
 	public final String textView = getString("Dialog.TextView"); //$NON-NLS-1$
 	public final String textWarn = getString("Dialog.TextWarning"); //$NON-NLS-1$
 	public final String systInfo = getString("Dialog.SystemInfo"); //$NON-NLS-1$

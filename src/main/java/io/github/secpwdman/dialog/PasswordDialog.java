@@ -26,10 +26,14 @@ import static io.github.secpwdman.widgets.Widgets.newText;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.action.FileAction;
+import io.github.secpwdman.config.ConfData;
 
 /**
  * The Class PasswordDialog.
@@ -60,6 +64,7 @@ public class PasswordDialog {
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		layout.marginTop = 10;
+		layout.verticalSpacing = 10;
 		dialog.setLayout(layout);
 
 		if (cData.isDarkTheme()) {
@@ -70,7 +75,7 @@ public class PasswordDialog {
 		}
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.passWord);
-		var pwd = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
+		final var pwd = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
 		pwd.setFocus();
 		pwd.setTextLimit(64);
 
@@ -78,9 +83,15 @@ public class PasswordDialog {
 
 		if (confirm) {
 			newLabel(dialog, SWT.HORIZONTAL, cData.passConf);
-			pwd = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
-			pwd.setTextLimit(64);
-			dialog.setSize(500, 130);
+			final var pwdConfirm = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
+			pwd.addModifyListener(e -> testPassword(e, cData, pwdConfirm));
+			pwdConfirm.addModifyListener(e -> testPassword(e, cData, pwd));
+			pwdConfirm.setTextLimit(64);
+			new Label(dialog, SWT.NONE);
+			new Label(dialog, SWT.NONE);
+			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor);
+			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
+			dialog.setSize(500, 150);
 		} else
 			dialog.setSize(500, 100);
 
@@ -89,5 +100,39 @@ public class PasswordDialog {
 		dialog.setLocation((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5);
 		dialog.setText(cData.passTitl);
 		dialog.open();
+	}
+
+	/**
+	 * Tests how strong the password is.
+	 *
+	 * @param e     the ModifyEvent e
+	 * @param cData the cData
+	 */
+	private void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
+		final var text1 = (Text) e.widget;
+		final var label = (Label) text1.getParent().getChildren()[7];
+		label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
+		final var text = text1.getText();
+
+		if (text.length() > 7 && text.equals(text2.getText())) {
+			final var newPassword = new RandomPassword(action);
+
+			if (newPassword.isWeakPwd(cData, text))
+				label.setText(cData.passWeak);
+			else {
+				if (cData.isDarkTheme())
+					label.setForeground(e.display.getSystemColor(SWT.COLOR_GREEN));
+				else
+					label.setForeground(e.display.getSystemColor(SWT.COLOR_DARK_GREEN));
+
+				label.setText(cData.passGood);
+
+				if (text.length() > 14)
+					label.setText(cData.passStro);
+				if (text.length() > 19)
+					label.setText(cData.passSecu);
+			}
+		} else
+			label.setText(cData.passShor);
 	}
 }
