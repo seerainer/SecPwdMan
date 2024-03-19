@@ -20,26 +20,23 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.arrayToString;
+import static io.github.secpwdman.util.Util.getFilePath;
+import static io.github.secpwdman.util.Util.isArrayEqual;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
-import static io.github.secpwdman.util.Util.passWarning;
 import static io.github.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.secpwdman.widgets.Widgets.msg;
-
-import java.io.File;
-import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolBar;
 
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.dialog.PasswordDialog;
-import io.github.secpwdman.dialog.TextDialog;
 import io.github.secpwdman.io.IO;
 
 /**
@@ -149,14 +146,14 @@ public class FileAction extends Action {
 	 * @param header the header
 	 */
 	public void createColumns(final String[] header) {
-		final var stdHead = Arrays.equals(header, cData.defaultHeader);
+		final var stdHead = isArrayEqual(header, cData.defaultHeader);
 
 		if (stdHead) {
 			cData.setCustomHeader(false);
 			cData.setHeader(ConfData.APP_HEAD);
 		} else {
 			cData.setCustomHeader(true);
-			final var strTrim = Arrays.toString(header).replace(cData.comma + cData.space, cData.comma);
+			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
 			cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
 		}
 
@@ -169,7 +166,7 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Exit the app.
+	 * Unminimize the app, ask to save before exit, dispose resources and exit.
 	 *
 	 * @return true, if successful
 	 */
@@ -190,13 +187,7 @@ public class FileAction extends Action {
 			}
 
 		clearClipboard();
-
-		final var toolBar = (ToolBar) shell.getChildren()[0];
-		for (var i = 0; i < toolBar.getItemCount(); i++) {
-			final var image = toolBar.getItem(i).getImage();
-			if (image != null)
-				image.dispose();
-		}
+		table.getFont().dispose();
 
 		return true;
 	}
@@ -294,14 +285,6 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Open text editor.
-	 */
-	public void openTextEdit() {
-		if (passWarning(cData, shell))
-			new TextDialog(this);
-	}
-
-	/**
 	 * Sets the app locked.
 	 */
 	public void setLocked() {
@@ -319,7 +302,7 @@ public class FileAction extends Action {
 				shell.setMinimized(true);
 				shell.setVisible(false);
 				final var trayItem = tray.getItem(0);
-				trayItem.setToolTipText(ConfData.APP_NAME + cData.titlePH + new File(cData.getFile()).getAbsolutePath());
+				trayItem.setToolTipText(ConfData.APP_NAME + cData.titlePH + getFilePath(cData.getFile()));
 				trayItem.setVisible(true);
 			}
 		}

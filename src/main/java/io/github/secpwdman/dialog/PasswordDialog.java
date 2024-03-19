@@ -27,6 +27,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -91,6 +92,7 @@ public class PasswordDialog {
 			new Label(dialog, SWT.NONE);
 			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor);
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1));
 			dialog.setSize(500, 150);
 		} else
 			dialog.setSize(500, 100);
@@ -109,30 +111,16 @@ public class PasswordDialog {
 	 * @param cData the cData
 	 */
 	private void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
+		final var random = new RandomPassword(action);
 		final var text1 = (Text) e.widget;
 		final var label = (Label) text1.getParent().getChildren()[7];
-		label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 		final var text = text1.getText();
 
-		if (text.length() > 7 && text.equals(text2.getText())) {
-			final var newPassword = new RandomPassword(action);
-
-			if (newPassword.isWeakPwd(cData, text))
-				label.setText(cData.passWeak);
-			else {
-				if (cData.isDarkTheme())
-					label.setForeground(e.display.getSystemColor(SWT.COLOR_GREEN));
-				else
-					label.setForeground(e.display.getSystemColor(SWT.COLOR_DARK_GREEN));
-
-				label.setText(cData.passGood);
-
-				if (text.length() > 14)
-					label.setText(cData.passStro);
-				if (text.length() > 19)
-					label.setText(cData.passSecu);
-			}
-		} else
-			label.setText(cData.passShor);
+		if (text.equals(text2.getText()))
+			random.testPasswordStrength(cData, label, text);
+		else {
+			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
+			label.setText(cData.passNoMa);
+		}
 	}
 }

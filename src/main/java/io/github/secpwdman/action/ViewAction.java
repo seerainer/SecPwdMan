@@ -20,9 +20,11 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.util.Util.passWarning;
+import static io.github.secpwdman.util.Util.msgShowPasswords;
 
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -43,6 +45,18 @@ public class ViewAction extends Action {
 	 */
 	public ViewAction(final ConfData cData, final Shell shell, final Table table) {
 		super(cData, shell, table);
+	}
+
+	/**
+	 * Change the font of the table.
+	 */
+	public void changeFont() {
+		final var fontDialog = new FontDialog(shell);
+		fontDialog.setFontList(table.getFont().getFontData());
+		final var fontData = fontDialog.open();
+
+		if (fontData != null)
+			table.setFont(new Font(shell.getDisplay(), fontData));
 	}
 
 	/**
@@ -69,7 +83,7 @@ public class ViewAction extends Action {
 		if (viewMenu.getItem(5).getSelection())
 			hidePasswordColumn();
 		else if (((MenuItem) e.widget).getSelection())
-			if (passWarning(cData, shell)) {
+			if (msgShowPasswords(cData, shell)) {
 				table.getColumn(5).setResizable(true);
 				resizeColumns();
 				table.getColumn(2).setText(cData.headerOp);

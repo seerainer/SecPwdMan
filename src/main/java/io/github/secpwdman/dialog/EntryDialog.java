@@ -67,6 +67,7 @@ public class EntryDialog {
 
 		final var table = action.getTable();
 		final var darkTheme = cData.isDarkTheme();
+		final var randomPwd = new RandomPassword(action);
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout(3, false);
@@ -100,6 +101,20 @@ public class EntryDialog {
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.entrNote);
 		final var notes = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+
+		new Label(dialog, SWT.NONE);
+		final var pwdIndicator = new Group(dialog, SWT.SHADOW_NONE);
+
+		if (darkTheme)
+			pwdIndicator.setForeground(dialog.getForeground());
+
+		pwdIndicator.setLayout(new GridLayout());
+		pwdIndicator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		pwdIndicator.setText(cData.entrPInd);
+
+		final var pwdIndicatorLabel = newLabel(pwdIndicator, SWT.HORIZONTAL, cData.passShor);
+		pwdIndicatorLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
+		pwd.addModifyListener(e -> randomPwd.testPasswordStrength(cData, pwdIndicatorLabel, pwd.getText()));
 
 		new Label(dialog, SWT.NONE);
 		final var random = new Group(dialog, SWT.SHADOW_NONE);
@@ -166,6 +181,8 @@ public class EntryDialog {
 			pwd.setText(item.getText(5));
 			notes.setText(item.getText(6));
 
+			randomPwd.testPasswordStrength(cData, pwdIndicatorLabel, pwd.getText());
+
 			if (cData.isReadOnly()) {
 				title.setEditable(false);
 				url.setEditable(false);
@@ -178,7 +195,7 @@ public class EntryDialog {
 				dialog.setText(cData.entrEdit);
 		}
 
-		dialog.setSize(600, 500);
+		dialog.setSize(600, 550);
 		dialog.open();
 		title.selectAll();
 		url.selectAll();

@@ -121,6 +121,7 @@ public class ConfData {
 	public final String menuPcol = getString("Menu.View.ResizeColumns"); //$NON-NLS-1$
 	public final String menuSpwd = getString("Menu.View.ShowPassword"); //$NON-NLS-1$
 	public final String menuHpwd = getString("Menu.View.HidePassword"); //$NON-NLS-1$
+	public final String menuFont = getString("Menu.View.Font"); //$NON-NLS-1$
 	public final String menuText = getString("Menu.View.TextView"); //$NON-NLS-1$
 	public final String menuPref = getString("Menu.View.Preferences"); //$NON-NLS-1$
 	public final String menuInfo = getString("Menu.Info"); //$NON-NLS-1$
@@ -139,7 +140,8 @@ public class ConfData {
 	public final String entrUser = getString("Dialog.Entry.Username"); //$NON-NLS-1$
 	public final String entrPass = getString("Dialog.Entry.Password"); //$NON-NLS-1$
 	public final String entrNote = getString("Dialog.Entry.Notes"); //$NON-NLS-1$
-	public final String entrRand = getString("Dialog.Entry.Group"); //$NON-NLS-1$
+	public final String entrPInd = getString("Dialog.Entry.Indicator"); //$NON-NLS-1$
+	public final String entrRand = getString("Dialog.Entry.Random"); //$NON-NLS-1$
 	public final String entrLgth = getString("Dialog.Entry.Length"); //$NON-NLS-1$
 	public final String entrGene = getString("Dialog.Entry.Generate"); //$NON-NLS-1$
 	public final String entrShow = getString("Dialog.Entry.ShowPass"); //$NON-NLS-1$
@@ -150,6 +152,7 @@ public class ConfData {
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$
 	public final String passGood = getString("Dialog.Password.Good"); //$NON-NLS-1$
+	public final String passNoMa = getString("Dialog.Password.NoMatch"); //$NON-NLS-1$
 	public final String passStro = getString("Dialog.Password.Strong"); //$NON-NLS-1$
 	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
 	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$

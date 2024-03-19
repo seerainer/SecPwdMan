@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.getCompressedDataLength;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
@@ -29,6 +30,7 @@ import java.security.SecureRandom;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
 import io.github.secpwdman.action.Action;
@@ -105,7 +107,7 @@ public class RandomPassword {
 	 * @param pwd   the pwd
 	 * @return true, if it is a weak password
 	 */
-	public boolean isWeakPwd(final ConfData cData, final String pwd) {
+	boolean isWeakPwd(final ConfData cData, final String pwd) {
 		final boolean[] b = { false, false, false, false, false, false };
 
 		for (final char c : pwd.toCharArray())
@@ -126,5 +128,50 @@ public class RandomPassword {
 			return false;
 
 		return true;
+	}
+
+	/**
+	 * Test the password strength.
+	 *
+	 * @param cData the cdata
+	 * @param label the label
+	 * @param text  the text
+	 */
+	void testPasswordStrength(final ConfData cData, final Label label, final String text) {
+		final var display = label.getDisplay();
+
+		if (text.length() < 8) {
+			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+			label.setText(cData.passShor);
+		} else {
+			final var compressedLength = getCompressedDataLength(text.getBytes());
+
+			if (cData.isDarkTheme())
+				label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
+			else
+				label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
+
+			if (isWeakPwd(cData, text)) {
+				if (compressedLength > 19) {
+					label.setText(cData.passGood);
+
+					if (compressedLength > 27)
+						label.setText(cData.passStro);
+				} else {
+					label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+					label.setText(cData.passWeak);
+				}
+			} else {
+				label.setText(cData.passGood);
+
+				if (compressedLength > 19)
+					label.setText(cData.passStro);
+				if (compressedLength > 27)
+					label.setText(cData.passSecu);
+			}
+		}
+
+		final var point = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		label.setSize(point.x, point.y);
 	}
 }

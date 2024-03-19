@@ -20,10 +20,9 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.getFilePath;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isUrl;
-
-import java.io.File;
 
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -193,7 +192,7 @@ public abstract class Action {
 		final var file = cData.getFile();
 
 		if (isFileOpen(file)) {
-			final var filePath = new File(file).getAbsolutePath();
+			final var filePath = getFilePath(file);
 
 			if (cData.isModified())
 				shell.setText(ConfData.APP_NAME + cData.titleMD + filePath);
@@ -215,18 +214,18 @@ public abstract class Action {
 			lockTool.setToolTipText(cData.menuLock);
 		}
 
-		final var lognCont = table.getMenu().getItem(8);
-		final var lognMenu = menu.getItem(1).getMenu().getItem(1);
-		final var lognTool = tool.getItem(6);
+		final var readCont = table.getMenu().getItem(8);
+		final var readMenu = menu.getItem(1).getMenu().getItem(1);
+		final var readTool = tool.getItem(6);
 
 		if (cData.isReadOnly()) {
-			lognCont.setText(cData.menuVent);
-			lognMenu.setText(cData.menuVent);
-			lognTool.setToolTipText(cData.entrView);
+			readCont.setText(cData.menuVent);
+			readMenu.setText(cData.menuVent);
+			readTool.setToolTipText(cData.entrView);
 		} else {
-			lognCont.setText(cData.menuEent);
-			lognMenu.setText(cData.menuEent);
-			lognTool.setToolTipText(cData.entrEdit);
+			readCont.setText(cData.menuEent);
+			readMenu.setText(cData.menuEent);
+			readTool.setToolTipText(cData.entrEdit);
 		}
 	}
 }

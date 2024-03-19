@@ -46,6 +46,10 @@
   "fields":[{"name":"biBitCount"}, {"name":"biClrImportant"}, {"name":"biClrUsed"}, {"name":"biCompression"}, {"name":"biHeight"}, {"name":"biPlanes"}, {"name":"biSize"}, {"name":"biSizeImage"}, {"name":"biWidth"}, {"name":"biXPelsPerMeter"}, {"name":"biYPelsPerMeter"}]
 },
 {
+  "name":"org.eclipse.swt.internal.win32.CHOOSEFONT",
+  "fields":[{"name":"Flags"}, {"name":"hDC"}, {"name":"hInstance"}, {"name":"hwndOwner"}, {"name":"iPointSize"}, {"name":"lCustData"}, {"name":"lStructSize"}, {"name":"lpLogFont"}, {"name":"lpTemplateName"}, {"name":"lpfnHook"}, {"name":"lpszStyle"}, {"name":"nFontType"}, {"name":"nSizeMax"}, {"name":"nSizeMin"}, {"name":"rgbColors"}]
+},
+{
   "name":"org.eclipse.swt.internal.win32.DIBSECTION",
   "fields":[{"name":"biBitCount"}, {"name":"biClrImportant"}, {"name":"biClrUsed"}, {"name":"biCompression"}, {"name":"biHeight"}, {"name":"biPlanes"}, {"name":"biSize"}, {"name":"biSizeImage"}, {"name":"biWidth"}, {"name":"biXPelsPerMeter"}, {"name":"biYPelsPerMeter"}, {"name":"dsBitfields0"}, {"name":"dsBitfields1"}, {"name":"dsBitfields2"}, {"name":"dsOffset"}, {"name":"dshSection"}]
 },

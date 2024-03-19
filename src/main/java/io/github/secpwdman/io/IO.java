@@ -90,6 +90,7 @@ public class IO {
 	 * Extract data from table.
 	 *
 	 * @param cData the cdata
+	 * @return the StringBuilder
 	 */
 	public StringBuilder extractData(final ConfData cData) {
 		final var sb = new StringBuilder();

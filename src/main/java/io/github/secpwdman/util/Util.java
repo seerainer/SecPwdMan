@@ -23,6 +23,9 @@ package io.github.secpwdman.util;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.UUID;
+import java.util.zip.Deflater;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.eclipse.swt.SWT;
@@ -35,6 +38,63 @@ import io.github.secpwdman.config.ConfData;
  * The Class Util.
  */
 public class Util {
+
+	/**
+	 * Convert string array to string.
+	 *
+	 * @param s the string s
+	 * @return absolutePath
+	 */
+	public static String arrayToString(final String[] s) {
+		return Arrays.toString(s);
+	}
+
+	/**
+	 * Deflate input.
+	 *
+	 * @param input byte array
+	 * @return compressedDataLength
+	 */
+	public static int getCompressedDataLength(final byte[] input) {
+		final var output = new byte[input.length + Byte.SIZE];
+		final var deflater = new Deflater();
+		deflater.setInput(input);
+		deflater.finish();
+		final var compressedDataLength = deflater.deflate(output);
+		deflater.end();
+
+		return compressedDataLength;
+	}
+
+	/**
+	 * Get the absolute pathname.
+	 *
+	 * @param f the string f
+	 * @return absolutePath
+	 */
+	public static String getFilePath(final String f) {
+		return new File(f).getAbsolutePath();
+	}
+
+	/**
+	 * Get random UUID.
+	 *
+	 * @return randomUUID
+	 */
+	public static String getUUID() {
+		return UUID.randomUUID().toString().toUpperCase();
+	}
+
+	/**
+	 * Checks if array is equal.
+	 *
+	 * @param a the first string a
+	 * @param b the second string b
+	 * @return true, if equal
+	 */
+	public static boolean isArrayEqual(final String[] a, final String[] b) {
+		return Arrays.equals(a, b);
+	}
 
 	/**
 	 * Checks if is empty string.
@@ -70,7 +130,7 @@ public class Util {
 	/**
 	 * Checks if is url.
 	 *
-	 * @param url the url
+	 * @param url the string url
 	 * @return true, if is url
 	 */
 	public static boolean isUrl(final String url) {
@@ -94,7 +154,7 @@ public class Util {
 	 * @param shell the shell
 	 * @return true, if is yes
 	 */
-	public static boolean passWarning(final ConfData cData, final Shell shell) {
+	public static boolean msgShowPasswords(final ConfData cData, final Shell shell) {
 		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES;
 	}
 

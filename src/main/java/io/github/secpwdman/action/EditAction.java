@@ -20,10 +20,9 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.getUUID;
+import static io.github.secpwdman.util.Util.isArrayEqual;
 import static io.github.secpwdman.util.Util.isEmptyString;
-
-import java.util.Arrays;
-import java.util.UUID;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -111,7 +110,7 @@ public class EditAction extends Action {
 			for (var i = 0; i < items.length; i++)
 				items[i] = tableItem.getText(i);
 
-			if (Arrays.equals(items, textFields)) {
+			if (isArrayEqual(items, textFields)) {
 				dialog.close();
 				return;
 			}
@@ -119,15 +118,15 @@ public class EditAction extends Action {
 
 		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
 			if (isEmptyString(textFields[0]))
-				textFields[0] = UUID.randomUUID().toString().toUpperCase();
+				textFields[0] = getUUID();
 
-			final var groupChildren = ((Group) child[13]).getChildren();
-			final boolean[] selection = { false, false, false, false };
+			final var groupChildren = ((Group) child[15]).getChildren();
+			final boolean[] selection = { false, false, false, false, false };
 
 			for (var j = 0; j < selection.length; j++)
 				selection[j] = !((Button) groupChildren[j]).getSelection();
 
-			if (selection[0] && selection[1] && selection[2] && selection[3])
+			if (selection[0] && selection[1] && selection[2] && selection[3] && selection[4])
 				for (var k = 0; k < selection.length; k++)
 					((Button) groupChildren[k]).setSelection(true);
 

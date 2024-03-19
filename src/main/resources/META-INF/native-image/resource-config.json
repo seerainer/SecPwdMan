@@ -3,12 +3,20 @@
   "includes":[{
     "pattern":"\\QMETA-INF/services/java.net.spi.URLStreamHandlerProvider\\E"
   }, {
+    "pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/java.time.zone.ZoneRulesProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
+  }, {
+    "pattern":"\\Qmessages.properties\\E"
+  }, {
+    "pattern":"\\Qmessages_de.properties\\E"
+  }, {
+    "pattern":"\\Qmessages_de_AT.properties\\E"
   }]},
   "bundles":[{
     "name":"messages",
-    "locales":["de", "und"]
+    "locales":["de", "de-AT", "und"]
   }]
 }

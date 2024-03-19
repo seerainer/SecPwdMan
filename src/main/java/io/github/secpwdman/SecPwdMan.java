@@ -62,6 +62,7 @@ import io.github.secpwdman.dialog.ConfigDialog;
 import io.github.secpwdman.dialog.EntryDialog;
 import io.github.secpwdman.dialog.PasswordDialog;
 import io.github.secpwdman.dialog.SystemInfoDialog;
+import io.github.secpwdman.dialog.TextDialog;
 import io.github.secpwdman.images.IMG;
 import io.github.secpwdman.io.IO;
 
@@ -247,7 +248,9 @@ public class SecPwdMan {
 		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuSpwd);
 		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuHpwd, true);
 		menuItemSeparator(view);
-		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.openTextEdit()), cData.menuText);
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont()), cData.menuFont);
+		menuItemSeparator(view);
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new TextDialog(fileAction)), cData.menuText);
 		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new ConfigDialog(viewAction)), cData.menuPref, IMG.GEAR);
 
@@ -275,7 +278,7 @@ public class SecPwdMan {
 		shell.addShellListener(shellIconifiedAdapter(e -> fileAction.setLocked()));
 
 		var height = 700;
-		final var image = IMG.getImage(display, IMG.APP_ICON);
+		var image = IMG.getImage(display, IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.horizontalSpacing = 0;
 		layout.marginHeight = 0;
@@ -307,6 +310,13 @@ public class SecPwdMan {
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
 		shell.forceActive();
+
+		final var toolBar = (ToolBar) shell.getChildren()[0];
+		for (var i = 0; i < toolBar.getItemCount(); i++) {
+			image = toolBar.getItem(i).getImage();
+			if (image != null)
+				image.dispose();
+		}
 
 		openFileArg();
 

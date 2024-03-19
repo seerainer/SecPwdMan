@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
@@ -56,6 +57,10 @@ public class TextDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
+
+		if (!msgShowPasswords(cData, action.getShell()))
+			return;
+
 		final var tableData = new IO(action).extractData(cData).toString();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
