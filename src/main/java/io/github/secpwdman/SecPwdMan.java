@@ -311,13 +311,6 @@ public class SecPwdMan {
 		shell.open();
 		shell.forceActive();
 
-		final var toolBar = (ToolBar) shell.getChildren()[0];
-		for (var i = 0; i < toolBar.getItemCount(); i++) {
-			image = toolBar.getItem(i).getImage();
-			if (image != null)
-				image.dispose();
-		}
-
 		openFileArg();
 
 		return shell;
