@@ -170,8 +170,5 @@ public class RandomPassword {
 					label.setText(cData.passSecu);
 			}
 		}
-
-		final var point = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		label.setSize(point.x, point.y);
 	}
 }

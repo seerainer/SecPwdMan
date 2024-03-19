@@ -88,11 +88,13 @@ public class PasswordDialog {
 			pwd.addModifyListener(e -> testPassword(e, cData, pwdConfirm));
 			pwdConfirm.addModifyListener(e -> testPassword(e, cData, pwd));
 			pwdConfirm.setTextLimit(64);
+
 			new Label(dialog, SWT.NONE);
 			new Label(dialog, SWT.NONE);
+
 			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor);
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
-			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1));
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			dialog.setSize(500, 150);
 		} else
 			dialog.setSize(500, 100);

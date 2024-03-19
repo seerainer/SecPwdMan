@@ -114,6 +114,7 @@ public class EntryDialog {
 
 		final var pwdIndicatorLabel = newLabel(pwdIndicator, SWT.HORIZONTAL, cData.passShor);
 		pwdIndicatorLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
+		pwdIndicatorLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		pwd.addModifyListener(e -> randomPwd.testPasswordStrength(cData, pwdIndicatorLabel, pwd.getText()));
 
 		new Label(dialog, SWT.NONE);
@@ -180,8 +181,6 @@ public class EntryDialog {
 			user.setText(item.getText(4));
 			pwd.setText(item.getText(5));
 			notes.setText(item.getText(6));
-
-			randomPwd.testPasswordStrength(cData, pwdIndicatorLabel, pwd.getText());
 
 			if (cData.isReadOnly()) {
 				title.setEditable(false);

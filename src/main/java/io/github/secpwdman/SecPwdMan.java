@@ -278,7 +278,7 @@ public class SecPwdMan {
 		shell.addShellListener(shellIconifiedAdapter(e -> fileAction.setLocked()));
 
 		var height = 700;
-		var image = IMG.getImage(display, IMG.APP_ICON);
+		final var image = IMG.getImage(display, IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.horizontalSpacing = 0;
 		layout.marginHeight = 0;
