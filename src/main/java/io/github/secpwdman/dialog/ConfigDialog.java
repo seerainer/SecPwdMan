@@ -119,7 +119,7 @@ public class ConfigDialog {
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
-		final var minPwdLength = spinner(dialog, cData.getPwdMinLength(), 5, 64, 0, 1, 4);
+		final var minPwdLength = spinner(dialog, cData.getPwdMinLength(), 6, 64, 0, 1, 4);
 		new Label(dialog, SWT.NONE);
 
 		if (darkTheme) {
