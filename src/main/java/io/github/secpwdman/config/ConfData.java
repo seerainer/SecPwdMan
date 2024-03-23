@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.7.2"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.7.3"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 	public static final String APP_HEAD = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
@@ -50,6 +50,7 @@ public class ConfData {
 	private int iterCount = 420000;
 	private int clearPasswd = 20;
 	private int columnWidth = 167;
+	private int pwdMinLength = 8;
 
 	public final char echoChr = '\u25CF';
 	public final char nullChr = '\0';
@@ -59,6 +60,9 @@ public class ConfData {
 
 	private String file = null;
 	private String header = null;
+
+	public final String appLink = "<a>www.seerainer.com</a>"; //$NON-NLS-1$
+	public final String linkAddress = "https://www.seerainer.com"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
 	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
@@ -130,6 +134,7 @@ public class ConfData {
 	public final String cfgColWh = getString("Dialog.Config.ColW"); //$NON-NLS-1$
 	public final String cfgClPwd = getString("Dialog.Config.ClearPwd"); //$NON-NLS-1$
 	public final String cfgPIter = getString("Dialog.Config.Iter"); //$NON-NLS-1$
+	public final String cfgMinPl = getString("Dialog.Config.MinPwdLength"); //$NON-NLS-1$
 	public final String cfgTestB = getString("Dialog.Config.Test"); //$NON-NLS-1$
 	public final String cfgTestI = getString("Dialog.Config.Testinfo"); //$NON-NLS-1$
 	public final String entrNewe = getString("Dialog.Entry.New"); //$NON-NLS-1$
@@ -151,6 +156,7 @@ public class ConfData {
 	public final String passTitl = getString("Dialog.Password.Title"); //$NON-NLS-1$
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$
+	public final String passFair = getString("Dialog.Password.Fair"); //$NON-NLS-1$
 	public final String passGood = getString("Dialog.Password.Good"); //$NON-NLS-1$
 	public final String passNoMa = getString("Dialog.Password.NoMatch"); //$NON-NLS-1$
 	public final String passStro = getString("Dialog.Password.Strong"); //$NON-NLS-1$
@@ -171,6 +177,7 @@ public class ConfData {
 	public final String warnExit = getString("MessageBox.Warning.Exit"); //$NON-NLS-1$
 	public final String warnExpo = getString("MessageBox.Warning.Export"); //$NON-NLS-1$
 	public final String warnPass = getString("MessageBox.Warning.ShowPass"); //$NON-NLS-1$
+	public final String warnUPeq = getString("MessageBox.Warning.UserPassEqual"); //$NON-NLS-1$
 	public final String headerOp = getString("Header.Title.open"); //$NON-NLS-1$
 
 	public final String[] defaultHeader = { "UUID", "Group", getString("Header.Title.closed"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -223,6 +230,13 @@ public class ConfData {
 	 */
 	public Color getLinkColor() {
 		return linkColor;
+	}
+
+	/**
+	 * @return the pwdMinLength
+	 */
+	public int getPwdMinLength() {
+		return pwdMinLength;
 	}
 
 	/**
@@ -363,6 +377,13 @@ public class ConfData {
 	 */
 	public void setModified(final boolean isModified) {
 		this.isModified = isModified;
+	}
+
+	/**
+	 * @param pwdMinLength the pwdMinLength to set
+	 */
+	public void setPwdMinLength(final int pwdMinLength) {
+		this.pwdMinLength = pwdMinLength;
 	}
 
 	/**

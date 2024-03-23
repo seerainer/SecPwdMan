@@ -23,6 +23,7 @@ package io.github.secpwdman.action;
 import static io.github.secpwdman.util.Util.getUUID;
 import static io.github.secpwdman.util.Util.isArrayEqual;
 import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.widgets.Widgets.msg;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
@@ -117,6 +118,9 @@ public class EditAction extends Action {
 		}
 
 		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
+			if (user.equals(pass))
+				msg(shell, SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
+
 			if (isEmptyString(textFields[0]))
 				textFields[0] = getUUID();
 
@@ -127,7 +131,7 @@ public class EditAction extends Action {
 				selection[j] = !((Button) groupChildren[j]).getSelection();
 
 			if (selection[0] && selection[1] && selection[2] && selection[3] && selection[4])
-				for (var k = 0; k < selection.length; k++)
+				for (var k = 0; k < selection.length - 1; k++)
 					((Button) groupChildren[k]).setSelection(true);
 
 			if (isEmptyString(textFields[5]))

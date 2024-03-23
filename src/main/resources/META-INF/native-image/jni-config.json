@@ -8,6 +8,9 @@
   "methods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
 },
 {
+  "name":"org.eclipse.swt.accessibility.Accessible$1"
+},
+{
   "name":"org.eclipse.swt.dnd.Clipboard$1"
 },
 {
@@ -15,7 +18,7 @@
 },
 {
   "name":"org.eclipse.swt.internal.ole.win32.COMObject",
-  "methods":[{"name":"callback0","parameterTypes":["long[]"] }, {"name":"callback1","parameterTypes":["long[]"] }, {"name":"callback10","parameterTypes":["long[]"] }, {"name":"callback11","parameterTypes":["long[]"] }, {"name":"callback2","parameterTypes":["long[]"] }, {"name":"callback3","parameterTypes":["long[]"] }, {"name":"callback4","parameterTypes":["long[]"] }, {"name":"callback5","parameterTypes":["long[]"] }, {"name":"callback6","parameterTypes":["long[]"] }, {"name":"callback7","parameterTypes":["long[]"] }, {"name":"callback8","parameterTypes":["long[]"] }, {"name":"callback9","parameterTypes":["long[]"] }]
+  "methods":[{"name":"callback0","parameterTypes":["long[]"] }, {"name":"callback1","parameterTypes":["long[]"] }, {"name":"callback10","parameterTypes":["long[]"] }, {"name":"callback11","parameterTypes":["long[]"] }, {"name":"callback12","parameterTypes":["long[]"] }, {"name":"callback13","parameterTypes":["long[]"] }, {"name":"callback14","parameterTypes":["long[]"] }, {"name":"callback15","parameterTypes":["long[]"] }, {"name":"callback16","parameterTypes":["long[]"] }, {"name":"callback17","parameterTypes":["long[]"] }, {"name":"callback18","parameterTypes":["long[]"] }, {"name":"callback19","parameterTypes":["long[]"] }, {"name":"callback2","parameterTypes":["long[]"] }, {"name":"callback20","parameterTypes":["long[]"] }, {"name":"callback21","parameterTypes":["long[]"] }, {"name":"callback22","parameterTypes":["long[]"] }, {"name":"callback23","parameterTypes":["long[]"] }, {"name":"callback24","parameterTypes":["long[]"] }, {"name":"callback25","parameterTypes":["long[]"] }, {"name":"callback26","parameterTypes":["long[]"] }, {"name":"callback27","parameterTypes":["long[]"] }, {"name":"callback28","parameterTypes":["long[]"] }, {"name":"callback29","parameterTypes":["long[]"] }, {"name":"callback3","parameterTypes":["long[]"] }, {"name":"callback30","parameterTypes":["long[]"] }, {"name":"callback31","parameterTypes":["long[]"] }, {"name":"callback32","parameterTypes":["long[]"] }, {"name":"callback33","parameterTypes":["long[]"] }, {"name":"callback34","parameterTypes":["long[]"] }, {"name":"callback35","parameterTypes":["long[]"] }, {"name":"callback36","parameterTypes":["long[]"] }, {"name":"callback37","parameterTypes":["long[]"] }, {"name":"callback38","parameterTypes":["long[]"] }, {"name":"callback39","parameterTypes":["long[]"] }, {"name":"callback4","parameterTypes":["long[]"] }, {"name":"callback40","parameterTypes":["long[]"] }, {"name":"callback41","parameterTypes":["long[]"] }, {"name":"callback42","parameterTypes":["long[]"] }, {"name":"callback43","parameterTypes":["long[]"] }, {"name":"callback44","parameterTypes":["long[]"] }, {"name":"callback45","parameterTypes":["long[]"] }, {"name":"callback5","parameterTypes":["long[]"] }, {"name":"callback6","parameterTypes":["long[]"] }, {"name":"callback7","parameterTypes":["long[]"] }, {"name":"callback8","parameterTypes":["long[]"] }, {"name":"callback9","parameterTypes":["long[]"] }]
 },
 {
   "name":"org.eclipse.swt.internal.ole.win32.FORMATETC",
@@ -74,6 +77,10 @@
   "fields":[{"name":"dwICC"}, {"name":"dwSize"}]
 },
 {
+  "name":"org.eclipse.swt.internal.win32.LITEM",
+  "fields":[{"name":"iLink"}, {"name":"mask"}, {"name":"state"}, {"name":"stateMask"}, {"name":"szID"}, {"name":"szUrl"}]
+},
+{
   "name":"org.eclipse.swt.internal.win32.LOGBRUSH",
   "fields":[{"name":"lbColor"}, {"name":"lbHatch"}, {"name":"lbStyle"}]
 },
@@ -124,6 +131,10 @@
 {
   "name":"org.eclipse.swt.internal.win32.NMHEADER",
   "fields":[{"name":"iButton"}, {"name":"iItem"}, {"name":"pitem"}]
+},
+{
+  "name":"org.eclipse.swt.internal.win32.NMLINK",
+  "fields":[{"name":"iLink"}, {"name":"mask"}, {"name":"state"}, {"name":"stateMask"}, {"name":"szID"}, {"name":"szUrl"}]
 },
 {
   "name":"org.eclipse.swt.internal.win32.NMLISTVIEW",

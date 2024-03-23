@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import io.github.secpwdman.config.ConfData;
 
 /**
- * The Class Action.
+ * The abstract class Action.
  */
 public abstract class Action {
 	protected final ConfData cData;

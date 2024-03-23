@@ -60,6 +60,7 @@ import io.github.secpwdman.action.ViewAction;
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.dialog.ConfigDialog;
 import io.github.secpwdman.dialog.EntryDialog;
+import io.github.secpwdman.dialog.InfoDialog;
 import io.github.secpwdman.dialog.PasswordDialog;
 import io.github.secpwdman.dialog.SystemInfoDialog;
 import io.github.secpwdman.dialog.TextDialog;
@@ -258,7 +259,7 @@ public class SecPwdMan {
 		menuItem(menuBar, SWT.CASCADE, info, cData.menuInfo);
 		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new SystemInfoDialog(fileAction)), cData.menuSysI);
 		menuItemSeparator(info);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> msg(shell, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, ConfData.APP_INFO)), cData.menuInfo);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new InfoDialog(fileAction)), cData.menuInfo);
 
 		return menuBar;
 	}

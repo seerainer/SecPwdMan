@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.7.2'
+version = '0.7.3'
 
 repositories {
     mavenCentral()
@@ -25,6 +25,7 @@ if (arch == "amd64" || arch == "x86_64") { swtArtifact += 'x86_64' }
 else if (arch == "aarch64") { swtArtifact += 'aarch64' }
 
 dependencies {
+    implementation 'com.nulab-inc:zxcvbn:1.8.2'
     implementation 'net.sourceforge.javacsv:javacsv:2.0'
     implementation("org.eclipse.platform:${swtArtifact}:${swtVersion}") {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'    

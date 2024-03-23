@@ -9,6 +9,28 @@
   }, {
     "pattern":"\\QMETA-INF/services/java.util.spi.ResourceBundleControlProvider\\E"
   }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/english_wikipedia.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/female_names.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/male_names.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/passwords.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/surnames.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/dictionaries/us_tv_and_film.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/dvorak.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/jis.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/keypad.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/mac_keypad.txt\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/qwerty.txt\\E"
+  }, {
     "pattern":"\\Qmessages.properties\\E"
   }, {
     "pattern":"\\Qmessages_de.properties\\E"
@@ -18,5 +40,8 @@
   "bundles":[{
     "name":"messages",
     "locales":["de", "de-AT", "und"]
+  }, {
+    "name":"sun.util.resources.cldr.CalendarData",
+    "locales":["und"]
   }]
 }

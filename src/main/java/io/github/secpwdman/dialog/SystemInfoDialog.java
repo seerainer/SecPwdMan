@@ -20,6 +20,8 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.setCenter;
+
 import java.util.Enumeration;
 
 import org.eclipse.swt.SWT;
@@ -90,6 +92,7 @@ public class SystemInfoDialog {
 		col1.pack();
 		col2.pack();
 
+		dialog.setLocation(setCenter(dialog));
 		dialog.setText(cData.systInfo);
 		dialog.open();
 	}

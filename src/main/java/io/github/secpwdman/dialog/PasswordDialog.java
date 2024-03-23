@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
@@ -99,9 +100,7 @@ public class PasswordDialog {
 		} else
 			dialog.setSize(500, 100);
 
-		final var r = dialog.getDisplay().getBounds();
-		final var s = dialog.getBounds();
-		dialog.setLocation((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5);
+		dialog.setLocation(setCenter(dialog));
 		dialog.setText(cData.passTitl);
 		dialog.open();
 	}
@@ -119,7 +118,7 @@ public class PasswordDialog {
 		final var text = text1.getText();
 
 		if (text.equals(text2.getText()))
-			random.testPasswordStrength(cData, label, text);
+			random.getPasswordStrength(cData, label, text);
 		else {
 			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passNoMa);

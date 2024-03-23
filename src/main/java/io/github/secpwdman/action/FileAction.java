@@ -89,12 +89,13 @@ public class FileAction extends Action {
 		pwd.selectAll();
 
 		if (dialog.getBounds().height == 150) {
+			final var minPwdLength = cData.getPwdMinLength();
 			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
 			pwdConfirm.selectAll();
 
 			if ((!isEmptyString(pwdStr) && pwdStr.equals(pwdConfirm.getText())))
-				if (pwd.getText().length() < 8)
-					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorLen);
+				if (pwd.getText().length() < minPwdLength)
+					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, String.format(cData.errorLen, Integer.valueOf(minPwdLength)));
 				else if (io.saveFile(pwdStr, cData.getFile())) {
 					cData.setModified(false);
 					dialog.close();

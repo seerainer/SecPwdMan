@@ -21,6 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.msgShowPasswords;
+import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
@@ -70,6 +71,7 @@ public class TextDialog {
 		layout.marginWidth = 0;
 		dialog.setImage(image);
 		dialog.setLayout(layout);
+		dialog.setLocation(setCenter(dialog));
 		dialog.setText(cData.textView);
 		image.dispose();
 

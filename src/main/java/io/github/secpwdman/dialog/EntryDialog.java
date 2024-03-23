@@ -115,7 +115,7 @@ public class EntryDialog {
 		final var pwdIndicatorLabel = newLabel(pwdIndicator, SWT.HORIZONTAL, cData.passShor);
 		pwdIndicatorLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 		pwdIndicatorLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		pwd.addModifyListener(e -> randomPwd.testPasswordStrength(cData, pwdIndicatorLabel, pwd.getText()));
+		pwd.addModifyListener(e -> randomPwd.getPasswordStrength(cData, pwdIndicatorLabel, pwd.getText()));
 
 		new Label(dialog, SWT.NONE);
 		final var random = new Group(dialog, SWT.SHADOW_NONE);
@@ -140,7 +140,7 @@ public class EntryDialog {
 		new Label(random, SWT.NONE);
 
 		newLabel(random, SWT.HORIZONTAL, cData.entrLgth);
-		final var spinner = spinner(random, 20, 8, 64, 0, 1, 4);
+		final var spinner = spinner(random, 20, cData.getPwdMinLength(), 64, 0, 1, 4);
 		if (darkTheme)
 			spinner.setForeground(random.getForeground());
 

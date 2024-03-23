@@ -25,10 +25,10 @@ import static io.github.secpwdman.widgets.Widgets.msg;
 import java.io.File;
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.zip.Deflater;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
@@ -47,23 +47,6 @@ public class Util {
 	 */
 	public static String arrayToString(final String[] s) {
 		return Arrays.toString(s);
-	}
-
-	/**
-	 * Deflate input.
-	 *
-	 * @param input byte array
-	 * @return compressedDataLength
-	 */
-	public static int getCompressedDataLength(final byte[] input) {
-		final var output = new byte[input.length + Byte.SIZE];
-		final var deflater = new Deflater();
-		deflater.setInput(input);
-		deflater.finish();
-		final var compressedDataLength = deflater.deflate(output);
-		deflater.end();
-
-		return compressedDataLength;
 	}
 
 	/**
@@ -88,11 +71,11 @@ public class Util {
 	/**
 	 * Checks if array is equal.
 	 *
-	 * @param a the first string a
-	 * @param b the second string b
+	 * @param a the first object a
+	 * @param b the second object b
 	 * @return true, if equal
 	 */
-	public static boolean isArrayEqual(final String[] a, final String[] b) {
+	public static boolean isArrayEqual(final Object[] a, final Object[] b) {
 		return Arrays.equals(a, b);
 	}
 
@@ -156,6 +139,18 @@ public class Util {
 	 */
 	public static boolean msgShowPasswords(final ConfData cData, final Shell shell) {
 		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES;
+	}
+
+	/**
+	 * Center the shell.
+	 *
+	 * @param shell the shell
+	 * @return new Point
+	 */
+	public static Point setCenter(final Shell shell) {
+		final var r = shell.getDisplay().getBounds();
+		final var s = shell.getBounds();
+		return new Point((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5);
 	}
 
 	private Util() {

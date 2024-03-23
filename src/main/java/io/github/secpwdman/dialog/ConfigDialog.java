@@ -101,25 +101,33 @@ public class ConfigDialog {
 		}
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgPIter);
-		final var iter = spinner(dialog, cData.getIterCount(), 210000, 9999999, 0, 1, 10000);
-		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> cryptoTest(cData, dialog, iter)), cData.cfgTestB);
+		final var pwdIter = spinner(dialog, cData.getIterCount(), 210000, 9999999, 0, 1, 10000);
+		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> cryptoTest(cData, dialog, pwdIter)), cData.cfgTestB);
 
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgClPwd);
-		final var clPwd = spinner(dialog, cData.getClearPasswd(), 10, 300, 0, 1, 10);
+		final var clearPwd = spinner(dialog, cData.getClearPasswd(), 10, 300, 0, 1, 10);
 		new Label(dialog, SWT.NONE);
 
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
-		final var colW = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
+		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
+		new Label(dialog, SWT.NONE);
+
+		horizontalSeparator(dialog);
+
+		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
+		final var minPwdLength = spinner(dialog, cData.getPwdMinLength(), 5, 64, 0, 1, 4);
 		new Label(dialog, SWT.NONE);
 
 		if (darkTheme) {
-			iter.setForeground(dialog.getForeground());
-			clPwd.setForeground(dialog.getForeground());
-			colW.setForeground(dialog.getForeground());
+			final var color = dialog.getForeground();
+			pwdIter.setForeground(color);
+			clearPwd.setForeground(color);
+			columnWidth.setForeground(color);
+			minPwdLength.setForeground(color);
 		}
 
 		new Label(dialog, SWT.NONE);
@@ -127,13 +135,14 @@ public class ConfigDialog {
 		new Label(dialog, SWT.NONE);
 
 		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> {
-			cData.setIterCount(iter.getSelection());
-			cData.setClearPasswd(clPwd.getSelection());
-			cData.setColumnWidth(colW.getSelection());
+			cData.setIterCount(pwdIter.getSelection());
+			cData.setClearPasswd(clearPwd.getSelection());
+			cData.setColumnWidth(columnWidth.getSelection());
+			cData.setPwdMinLength(minPwdLength.getSelection());
 			dialog.close();
 			action.resizeColumns();
 		}), cData.entrOkay));
-		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 3, 1);
+		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 3, 1);
 		data.widthHint = 80;
 		dialog.getDefaultButton().setLayoutData(data);
 
