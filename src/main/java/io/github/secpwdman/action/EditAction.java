@@ -118,9 +118,6 @@ public class EditAction extends Action {
 		}
 
 		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
-			if (user.equals(pass))
-				msg(shell, SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
-
 			if (isEmptyString(textFields[0]))
 				textFields[0] = getUUID();
 
@@ -136,6 +133,8 @@ public class EditAction extends Action {
 
 			if (isEmptyString(textFields[5]))
 				textFields[5] = new RandomPassword(this).generate(groupChildren);
+			else if (user.equals(pass))
+				msg(shell, SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
 
 			if (!isEmptyString(textFields[6]))
 				textFields[6] = notes.replaceAll(System.lineSeparator(), cData.newLine);

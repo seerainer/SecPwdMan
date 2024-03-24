@@ -34,12 +34,10 @@
     "pattern":"\\Qmessages.properties\\E"
   }, {
     "pattern":"\\Qmessages_de.properties\\E"
-  }, {
-    "pattern":"\\Qmessages_de_AT.properties\\E"
   }]},
   "bundles":[{
     "name":"messages",
-    "locales":["de", "de-AT", "und"]
+    "locales":["de", "und"]
   }, {
     "name":"sun.util.resources.cldr.CalendarData",
     "locales":["und"]

@@ -68,8 +68,7 @@ public abstract class Action {
 	 * Color URL.
 	 */
 	public void colorURL() {
-		for (var i = 0; table.getItemCount() > i; i++) {
-			final var item = table.getItem(i);
+		for (final var item : table.getItems()) {
 			item.setForeground(3, cData.getTextColor());
 
 			if (isUrl(item.getText(3)))
@@ -174,15 +173,12 @@ public abstract class Action {
 	 * Resize columns.
 	 */
 	public void resizeColumns() {
-		for (var i = 0; i < table.getColumnCount(); i++) {
-			final var col = table.getColumn(i);
-
+		for (final var col : table.getColumns())
 			if (col.getResizable())
 				if (shell.getMenuBar().getItem(2).getMenu().getItem(2).getSelection())
 					col.pack();
 				else
 					col.setWidth(cData.getColumnWidth());
-		}
 	}
 
 	/**

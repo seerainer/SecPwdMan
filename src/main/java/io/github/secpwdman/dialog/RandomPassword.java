@@ -83,12 +83,12 @@ public class RandomPassword {
 			return pwd;
 
 		try {
-			final var count = ((Spinner) children[11]).getSelection();
 			final var random = SecureRandom.getInstanceStrong();
+			final var spinner = ((Spinner) children[11]).getSelection();
 
 			do {
 				final var randomPwd = new StringBuilder();
-				for (var j = 0; j < count; j++) {
+				for (var count = spinner; 0 < count; count--) {
 					final var next = random.nextInt(sign.length());
 					final var c = sign.charAt(next % sign.length());
 					randomPwd.append(c);
@@ -132,7 +132,7 @@ public class RandomPassword {
 
 		if (text == cData.passWeak || text == cData.passFair)
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		else if (text == cData.passGood)
+		if (text == cData.passGood)
 			label.setForeground(label.getParent().getForeground());
 		else if (cData.isDarkTheme())
 			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));

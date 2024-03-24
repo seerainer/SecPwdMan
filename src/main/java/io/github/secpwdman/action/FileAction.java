@@ -189,14 +189,15 @@ public class FileAction extends Action {
 			}
 
 		final var toolBar = (ToolBar) shell.getChildren()[0];
-		for (var i = 0; i < toolBar.getItemCount(); i++) {
-			final var image = toolBar.getItem(i).getImage();
+		for (final var item : toolBar.getItems()) {
+			final var image = item.getImage();
+
 			if (image != null)
 				image.dispose();
 		}
 
-		clearClipboard();
 		table.getFont().dispose();
+		clearClipboard();
 
 		return true;
 	}
