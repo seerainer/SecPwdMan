@@ -89,7 +89,7 @@ public class FileAction extends Action {
 		pwd.selectAll();
 
 		if (dialog.getBounds().height == 150) {
-			final var minPwdLength = cData.getPwdMinLength();
+			final var minPwdLength = cData.getPasswordMinLength();
 			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
 			pwdConfirm.selectAll();
 
@@ -152,7 +152,7 @@ public class FileAction extends Action {
 
 		if (stdHead) {
 			cData.setCustomHeader(false);
-			cData.setHeader(ConfData.APP_HEAD);
+			cData.setHeader(cData.tableHeader);
 		} else {
 			cData.setCustomHeader(true);
 			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
@@ -200,6 +200,25 @@ public class FileAction extends Action {
 		clearClipboard();
 
 		return true;
+	}
+
+	/**
+	 * Hide password column.
+	 */
+	public void hidePasswordColumn() {
+		if (cData.isCustomHeader())
+			return;
+
+		final var pwdCol = table.getColumn(5);
+
+		if (pwdCol.getResizable()) {
+			pwdCol.setWidth(0);
+			pwdCol.setResizable(false);
+			final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
+			viewMenu.getItem(4).setSelection(false);
+			viewMenu.getItem(5).setSelection(true);
+			table.getColumn(2).setText(cData.defaultHeader[2]);
+		}
 	}
 
 	/**

@@ -54,6 +54,62 @@ public class RandomPassword {
 	}
 
 	/**
+	 * Evaluate the password strength.
+	 *
+	 * @param cData the cdata
+	 * @param label the label
+	 * @param pwd   the text
+	 */
+	void evalPasswordStrength(final ConfData cData, final Label label, final CharSequence pwd) {
+		final var display = label.getDisplay();
+		final var minLength = cData.getPasswordMinLength();
+
+		if (pwd.length() < minLength) {
+			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+			label.setText(cData.passShor + minLength);
+			label.setToolTipText(null);
+			return;
+		}
+
+		final var strength = new Zxcvbn().measure(pwd);
+		final var crackTimes = strength.getCrackTimesDisplay();
+		final var off = crackTimes.getOfflineFastHashing1e10PerSecond();
+		final var ofs = crackTimes.getOfflineSlowHashing1e4perSecond();
+		final var onf = crackTimes.getOnlineNoThrottling10perSecond();
+		final var ons = crackTimes.getOnlineThrottling100perHour();
+		var text = cData.passWeak;
+
+		switch (strength.getScore()) {
+		case 0:
+			break;
+		case 1:
+			text = cData.passFair;
+			break;
+		case 2:
+			text = cData.passGood;
+			break;
+		case 3:
+			text = cData.passStro;
+			break;
+		case 4:
+			text = cData.passSecu;
+			break;
+		}
+
+		if (text == cData.passWeak || text == cData.passFair)
+			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+		else if (text == cData.passGood)
+			label.setForeground(label.getParent().getForeground());
+		else if (cData.isDarkTheme())
+			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
+		else
+			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
+
+		label.setText(text);
+		label.setToolTipText(cData.passOffa + off + cData.passOfsl + ofs + cData.passOnfa + onf + cData.passOnsl + ons);
+	}
+
+	/**
 	 * Generate a random password.
 	 *
 	 * @param children the children
@@ -77,69 +133,28 @@ public class RandomPassword {
 					sign.append(text);
 		}
 
-		var pwd = cData.nullStr;
-
 		if (isEmptyString(sign.toString()))
-			return pwd;
+			return cData.nullStr;
+
+		final var randomPwd = new StringBuilder();
 
 		try {
 			final var random = SecureRandom.getInstanceStrong();
 			final var spinner = ((Spinner) children[11]).getSelection();
 
 			do {
-				final var randomPwd = new StringBuilder();
+				randomPwd.setLength(0);
 				for (var count = spinner; 0 < count; count--) {
 					final var next = random.nextInt(sign.length());
 					final var c = sign.charAt(next % sign.length());
 					randomPwd.append(c);
 				}
-				pwd = randomPwd.toString();
-			} while (isWeakPassword(cData, select, pwd.toCharArray()));
+			} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
 		} catch (final NoSuchAlgorithmException e) {
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		}
 
-		return pwd;
-	}
-
-	/**
-	 * Test the password strength.
-	 *
-	 * @param cData the cdata
-	 * @param label the label
-	 * @param pwd   the text
-	 */
-	void getPasswordStrength(final ConfData cData, final Label label, final String pwd) {
-		final var display = label.getDisplay();
-
-		if (pwd.length() < cData.getPwdMinLength()) {
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			label.setText(cData.passShor);
-			return;
-		}
-
-		final var strength = new Zxcvbn().measure(pwd).getScore();
-		var text = cData.passWeak;
-
-		if (strength == 1)
-			text = cData.passFair;
-		if (strength == 2)
-			text = cData.passGood;
-		if (strength == 3)
-			text = cData.passStro;
-		if (strength == 4)
-			text = cData.passSecu;
-
-		if (text == cData.passWeak || text == cData.passFair)
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		if (text == cData.passGood)
-			label.setForeground(label.getParent().getForeground());
-		else if (cData.isDarkTheme())
-			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
-		else
-			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
-
-		label.setText(text);
+		return randomPwd.toString();
 	}
 
 	/**

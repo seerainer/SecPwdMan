@@ -31,7 +31,6 @@ public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
 	public static final String APP_VERS = "0.7.3"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
-	public static final String APP_HEAD = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -50,7 +49,7 @@ public class ConfData {
 	private int iterCount = 420000;
 	private int clearPasswd = 20;
 	private int columnWidth = 167;
-	private int pwdMinLength = 8;
+	private int passwordMinLength = 8;
 
 	public final char echoChr = '\u25CF';
 	public final char nullChr = '\0';
@@ -63,6 +62,7 @@ public class ConfData {
 
 	public final String appLink = "<a>www.seerainer.com</a>"; //$NON-NLS-1$
 	public final String linkAddress = "https://www.seerainer.com"; //$NON-NLS-1$
+	public final String tableHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
 	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
@@ -163,6 +163,10 @@ public class ConfData {
 	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
 	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$
 	public final String passWeak = getString("Dialog.Password.Weak"); //$NON-NLS-1$
+	public final String passOffa = getString("Dialog.Password.OfflineFast"); //$NON-NLS-1$
+	public final String passOfsl = getString("Dialog.Password.OfflineSlow"); //$NON-NLS-1$
+	public final String passOnfa = getString("Dialog.Password.OnlineFast"); //$NON-NLS-1$
+	public final String passOnsl = getString("Dialog.Password.OnlineSlow"); //$NON-NLS-1$
 	public final String textView = getString("Dialog.TextView"); //$NON-NLS-1$
 	public final String textWarn = getString("Dialog.TextWarning"); //$NON-NLS-1$
 	public final String systInfo = getString("Dialog.SystemInfo"); //$NON-NLS-1$
@@ -233,10 +237,10 @@ public class ConfData {
 	}
 
 	/**
-	 * @return the pwdMinLength
+	 * @return the passwordMinLength
 	 */
-	public int getPwdMinLength() {
-		return pwdMinLength;
+	public int getPasswordMinLength() {
+		return passwordMinLength;
 	}
 
 	/**
@@ -380,10 +384,10 @@ public class ConfData {
 	}
 
 	/**
-	 * @param pwdMinLength the pwdMinLength to set
+	 * @param passwordMinLength the passwordMinLength to set
 	 */
-	public void setPwdMinLength(final int pwdMinLength) {
-		this.pwdMinLength = pwdMinLength;
+	public void setPasswordMinLength(final int passwordMinLength) {
+		this.passwordMinLength = passwordMinLength;
 	}
 
 	/**

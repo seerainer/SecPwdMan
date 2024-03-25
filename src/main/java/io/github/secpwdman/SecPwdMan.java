@@ -43,6 +43,8 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -246,8 +248,8 @@ public class SecPwdMan {
 		menuItemSeparator(view);
 		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.resizeColumns()), cData.menuPcol);
 		menuItemSeparator(view);
-		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuSpwd);
-		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPwdColumn(e)), cData.menuHpwd, true);
+		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPasswordColumn()), cData.menuSpwd);
+		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> fileAction.hidePasswordColumn()), cData.menuHpwd, true);
 		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont()), cData.menuFont);
 		menuItemSeparator(view);
@@ -306,7 +308,7 @@ public class SecPwdMan {
 		fileAction = new FileAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
 		fileAction.createColumns(true, cData.defaultHeader);
-		cData.setHeader(ConfData.APP_HEAD);
+		cData.setHeader(cData.tableHeader);
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
@@ -372,6 +374,8 @@ public class SecPwdMan {
 		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(table.getSelectionIndex(), editAction)));
 		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
 		table.setFocus();
+		if (ConfData.WIN32)
+			table.setFont(new Font(shell.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
 		table.setHeaderVisible(true);
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.setLinesVisible(true);

@@ -119,7 +119,7 @@ public class ConfigDialog {
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
-		final var minPwdLength = spinner(dialog, cData.getPwdMinLength(), 6, 64, 0, 1, 4);
+		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
 		new Label(dialog, SWT.NONE);
 
 		if (darkTheme) {
@@ -138,7 +138,7 @@ public class ConfigDialog {
 			cData.setIterCount(pwdIter.getSelection());
 			cData.setClearPasswd(clearPwd.getSelection());
 			cData.setColumnWidth(columnWidth.getSelection());
-			cData.setPwdMinLength(minPwdLength.getSelection());
+			cData.setPasswordMinLength(minPwdLength.getSelection());
 			dialog.close();
 			action.resizeColumns();
 		}), cData.entrOkay));

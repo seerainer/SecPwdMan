@@ -129,7 +129,7 @@ public class IO {
 
 		table.setRedraw(false);
 
-		if (str.startsWith(ConfData.APP_HEAD))
+		if (str.startsWith(cData.tableHeader))
 			action.createColumns(cData.defaultHeader);
 		else
 			action.createColumns(csv.getHeaders());

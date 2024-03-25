@@ -26,6 +26,8 @@ import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
@@ -74,6 +76,7 @@ public class InfoDialog {
 
 		final var info = newLabel(dialog, SWT.HORIZONTAL, ConfData.APP_INFO);
 		info.setAlignment(SWT.CENTER);
+		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
 
 		final var link = new Link(dialog, SWT.NONE);
 		link.addSelectionListener(widgetSelectedAdapter(e -> {
@@ -83,6 +86,7 @@ public class InfoDialog {
 		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		link.setLinkForeground(cData.getLinkColor());
 		link.setText(cData.appLink);
+		link.setFont(new Font(dialog.getDisplay(), new FontData("Arial", 12, SWT.NORMAL))); //$NON-NLS-1$
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);
 		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);

@@ -93,7 +93,7 @@ public class PasswordDialog {
 			new Label(dialog, SWT.NONE);
 			new Label(dialog, SWT.NONE);
 
-			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor);
+			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			dialog.setSize(500, 150);
@@ -118,10 +118,11 @@ public class PasswordDialog {
 		final var text = text1.getText();
 
 		if (text.equals(text2.getText()))
-			random.getPasswordStrength(cData, label, text);
+			random.evalPasswordStrength(cData, label, text);
 		else {
 			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passNoMa);
+			label.setToolTipText(null);
 		}
 	}
 }

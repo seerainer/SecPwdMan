@@ -151,25 +151,6 @@ public abstract class Action {
 	}
 
 	/**
-	 * Hide password column.
-	 */
-	public void hidePasswordColumn() {
-		if (cData.isCustomHeader())
-			return;
-
-		final var pwdCol = table.getColumn(5);
-
-		if (pwdCol.getResizable()) {
-			pwdCol.setWidth(0);
-			pwdCol.setResizable(false);
-			final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
-			viewMenu.getItem(4).setSelection(false);
-			viewMenu.getItem(5).setSelection(true);
-			table.getColumn(2).setText(cData.defaultHeader[2]);
-		}
-	}
-
-	/**
 	 * Resize columns.
 	 */
 	public void resizeColumns() {

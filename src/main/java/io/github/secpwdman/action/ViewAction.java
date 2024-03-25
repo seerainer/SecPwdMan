@@ -22,10 +22,8 @@ package io.github.secpwdman.action;
 
 import static io.github.secpwdman.util.Util.msgShowPasswords;
 
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.FontDialog;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
@@ -77,20 +75,17 @@ public class ViewAction extends Action {
 	 *
 	 * @param e the SelectionEvent
 	 */
-	public void showPwdColumn(final SelectionEvent e) {
+	public void showPasswordColumn() {
 		final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
 
-		if (viewMenu.getItem(5).getSelection())
-			hidePasswordColumn();
-		else if (((MenuItem) e.widget).getSelection())
-			if (msgShowPasswords(cData, shell)) {
-				table.getColumn(5).setResizable(true);
-				resizeColumns();
-				table.getColumn(2).setText(cData.headerOp);
-				table.redraw();
-			} else {
-				viewMenu.getItem(4).setSelection(false);
-				viewMenu.getItem(5).setSelection(true);
-			}
+		if (msgShowPasswords(cData, shell)) {
+			table.getColumn(5).setResizable(true);
+			resizeColumns();
+			table.getColumn(2).setText(cData.headerOp);
+			table.redraw();
+		} else {
+			viewMenu.getItem(4).setSelection(false);
+			viewMenu.getItem(5).setSelection(true);
+		}
 	}
 }
