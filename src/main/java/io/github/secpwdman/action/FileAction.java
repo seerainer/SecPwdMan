@@ -26,6 +26,7 @@ import static io.github.secpwdman.util.Util.isArrayEqual;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
+import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
@@ -226,7 +227,7 @@ public class FileAction extends Action {
 				setText();
 			}
 		} else if (style == SWT.SAVE) {
-			if (!cData.isCustomHeader() && msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnExpo) == SWT.NO)
+			if (!cData.isCustomHeader() && !msgShowPasswords(cData, shell))
 				return;
 
 			final var f = dialog.open();
