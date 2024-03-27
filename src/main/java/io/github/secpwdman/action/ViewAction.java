@@ -20,10 +20,13 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.util.Util.msgShowPasswords;
+import static io.github.secpwdman.widgets.Widgets.msg;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.FontDialog;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
@@ -75,17 +78,20 @@ public class ViewAction extends Action {
 	 *
 	 * @param e the SelectionEvent
 	 */
-	public void showPasswordColumn() {
+	public void showPasswordColumn(final SelectionEvent e) {
 		final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
 
-		if (msgShowPasswords(cData, shell)) {
-			table.getColumn(5).setResizable(true);
-			resizeColumns();
-			table.getColumn(2).setText(cData.headerOp);
-			table.redraw();
-		} else {
-			viewMenu.getItem(4).setSelection(false);
-			viewMenu.getItem(5).setSelection(true);
-		}
+		if (viewMenu.getItem(5).getSelection())
+			hidePasswordColumn();
+		else if (((MenuItem) e.widget).getSelection())
+			if (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES) {
+				table.getColumn(5).setResizable(true);
+				resizeColumns();
+				table.getColumn(2).setText(cData.headerOp);
+				table.redraw();
+			} else {
+				viewMenu.getItem(4).setSelection(false);
+				viewMenu.getItem(5).setSelection(true);
+			}
 	}
 }

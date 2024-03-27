@@ -248,8 +248,8 @@ public class SecPwdMan {
 		menuItemSeparator(view);
 		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.resizeColumns()), cData.menuPcol);
 		menuItemSeparator(view);
-		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPasswordColumn()), cData.menuSpwd);
-		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> fileAction.hidePasswordColumn()), cData.menuHpwd, true);
+		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPasswordColumn(e)), cData.menuSpwd);
+		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPasswordColumn(e)), cData.menuHpwd, true);
 		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont()), cData.menuFont);
 		menuItemSeparator(view);
@@ -324,16 +324,18 @@ public class SecPwdMan {
 	 */
 	private void openFileArg() {
 		final var file = cData.getFile();
+		final var csv = cData.imexExte.substring(1, 5);
+		final var txt = cData.imexExte.substring(8);
 
 		if (!isEmptyString(file))
 			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
 				new PasswordDialog(false, fileAction);
 				cData.setLocked(true);
-			} else if (isReadable(file) && (file.endsWith(cData.imexExte.substring(1, 5)) || file.endsWith(cData.imexExte.substring(8)))) {
+			} else if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
 				if (new IO(fileAction).openFile(null))
 					cData.setModified(true);
 			} else {
-				msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + cData.doubleQ + file + cData.doubleQ);
+				msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
 				cData.setFile(null);
 			}
 

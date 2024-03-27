@@ -163,7 +163,6 @@ public class ConfData {
 	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
 	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$
 	public final String passWeak = getString("Dialog.Password.Weak"); //$NON-NLS-1$
-	public final String passOffa = getString("Dialog.Password.OfflineFast"); //$NON-NLS-1$
 	public final String passOfsl = getString("Dialog.Password.OfflineSlow"); //$NON-NLS-1$
 	public final String passOnfa = getString("Dialog.Password.OnlineFast"); //$NON-NLS-1$
 	public final String passOnsl = getString("Dialog.Password.OnlineSlow"); //$NON-NLS-1$

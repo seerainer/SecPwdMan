@@ -45,19 +45,8 @@ import io.github.secpwdman.io.crypto.Crypto;
  * The Class ConfigDialog.
  */
 public class ConfigDialog {
-	private final Action action;
 
-	/**
-	 * Instantiates a new config dialog.
-	 *
-	 * @param action the action
-	 */
-	public ConfigDialog(final Action action) {
-		this.action = action;
-		open();
-	}
-
-	private void cryptoTest(final ConfData cData, final Shell parent, final Spinner iter) {
+	private static void cryptoTest(final ConfData cData, final Shell parent, final Spinner iter) {
 		final var oldIter = cData.getIterCount();
 		cData.setIterCount(iter.getSelection());
 
@@ -75,6 +64,18 @@ public class ConfigDialog {
 		}
 
 		cData.setIterCount(oldIter);
+	}
+
+	private final Action action;
+
+	/**
+	 * Instantiates a new config dialog.
+	 *
+	 * @param action the action
+	 */
+	public ConfigDialog(final Action action) {
+		this.action = action;
+		open();
 	}
 
 	/**

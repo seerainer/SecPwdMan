@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.PasswordUtil.evalPasswordStrength;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
@@ -67,10 +68,10 @@ public class EntryDialog {
 
 		final var table = action.getTable();
 		final var darkTheme = cData.isDarkTheme();
-		final var randomPwd = new RandomPassword(action);
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout(3, false);
+		layout.marginBottom = 20;
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		layout.marginTop = 8;
@@ -103,21 +104,23 @@ public class EntryDialog {
 		final var notes = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
 
 		new Label(dialog, SWT.NONE);
-		final var pwdIndicator = new Group(dialog, SWT.SHADOW_NONE);
+
+		final var pwdStrength = new Group(dialog, SWT.SHADOW_NONE);
 
 		if (darkTheme)
-			pwdIndicator.setForeground(dialog.getForeground());
+			pwdStrength.setForeground(dialog.getForeground());
 
-		pwdIndicator.setLayout(new GridLayout());
-		pwdIndicator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
-		pwdIndicator.setText(cData.entrPInd);
+		pwdStrength.setLayout(new GridLayout());
+		pwdStrength.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		pwdStrength.setText(cData.entrPInd);
 
-		final var pwdIndicatorLabel = newLabel(pwdIndicator, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
-		pwdIndicatorLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
-		pwdIndicatorLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		pwd.addModifyListener(e -> randomPwd.evalPasswordStrength(cData, pwdIndicatorLabel, pwd.getText()));
+		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
+		pwdStrengthLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
+		pwdStrengthLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		pwd.addModifyListener(e -> evalPasswordStrength(cData, pwdStrengthLabel, pwd.getText()));
 
 		new Label(dialog, SWT.NONE);
+
 		final var random = new Group(dialog, SWT.SHADOW_NONE);
 
 		if (darkTheme)
@@ -145,7 +148,9 @@ public class EntryDialog {
 			spinner.setForeground(random.getForeground());
 
 		final var rand = new RandomPassword(action);
-		final var genButton = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> pwd.setText(rand.generate(random.getChildren()))), cData.entrGene);
+		final var genButton = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> {
+			pwd.setText(rand.generate(random.getChildren()));
+		}), cData.entrGene);
 
 		new Label(dialog, SWT.NONE);
 
@@ -165,8 +170,6 @@ public class EntryDialog {
 		dialog.setDefaultButton(okBtn);
 
 		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
-
-		new Label(dialog, SWT.NONE);
 
 		if (newEntry) {
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> action.editEntry(true, dialog, null)));

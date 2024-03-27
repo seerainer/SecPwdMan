@@ -30,10 +30,7 @@ import java.util.Arrays;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
-
-import com.nulabinc.zxcvbn.Zxcvbn;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
@@ -42,6 +39,37 @@ import io.github.secpwdman.config.ConfData;
  * The Class RandomPassword.
  */
 public class RandomPassword {
+
+	/**
+	 * Checks if it is a weak password.
+	 *
+	 * @param cData the cdata
+	 * @param pwd   the pwd
+	 * @return true, if it is a weak password
+	 */
+	private static boolean isWeakPassword(final ConfData cData, final boolean[] selection, final char[] pwd) {
+		final boolean[] b = { false, false, false, false, false, false };
+
+		for (final char c : pwd)
+			if (Character.isLowerCase(c))
+				b[0] = true;
+			else if (Character.isUpperCase(c))
+				b[1] = true;
+			else if (Character.isDigit(c))
+				b[2] = true;
+			else if ((cData.rSpecia1).contains(Character.toString(c)))
+				b[3] = true;
+			else if ((cData.rSpecia2).contains(Character.toString(c)))
+				b[4] = true;
+			else if (Character.isSpaceChar(c))
+				b[5] = true;
+
+		if (Arrays.equals(selection, b))
+			return false;
+
+		return true;
+	}
+
 	private final Action action;
 
 	/**
@@ -51,62 +79,6 @@ public class RandomPassword {
 	 */
 	public RandomPassword(final Action action) {
 		this.action = action;
-	}
-
-	/**
-	 * Evaluate the password strength.
-	 *
-	 * @param cData the cdata
-	 * @param label the label
-	 * @param pwd   the text
-	 */
-	void evalPasswordStrength(final ConfData cData, final Label label, final CharSequence pwd) {
-		final var display = label.getDisplay();
-		final var minLength = cData.getPasswordMinLength();
-
-		if (pwd.length() < minLength) {
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			label.setText(cData.passShor + minLength);
-			label.setToolTipText(null);
-			return;
-		}
-
-		final var strength = new Zxcvbn().measure(pwd);
-		final var crackTimes = strength.getCrackTimesDisplay();
-		final var off = crackTimes.getOfflineFastHashing1e10PerSecond();
-		final var ofs = crackTimes.getOfflineSlowHashing1e4perSecond();
-		final var onf = crackTimes.getOnlineNoThrottling10perSecond();
-		final var ons = crackTimes.getOnlineThrottling100perHour();
-		var text = cData.passWeak;
-
-		switch (strength.getScore()) {
-		case 0:
-			break;
-		case 1:
-			text = cData.passFair;
-			break;
-		case 2:
-			text = cData.passGood;
-			break;
-		case 3:
-			text = cData.passStro;
-			break;
-		case 4:
-			text = cData.passSecu;
-			break;
-		}
-
-		if (text == cData.passWeak || text == cData.passFair)
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		else if (text == cData.passGood)
-			label.setForeground(label.getParent().getForeground());
-		else if (cData.isDarkTheme())
-			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
-		else
-			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
-
-		label.setText(text);
-		label.setToolTipText(cData.passOffa + off + cData.passOfsl + ofs + cData.passOnfa + onf + cData.passOnsl + ons);
 	}
 
 	/**
@@ -155,35 +127,5 @@ public class RandomPassword {
 		}
 
 		return randomPwd.toString();
-	}
-
-	/**
-	 * Checks if it is a weak password.
-	 *
-	 * @param cData the cdata
-	 * @param pwd   the pwd
-	 * @return true, if it is a weak password
-	 */
-	private boolean isWeakPassword(final ConfData cData, final boolean[] selection, final char[] pwd) {
-		final boolean[] b = { false, false, false, false, false, false };
-
-		for (final char c : pwd)
-			if (Character.isLowerCase(c))
-				b[0] = true;
-			else if (Character.isUpperCase(c))
-				b[1] = true;
-			else if (Character.isDigit(c))
-				b[2] = true;
-			else if ((cData.rSpecia1).contains(Character.toString(c)))
-				b[3] = true;
-			else if ((cData.rSpecia2).contains(Character.toString(c)))
-				b[4] = true;
-			else if (Character.isSpaceChar(c))
-				b[5] = true;
-
-		if (Arrays.equals(selection, b))
-			return false;
-
-		return true;
 	}
 }

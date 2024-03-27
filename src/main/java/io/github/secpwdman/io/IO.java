@@ -48,17 +48,6 @@ import io.github.secpwdman.io.crypto.Crypto;
  * The Class IO.
  */
 public class IO {
-	private final FileAction action;
-
-	/**
-	 * Instantiates a new io.
-	 *
-	 * @param action the action
-	 */
-	public IO(final FileAction action) {
-		this.action = action;
-	}
-
 	/**
 	 * Escape special character.
 	 *
@@ -66,7 +55,7 @@ public class IO {
 	 * @param s     the string
 	 * @return the string
 	 */
-	private String escapeSpecialChar(final ConfData cData, final String s) {
+	private static String escapeSpecialChar(final ConfData cData, final String s) {
 		if (isEmptyString(s))
 			return s;
 
@@ -84,6 +73,17 @@ public class IO {
 		}
 
 		return escapedData;
+	}
+
+	private final FileAction action;
+
+	/**
+	 * Instantiates a new io.
+	 *
+	 * @param action the action
+	 */
+	public IO(final FileAction action) {
+		this.action = action;
 	}
 
 	/**
@@ -156,8 +156,7 @@ public class IO {
 		final var cData = action.getCData();
 		var exMsg = cData.empty;
 
-		try {
-			final var fis = new FileInputStream(cData.getFile());
+		try (final var fis = new FileInputStream(cData.getFile())) {
 			final var fileBytes = new byte[fis.available()];
 			fis.read(fileBytes);
 			fis.close();
@@ -201,8 +200,7 @@ public class IO {
 	public boolean saveFile(final String pwd, final String file) {
 		final var cData = action.getCData();
 
-		try {
-			final var fos = new FileOutputStream(file);
+		try (final var fos = new FileOutputStream(file)) {
 			final var sb = extractData(cData);
 
 			if (isEmptyString(pwd))

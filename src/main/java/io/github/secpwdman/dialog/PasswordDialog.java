@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.PasswordUtil.evalPasswordStrength;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
@@ -41,6 +42,27 @@ import io.github.secpwdman.config.ConfData;
  * The Class PasswordDialog.
  */
 public class PasswordDialog {
+
+	/**
+	 * Tests the password strength.
+	 *
+	 * @param e     the ModifyEvent e
+	 * @param cData the cData
+	 */
+	private static void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
+		final var text1 = (Text) e.widget;
+		final var label = (Label) text1.getParent().getChildren()[7];
+		final var text = text1.getText();
+
+		if (text.equals(text2.getText()))
+			evalPasswordStrength(cData, label, text);
+		else {
+			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
+			label.setText(cData.passNoMa);
+			label.setToolTipText(null);
+		}
+	}
+
 	private final FileAction action;
 
 	/**
@@ -103,26 +125,5 @@ public class PasswordDialog {
 		dialog.setLocation(setCenter(dialog));
 		dialog.setText(cData.passTitl);
 		dialog.open();
-	}
-
-	/**
-	 * Tests how strong the password is.
-	 *
-	 * @param e     the ModifyEvent e
-	 * @param cData the cData
-	 */
-	private void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
-		final var random = new RandomPassword(action);
-		final var text1 = (Text) e.widget;
-		final var label = (Label) text1.getParent().getChildren()[7];
-		final var text = text1.getText();
-
-		if (text.equals(text2.getText()))
-			random.evalPasswordStrength(cData, label, text);
-		else {
-			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
-			label.setText(cData.passNoMa);
-			label.setToolTipText(null);
-		}
 	}
 }
