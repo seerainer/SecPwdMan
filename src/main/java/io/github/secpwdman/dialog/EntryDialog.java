@@ -20,7 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
-import static io.github.secpwdman.util.PasswordUtil.evalPasswordStrength;
+import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import io.github.secpwdman.action.EditAction;
 import io.github.secpwdman.images.IMG;
+import io.github.secpwdman.util.RandomPassword;
 
 /**
  * The Class EntryDialog.

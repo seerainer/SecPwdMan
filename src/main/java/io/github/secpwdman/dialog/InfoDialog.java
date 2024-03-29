@@ -21,6 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
@@ -30,8 +31,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
 import io.github.secpwdman.action.Action;
@@ -58,6 +58,8 @@ public class InfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
+		final var darkTheme = cData.isDarkTheme();
+		final var linkColor = cData.getLinkColor();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout();
 		layout.marginBottom = 10;
@@ -67,7 +69,7 @@ public class InfoDialog {
 		layout.verticalSpacing = 30;
 		dialog.setLayout(layout);
 
-		if (cData.isDarkTheme()) {
+		if (darkTheme) {
 			final var table = action.getTable();
 			dialog.setBackground(table.getBackground());
 			dialog.setForeground(table.getForeground());
@@ -78,15 +80,26 @@ public class InfoDialog {
 		info.setAlignment(SWT.CENTER);
 		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
 
-		final var link = new Link(dialog, SWT.NONE);
-		link.addSelectionListener(widgetSelectedAdapter(e -> {
-			Program.launch(cData.linkAddress);
-			dialog.getDefaultButton().setFocus();
-		}));
-		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		link.setLinkForeground(cData.getLinkColor());
-		link.setText(cData.appLink);
-		link.setFont(new Font(dialog.getDisplay(), new FontData("Arial", 12, SWT.NORMAL))); //$NON-NLS-1$
+		final var depend = new Group(dialog, SWT.SHADOW_NONE);
+
+		if (darkTheme)
+			depend.setForeground(dialog.getForeground());
+
+		final var groupLayout = new GridLayout();
+		groupLayout.marginBottom = 10;
+		groupLayout.marginLeft = 10;
+		groupLayout.marginRight = 10;
+		groupLayout.marginTop = 10;
+		depend.setLayout(groupLayout);
+		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		depend.setText(cData.infoDepe);
+
+		link(depend, cData.valAddress, linkColor, cData.valLink);
+		link(depend, cData.csvAddress, linkColor, cData.csvLink);
+		link(depend, cData.swtAddress, linkColor, cData.swtLink);
+		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
+
+		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);
 		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);

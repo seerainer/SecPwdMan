@@ -21,16 +21,22 @@
 package io.github.secpwdman.widgets;
 
 import static io.github.secpwdman.util.Util.isEmptyString;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -69,6 +75,42 @@ public class Widgets {
 	 */
 	public static Label horizontalSeparator(final Composite parent) {
 		return newLabel(parent, SWT.HORIZONTAL | SWT.SEPARATOR, null);
+	}
+
+	/**
+	 * A link.
+	 *
+	 * @param parent the parent
+	 * @param url    the url
+	 * @param color  the color
+	 * @param text   the text
+	 * @return the link
+	 */
+	public static Link link(final Composite parent, final String url, final Color color, final String text) {
+		return link(parent, url, color, text, null);
+	}
+
+	/**
+	 * A link.
+	 *
+	 * @param parent the parent
+	 * @param url    the url
+	 * @param color  the color
+	 * @param text   the text
+	 * @param font   the font
+	 * @return the link
+	 */
+	public static Link link(final Composite parent, final String url, final Color color, final String text, final String font) {
+		final var link = new Link(parent, SWT.NONE);
+		link.addSelectionListener(widgetSelectedAdapter(e -> Program.launch(url)));
+		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		link.setLinkForeground(color);
+		link.setText(text);
+
+		if (!isEmptyString(font))
+			link.setFont(new Font(parent.getDisplay(), new FontData(font, 12, SWT.NORMAL)));
+
+		return link;
 	}
 
 	/**

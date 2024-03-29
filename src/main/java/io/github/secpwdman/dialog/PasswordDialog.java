@@ -20,7 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
-import static io.github.secpwdman.util.PasswordUtil.evalPasswordStrength;
+import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;

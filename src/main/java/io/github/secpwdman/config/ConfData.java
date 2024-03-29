@@ -61,7 +61,16 @@ public class ConfData {
 	private String header = null;
 
 	public final String appLink = "<a>www.seerainer.com</a>"; //$NON-NLS-1$
-	public final String linkAddress = "https://www.seerainer.com"; //$NON-NLS-1$
+	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
+	public final String valLink = "<a>https://commons.apache.org/validator/</a>"; //$NON-NLS-1$
+	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
+	public final String csvLink = "<a>https://sourceforge.net/projects/javacsv/</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://sourceforge.net/projects/javacsv/"; //$NON-NLS-1$
+	public final String swtLink = "<a>https://www.eclipse.org/swt/</a>"; //$NON-NLS-1$
+	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
+	public final String zxcLink = "<a>https://github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
+	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
+	
 	public final String tableHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
@@ -153,6 +162,7 @@ public class ConfData {
 	public final String entrSpac = getString("Dialog.Entry.Space"); //$NON-NLS-1$
 	public final String entrOkay = getString("Dialog.Entry.OK"); //$NON-NLS-1$
 	public final String entrCanc = getString("Dialog.Entry.Cancel"); //$NON-NLS-1$
+	public final String infoDepe = getString("Dialog.Info.Dependencies"); //$NON-NLS-1$
 	public final String passTitl = getString("Dialog.Password.Title"); //$NON-NLS-1$
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$

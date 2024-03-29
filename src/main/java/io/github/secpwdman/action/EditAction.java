@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.dialog.RandomPassword;
+import io.github.secpwdman.util.RandomPassword;
 
 /**
  * The Class EditAction.
