@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.7.3"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.7.4"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -70,7 +70,7 @@ public class ConfData {
 	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
 	public final String zxcLink = "<a>https://github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
-	
+
 	public final String tableHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$

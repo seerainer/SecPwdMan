@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.io.crypto.Crypto;
+import io.github.secpwdman.crypto.Crypto;
 
 /**
  * The Class ConfigDialog.

@@ -42,7 +42,7 @@ import com.csvreader.CsvReader;
 
 import io.github.secpwdman.action.FileAction;
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.io.crypto.Crypto;
+import io.github.secpwdman.crypto.Crypto;
 
 /**
  * The Class IO.
