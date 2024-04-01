@@ -21,6 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.widgets.Widgets.horizontalSeparator;
+import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
@@ -29,6 +30,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -46,24 +48,61 @@ import io.github.secpwdman.crypto.Crypto;
  */
 public class ConfigDialog {
 
-	private static void cryptoTest(final ConfData cData, final Shell parent, final Spinner iter) {
-		final var oldIter = cData.getIterCount();
-		cData.setIterCount(iter.getSelection());
+	private static void argon2Test(final ConfData cData, final Shell parent, final Spinner memo, final Spinner iter, final Spinner para) {
+		final var oldArgo = cData.isArgon2id();
+		final var oldMemo = cData.getArgonMemo();
+		final var oldIter = cData.getArgonIter();
+		final var oldPara = cData.getArgonMemo();
+		cData.setArgon2id(true);
+		cData.setArgonMemo(memo.getSelection());
+		cData.setArgonIter(iter.getSelection());
+		cData.setArgonPara(para.getSelection());
 
+		timeTest(cData, parent);
+
+		cData.setArgon2id(oldArgo);
+		cData.setArgonMemo(oldMemo);
+		cData.setArgonIter(oldIter);
+		cData.setArgonPara(oldPara);
+	}
+
+	private static void pbkdf2Test(final ConfData cData, final Shell parent, final Spinner iter) {
+		final var oldArgo = cData.isArgon2id();
+		final var oldIter = cData.getPBKDFIter();
+		cData.setArgon2id(false);
+		cData.setPBKDFIter(iter.getSelection());
+
+		timeTest(cData, parent);
+
+		cData.setArgon2id(oldArgo);
+		cData.setPBKDFIter(oldIter);
+	}
+
+	/**
+	 * Time test for encrypt / decrypt.
+	 *
+	 * @param cData the cData
+	 * @param shell the parent
+	 */
+	private static void timeTest(final ConfData cData, final Shell parent) {
 		try {
+			final var rand = new Random();
+			final var txt = new byte[1024];
+			final var pwd = new byte[64];
+			rand.nextBytes(txt);
+			rand.nextBytes(pwd);
+
 			var start = Instant.now();
-			final var enc = new Crypto(cData).encrypt(new byte[1024], new char[64]);
+			final var enc = new Crypto(cData).encrypt(txt, pwd);
 			final var t0 = Long.valueOf(ChronoUnit.MILLIS.between(start, Instant.now()));
 			start = Instant.now();
-			new Crypto(cData).decrypt(enc, new char[64]);
+			new Crypto(cData).decrypt(enc, pwd);
 			final var t1 = Long.valueOf(ChronoUnit.MILLIS.between(start, Instant.now()));
 			final var str = String.format(cData.cfgTestI, t0, t1);
 			msg(parent, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, str);
 		} catch (final Exception ex) {
 			msg(parent, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 		}
-
-		cData.setIterCount(oldIter);
 	}
 
 	private final Action action;
@@ -86,12 +125,12 @@ public class ConfigDialog {
 		final var darkTheme = cData.isDarkTheme();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout(3, false);
-		layout.horizontalSpacing = 25;
-		layout.marginBottom = 10;
-		layout.marginLeft = 10;
-		layout.marginRight = 10;
-		layout.marginTop = 10;
-		layout.verticalSpacing = 10;
+		layout.horizontalSpacing = 15;
+		layout.marginBottom = 15;
+		layout.marginLeft = 15;
+		layout.marginRight = 15;
+		layout.marginTop = 15;
+		layout.verticalSpacing = 12;
 		dialog.setLayout(layout);
 
 		if (darkTheme) {
@@ -101,9 +140,39 @@ public class ConfigDialog {
 			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
 		}
 
+		var label = newLabel(dialog, SWT.HORIZONTAL, cData.cfgKeyDF);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+		final var argon2 = newButton(dialog, SWT.RADIO, null, cData.argon);
+		final var pbkdf2 = newButton(dialog, SWT.RADIO, null, cData.pbkdf);
+		link(dialog, cData.owaAddress, cData.getLinkColor(), cData.owaLink);
+
+		if (cData.isArgon2id())
+			argon2.setSelection(true);
+		else
+			pbkdf2.setSelection(true);
+
+		horizontalSeparator(dialog);
+
+		label = newLabel(dialog, SWT.HORIZONTAL, cData.cfgArgon);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		final var testB = newButton(dialog, SWT.PUSH, null, cData.cfgTestB);
+
+		final var argonM = spinner(dialog, cData.getArgonMemo(), 0, 256, 0, 1, 16);
+		final var argonT = spinner(dialog, cData.getArgonIter(), 0, 128, 0, 1, 8);
+		final var argonP = spinner(dialog, cData.getArgonPara(), 1, 64, 0, 1, 4);
+		testB.addSelectionListener(widgetSelectedAdapter(e -> argon2Test(cData, dialog, argonM, argonT, argonP)));
+
+		horizontalSeparator(dialog);
+
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgPIter);
-		final var pwdIter = spinner(dialog, cData.getIterCount(), 210000, 9999999, 0, 1, 10000);
-		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> cryptoTest(cData, dialog, pwdIter)), cData.cfgTestB);
+		final var pbkdfIter = spinner(dialog, cData.getPBKDFIter(), 210000, 9999999, 0, 1, 10000);
+		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> pbkdf2Test(cData, dialog, pbkdfIter)), cData.cfgTestB);
+
+		horizontalSeparator(dialog);
+
+		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
+		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
+		new Label(dialog, SWT.NONE);
 
 		horizontalSeparator(dialog);
 
@@ -117,35 +186,42 @@ public class ConfigDialog {
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
 		new Label(dialog, SWT.NONE);
 
-		horizontalSeparator(dialog);
-
-		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
-		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
-		new Label(dialog, SWT.NONE);
-
 		if (darkTheme) {
 			final var color = dialog.getForeground();
-			pwdIter.setForeground(color);
+			argonM.setForeground(color);
+			argonT.setForeground(color);
+			argonP.setForeground(color);
+			pbkdfIter.setForeground(color);
+			minPwdLength.setForeground(color);
 			clearPwd.setForeground(color);
 			columnWidth.setForeground(color);
-			minPwdLength.setForeground(color);
 		}
 
 		new Label(dialog, SWT.NONE);
 		new Label(dialog, SWT.NONE);
 		new Label(dialog, SWT.NONE);
 
-		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> {
-			cData.setIterCount(pwdIter.getSelection());
+		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> {
+			if (argon2.getSelection())
+				cData.setArgon2id(true);
+			else
+				cData.setArgon2id(false);
+
+			cData.setArgonMemo(argonM.getSelection());
+			cData.setArgonIter(argonT.getSelection());
+			cData.setArgonPara(argonP.getSelection());
+			cData.setPBKDFIter(pbkdfIter.getSelection());
 			cData.setClearPasswd(clearPwd.getSelection());
 			cData.setColumnWidth(columnWidth.getSelection());
 			cData.setPasswordMinLength(minPwdLength.getSelection());
 			dialog.close();
 			action.resizeColumns();
-		}), cData.entrOkay));
+		}), cData.entrOkay);
+		dialog.setDefaultButton(okBtn);
 		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 3, 1);
 		data.widthHint = 80;
-		dialog.getDefaultButton().setLayoutData(data);
+		okBtn.setLayoutData(data);
+		okBtn.setFocus();
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);

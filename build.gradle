@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.7.4'
+version = '0.8.0'
 
 repositories {
     mavenCentral()
@@ -25,16 +25,18 @@ if (arch == "amd64" || arch == "x86_64") { swtArtifact += 'x86_64' }
 else if (arch == "aarch64") { swtArtifact += 'aarch64' }
 
 dependencies {
-    implementation 'com.nulab-inc:zxcvbn:1.8.2'
-    implementation 'net.sourceforge.javacsv:javacsv:2.0'
-    implementation("org.eclipse.platform:${swtArtifact}:${swtVersion}") {
-        exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'    
-    }
     implementation('commons-validator:commons-validator:1.8.0') {
         exclude group: 'commons-beanutils', module: 'commons-beanutils'
         exclude group: 'commons-collections', module: 'commons-collections'
         exclude group: 'commons-digester', module: 'commons-digester'
         exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    implementation 'com.nulab-inc:zxcvbn:1.8.2'
+    implementation 'com.password4j:password4j:1.8.1'
+    implementation 'net.sourceforge.javacsv:javacsv:2.0'
+    implementation 'org.slf4j:slf4j-nop:2.0.12'
+    implementation("org.eclipse.platform:${swtArtifact}:${swtVersion}") {
+        exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }
 }
 
@@ -56,6 +58,7 @@ graalvmNative {
         main {
             imageName = 'SecPwdMan'
             mainClass = application.mainClass
+            buildArgs.add('-O3')
             buildArgs.add('-march=x86-64-v3')
             buildArgs.add('--no-fallback')
             // buildArgs.add('--pgo-instrument')

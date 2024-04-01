@@ -38,6 +38,10 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.password4j.Argon2Function;
+import com.password4j.Password;
+import com.password4j.types.Argon2;
+
 import io.github.secpwdman.config.ConfData;
 
 /**
@@ -47,7 +51,7 @@ public class Crypto {
 	public static final int GCM_IV_LENGTH = 12;
 	public static final int GCM_TAG_LENGTH = 128; // 16 * Byte.SIZE;
 	public static final int KEY_LENGTH = 256;
-	public static final int SALT_LENGTH = 128;
+	public static final int SALT_LENGTH = 16;
 
 	private final ConfData cData;
 
@@ -76,7 +80,7 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] decrypt(final byte[] txt, final char[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var decoded = Base64.getDecoder().decode(txt);
 		final var iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);
@@ -84,10 +88,8 @@ public class Crypto {
 
 		final var cipher = Cipher.getInstance(cData.cMode);
 		final var ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-		final var spec = new PBEKeySpec(pwd, salt, cData.getIterCount(), KEY_LENGTH);
-		final var factory = SecretKeyFactory.getInstance(cData.keySt);
-		final SecretKey skey = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), cData.cCiph);
-		cipher.init(Cipher.DECRYPT_MODE, skey, ivSpec);
+
+		cipher.init(Cipher.DECRYPT_MODE, keyDerivation(pwd, salt), ivSpec);
 
 		return cipher.doFinal(decoded, GCM_IV_LENGTH + SALT_LENGTH, decoded.length - GCM_IV_LENGTH - SALT_LENGTH);
 	}
@@ -107,19 +109,18 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] encrypt(final byte[] txt, final char[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
+	public byte[] encrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
 			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+		final var secureRandom = SecureRandom.getInstanceStrong();
 		final var iv = new byte[GCM_IV_LENGTH];
-		SecureRandom.getInstanceStrong().nextBytes(iv);
 		final var salt = new byte[SALT_LENGTH];
-		SecureRandom.getInstanceStrong().nextBytes(salt);
+		secureRandom.nextBytes(iv);
+		secureRandom.nextBytes(salt);
 
 		final var cipher = Cipher.getInstance(cData.cMode);
 		final var ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-		final var spec = new PBEKeySpec(pwd, salt, cData.getIterCount(), KEY_LENGTH);
-		final var factory = SecretKeyFactory.getInstance(cData.keySt);
-		final SecretKey skey = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), cData.cCiph);
-		cipher.init(Cipher.ENCRYPT_MODE, skey, ivSpec);
+
+		cipher.init(Cipher.ENCRYPT_MODE, keyDerivation(pwd, salt), ivSpec);
 
 		final var ciphertext = cipher.doFinal(txt);
 		final var encrypted = new byte[iv.length + salt.length + ciphertext.length];
@@ -128,5 +129,27 @@ public class Crypto {
 		System.arraycopy(ciphertext, 0, encrypted, iv.length + salt.length, ciphertext.length);
 
 		return Base64.getEncoder().encodeToString(encrypted).getBytes();
+	}
+
+	/**
+	 * Key derivation function, Argon2id or PBKDF2WithHmacSHA512
+	 *
+	 * @param pwd  the password
+	 * @param salt the salt
+	 * @return the SecretKey
+	 */
+	private SecretKey keyDerivation(final byte[] pwd, final byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException {
+		if (cData.isArgon2id()) {
+			final var m = cData.getArgonMemo();
+			final var t = cData.getArgonIter();
+			final var p = cData.getArgonPara();
+			final var argon = Argon2Function.getInstance(m * 1024, t, p, 32, Argon2.ID);
+			final var hash = Password.hash(pwd).addSalt(salt).with(argon).getBytes();
+			return new SecretKeySpec(hash, cData.cCiph);
+		}
+
+		final var spec = new PBEKeySpec(new String(pwd).toCharArray(), salt, cData.getPBKDFIter(), KEY_LENGTH);
+		final var factory = SecretKeyFactory.getInstance(cData.pbkdf);
+		return new SecretKeySpec(factory.generateSecret(spec).getEncoded(), cData.cCiph);
 	}
 }

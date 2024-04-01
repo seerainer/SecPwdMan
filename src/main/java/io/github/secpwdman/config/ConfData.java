@@ -29,11 +29,12 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.7.4"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.0"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
+	private boolean isArgon2id = true;
 	private boolean isClearAfterSave = false;
 	private boolean isCustomHeader = false;
 	private boolean isDarkTheme = false;
@@ -42,11 +43,10 @@ public class ConfData {
 	private boolean isModified = false;
 	private boolean isReadOnly = false;
 
-	/*
-	 * https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet
-	 * PBKDF2-HMAC-SHA512: 210,000 iterations
-	 */
-	private int iterCount = 420000;
+	private int argonMemo = 32;
+	private int argonIter = 10;
+	private int argonPara = 1;
+	private int pbkdfIter = 420000;
 	private int clearPasswd = 20;
 	private int columnWidth = 167;
 	private int passwordMinLength = 8;
@@ -62,14 +62,18 @@ public class ConfData {
 
 	public final String appLink = "<a>www.seerainer.com</a>"; //$NON-NLS-1$
 	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
-	public final String valLink = "<a>https://commons.apache.org/validator/</a>"; //$NON-NLS-1$
+	public final String valLink = "<a>commons.apache.org/validator</a>"; //$NON-NLS-1$
 	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
-	public final String csvLink = "<a>https://sourceforge.net/projects/javacsv/</a>"; //$NON-NLS-1$
-	public final String csvAddress = "https://sourceforge.net/projects/javacsv/"; //$NON-NLS-1$
-	public final String swtLink = "<a>https://www.eclipse.org/swt/</a>"; //$NON-NLS-1$
-	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
-	public final String zxcLink = "<a>https://github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
+	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
+	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
+	public final String p4jAddress = "https://github.com/Password4j/password4j"; //$NON-NLS-1$
+	public final String csvLink = "<a>sourceforge.net/projects/javacsv</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://sourceforge.net/projects/javacsv/"; //$NON-NLS-1$
+	public final String swtLink = "<a>www.eclipse.org/swt</a>"; //$NON-NLS-1$
+	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
+	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
+	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 
 	public final String tableHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
@@ -80,9 +84,10 @@ public class ConfData {
 	public final String menuForegr = "org.eclipse.swt.internal.win32.menuBarForegroundColor"; //$NON-NLS-1$
 	public final String shellBordr = "org.eclipse.swt.internal.win32.all.use_WS_BORDER"; //$NON-NLS-1$
 
+	public final String argon = "Argon2id"; //$NON-NLS-1$
 	public final String cCiph = "AES"; //$NON-NLS-1$
 	public final String cMode = "AES/GCM/NoPadding"; //$NON-NLS-1$
-	public final String keySt = "PBKDF2WithHmacSHA512"; //$NON-NLS-1$
+	public final String pbkdf = "PBKDF2WithHmacSHA512"; //$NON-NLS-1$
 
 	public final String empty = ""; //$NON-NLS-1$
 	public final String space = "\s"; //$NON-NLS-1$
@@ -140,6 +145,8 @@ public class ConfData {
 	public final String menuInfo = getString("Menu.Info"); //$NON-NLS-1$
 	public final String menuSysI = getString("Menu.InfoSystem"); //$NON-NLS-1$
 	public final String cfgTitle = getString("Dialog.Config.Title"); //$NON-NLS-1$
+	public final String cfgKeyDF = getString("Dialog.Config.KeyDF"); //$NON-NLS-1$
+	public final String cfgArgon = getString("Dialog.Config.Argon"); //$NON-NLS-1$
 	public final String cfgColWh = getString("Dialog.Config.ColW"); //$NON-NLS-1$
 	public final String cfgClPwd = getString("Dialog.Config.ClearPwd"); //$NON-NLS-1$
 	public final String cfgPIter = getString("Dialog.Config.Iter"); //$NON-NLS-1$
@@ -204,6 +211,27 @@ public class ConfData {
 	}
 
 	/**
+	 * @return the argonIter
+	 */
+	public int getArgonIter() {
+		return argonIter;
+	}
+
+	/**
+	 * @return the argonMemo
+	 */
+	public int getArgonMemo() {
+		return argonMemo;
+	}
+
+	/**
+	 * @return the argonPara
+	 */
+	public int getArgonPara() {
+		return argonPara;
+	}
+
+	/**
 	 * @return the clear passwd
 	 */
 	public int getClearPasswd() {
@@ -232,13 +260,6 @@ public class ConfData {
 	}
 
 	/**
-	 * @return the iter count
-	 */
-	public int getIterCount() {
-		return iterCount;
-	}
-
-	/**
 	 * @return the linkColor
 	 */
 	public Color getLinkColor() {
@@ -253,10 +274,24 @@ public class ConfData {
 	}
 
 	/**
+	 * @return the iter of pbkdf2
+	 */
+	public int getPBKDFIter() {
+		return pbkdfIter;
+	}
+
+	/**
 	 * @return the textColor
 	 */
 	public Color getTextColor() {
 		return textColor;
+	}
+
+	/**
+	 * @return the isArgon2id
+	 */
+	public boolean isArgon2id() {
+		return isArgon2id;
 	}
 
 	/**
@@ -306,6 +341,34 @@ public class ConfData {
 	 */
 	public boolean isReadOnly() {
 		return isReadOnly;
+	}
+
+	/**
+	 * @param isArgon2id the isArgon2id to set
+	 */
+	public void setArgon2id(final boolean isArgon2id) {
+		this.isArgon2id = isArgon2id;
+	}
+
+	/**
+	 * @param argonIter the argonIter to set
+	 */
+	public void setArgonIter(final int argonIter) {
+		this.argonIter = argonIter;
+	}
+
+	/**
+	 * @param argonMemo the argonMemo to set
+	 */
+	public void setArgonMemo(final int argonMemo) {
+		this.argonMemo = argonMemo;
+	}
+
+	/**
+	 * @param argonPara the argonPara to set
+	 */
+	public void setArgonPara(final int argonPara) {
+		this.argonPara = argonPara;
 	}
 
 	/**
@@ -365,13 +428,6 @@ public class ConfData {
 	}
 
 	/**
-	 * @param iterCount the new iter count
-	 */
-	public void setIterCount(final int iterCount) {
-		this.iterCount = iterCount;
-	}
-
-	/**
 	 * @param linkColor the linkColor to set
 	 */
 	public void setLinkColor(final Color linkColor) {
@@ -397,6 +453,13 @@ public class ConfData {
 	 */
 	public void setPasswordMinLength(final int passwordMinLength) {
 		this.passwordMinLength = passwordMinLength;
+	}
+
+	/**
+	 * @param pbkdfIter the new iter for pbkdf2
+	 */
+	public void setPBKDFIter(final int pbkdfIter) {
+		this.pbkdfIter = pbkdfIter;
 	}
 
 	/**

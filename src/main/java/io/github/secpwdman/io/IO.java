@@ -161,7 +161,7 @@ public class IO {
 			fis.read(fileBytes);
 			fis.close();
 
-			if (fileBytes.length < 1) {
+			if (fileBytes.length <= 0) {
 				cData.setFile(null);
 				throw new NullPointerException();
 			}
@@ -172,7 +172,7 @@ public class IO {
 				s = new String(fileBytes).trim();
 				cData.setFile(null);
 			} else
-				s = new String(new Crypto(cData).decrypt(fileBytes, pwd.toCharArray()));
+				s = new String(new Crypto(cData).decrypt(fileBytes, pwd.getBytes()));
 
 			fillTable(s);
 			return true;
@@ -206,7 +206,7 @@ public class IO {
 			if (isEmptyString(pwd))
 				fos.write(sb.toString().getBytes());
 			else
-				fos.write(new Crypto(cData).encrypt(sb.toString().getBytes(), pwd.toCharArray()));
+				fos.write(new Crypto(cData).encrypt(sb.toString().getBytes(), pwd.getBytes()));
 
 			fos.close();
 			return true;
