@@ -13,12 +13,12 @@ git clone https://github.com/seerainer/SecPwdMan.git
 - PBKDF2-HMAC-SHA512
 - Measure password strength
 - Password generator
-- cross-platform Linux, Mac & Windows
+- Cross-platform Linux, Mac & Windows
 
 ### Dependencies
 
 - [Apache Commons Validator](https://commons.apache.org/proper/commons-validator/)
 - [zxcvbn4j](https://github.com/nulab/zxcvbn4j)
 - [Password4j](https://github.com/Password4j/password4j)
-- [net.sourceforge.javacsv](https://sourceforge.net/projects/javacsv/)
+- [sourceforge.net/javacsv](https://sourceforge.net/projects/javacsv/)
 - [eclipse.org/swt](https://www.eclipse.org/swt/)

@@ -92,7 +92,7 @@ public abstract class Action {
 		final var itemCount = table.getItemCount();
 		final var selectionCount = table.getSelectionCount();
 		file.getItem(1).setEnabled(!isFileOpen);
-		file.getItem(2).setEnabled(itemCount > 0 && isModified);
+		file.getItem(2).setEnabled(itemCount > 0);
 		file.getItem(4).setEnabled(isFileOpen && !isModified);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);

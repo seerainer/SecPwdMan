@@ -95,9 +95,10 @@ public class InfoDialog {
 		depend.setText(cData.infoDepe);
 
 		link(depend, cData.valAddress, linkColor, cData.valLink);
+		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
+		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
 		link(depend, cData.csvAddress, linkColor, cData.csvLink);
 		link(depend, cData.swtAddress, linkColor, cData.swtLink);
-		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
 
 		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
 

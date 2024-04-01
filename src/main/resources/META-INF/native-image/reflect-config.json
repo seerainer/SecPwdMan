@@ -50,6 +50,9 @@
   "name":"org.eclipse.swt.widgets.Display"
 },
 {
+  "name":"org.slf4j.nop.NOPServiceProvider"
+},
+{
   "name":"sun.security.provider.DRBG",
   "methods":[{"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
 },

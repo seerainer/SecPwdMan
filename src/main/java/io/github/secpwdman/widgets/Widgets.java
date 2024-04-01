@@ -106,6 +106,7 @@ public class Widgets {
 		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 		link.setLinkForeground(color);
 		link.setText(text);
+		link.setToolTipText(url);
 
 		if (!isEmptyString(font))
 			link.setFont(new Font(parent.getDisplay(), new FontData(font, 12, SWT.NORMAL)));
@@ -297,6 +298,9 @@ public class Widgets {
 		if (style == SWT.CHECK) {
 			button.setForeground(parent.getForeground());
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1);
+		} else if (style == SWT.RADIO) {
+			button.setForeground(parent.getForeground());
+			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
 		} else {
 			button.setBackground(parent.getBackground());
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);

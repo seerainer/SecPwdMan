@@ -304,8 +304,8 @@ public class SecPwdMan {
 		table();
 		shellColor(display);
 
-		editAction = new EditAction(cData, shell, table);
 		fileAction = new FileAction(cData, shell, table);
+		editAction = new EditAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
 		fileAction.createColumns(true, cData.defaultHeader);
 		cData.setHeader(cData.tableHeader);
@@ -315,6 +315,9 @@ public class SecPwdMan {
 		shell.forceActive();
 
 		openFileArg();
+
+		fileAction.enableItems();
+		fileAction.setText();
 
 		return shell;
 	}
@@ -338,9 +341,6 @@ public class SecPwdMan {
 				msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
 				cData.setFile(null);
 			}
-
-		fileAction.enableItems();
-		fileAction.setText();
 	}
 
 	/**
