@@ -21,6 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
@@ -31,7 +32,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
 import io.github.secpwdman.action.Action;
@@ -58,7 +58,7 @@ public class InfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var darkTheme = cData.isDarkTheme();
+		final var darkMode = cData.isDarkTheme();
 		final var linkColor = cData.getLinkColor();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout();
@@ -69,7 +69,7 @@ public class InfoDialog {
 		layout.verticalSpacing = 30;
 		dialog.setLayout(layout);
 
-		if (darkTheme) {
+		if (darkMode) {
 			final var table = action.getTable();
 			dialog.setBackground(table.getBackground());
 			dialog.setForeground(table.getForeground());
@@ -80,19 +80,14 @@ public class InfoDialog {
 		info.setAlignment(SWT.CENTER);
 		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
 
-		final var depend = new Group(dialog, SWT.SHADOW_NONE);
-
-		if (darkTheme)
-			depend.setForeground(dialog.getForeground());
-
 		final var groupLayout = new GridLayout();
 		groupLayout.marginBottom = 10;
 		groupLayout.marginLeft = 10;
 		groupLayout.marginRight = 10;
 		groupLayout.marginTop = 10;
-		depend.setLayout(groupLayout);
+
+		final var depend = group(dialog, groupLayout, cData.infoDepe, darkMode);
 		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
-		depend.setText(cData.infoDepe);
 
 		link(depend, cData.valAddress, linkColor, cData.valLink);
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
@@ -110,9 +105,11 @@ public class InfoDialog {
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);
-		dialog.setLocation(setCenter(dialog));
 		dialog.setDefaultButton(okBtn);
 		dialog.setText(cData.titleInf);
+
+		setCenter(dialog);
+
 		dialog.open();
 	}
 }

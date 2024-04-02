@@ -92,7 +92,8 @@ public class SystemInfoDialog {
 		col1.pack();
 		col2.pack();
 
-		dialog.setLocation(setCenter(dialog));
+		setCenter(dialog);
+
 		dialog.setText(cData.systInfo);
 		dialog.open();
 	}

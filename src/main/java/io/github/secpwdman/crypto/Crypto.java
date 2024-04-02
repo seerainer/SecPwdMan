@@ -20,10 +20,11 @@
  */
 package io.github.secpwdman.crypto;
 
+import static io.github.secpwdman.util.Util.getSecureRandom;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
@@ -80,8 +81,8 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException,
+			InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var decoded = Base64.getDecoder().decode(txt);
 		final var iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);
 		final var salt = Arrays.copyOfRange(decoded, GCM_IV_LENGTH, GCM_IV_LENGTH + SALT_LENGTH);
@@ -109,9 +110,9 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] encrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
-			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var secureRandom = SecureRandom.getInstanceStrong();
+	public byte[] encrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+		final var secureRandom = getSecureRandom();
 		final var iv = new byte[GCM_IV_LENGTH];
 		final var salt = new byte[SALT_LENGTH];
 		secureRandom.nextBytes(iv);

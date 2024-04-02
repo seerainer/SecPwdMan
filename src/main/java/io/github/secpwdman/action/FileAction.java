@@ -65,6 +65,7 @@ public class FileAction extends Action {
 		createColumns(cData.defaultHeader);
 		table.setRedraw(true);
 
+		cData.setArgon2id(true);
 		cData.setClearAfterSave(false);
 		cData.setCustomHeader(false);
 		cData.setExitAfterSave(false);
@@ -241,7 +242,7 @@ public class FileAction extends Action {
 	 */
 	public void lockSwitch() {
 		if (cData.isLocked())
-			new PasswordDialog(false, this);
+			new PasswordDialog(this).open(false);
 		else
 			setLocked();
 	}
@@ -271,7 +272,7 @@ public class FileAction extends Action {
 	 */
 	public void openSave(final int style) {
 		if (style == SWT.SAVE && isFileOpen(cData.getFile()))
-			new PasswordDialog(true, this);
+			new PasswordDialog(this).open(true);
 		else {
 			final var dialog = fileDialog(shell, style);
 			dialog.setFilterNames(new String[] { cData.passFile });
@@ -285,9 +286,9 @@ public class FileAction extends Action {
 					table.removeAll();
 					cData.setLocked(true);
 					cData.setModified(false);
-					new PasswordDialog(false, this);
+					new PasswordDialog(this).open(false);
 				} else if (style == SWT.SAVE)
-					new PasswordDialog(true, this);
+					new PasswordDialog(this).open(true);
 			}
 		}
 

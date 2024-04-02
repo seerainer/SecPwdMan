@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.horizontalSeparator;
 import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -35,7 +36,6 @@ import java.util.Random;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -52,7 +52,7 @@ public class ConfigDialog {
 		final var oldArgo = cData.isArgon2id();
 		final var oldMemo = cData.getArgonMemo();
 		final var oldIter = cData.getArgonIter();
-		final var oldPara = cData.getArgonMemo();
+		final var oldPara = cData.getArgonPara();
 		cData.setArgon2id(true);
 		cData.setArgonMemo(memo.getSelection());
 		cData.setArgonIter(iter.getSelection());
@@ -122,7 +122,6 @@ public class ConfigDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var darkTheme = cData.isDarkTheme();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout(3, false);
 		layout.horizontalSpacing = 15;
@@ -133,7 +132,7 @@ public class ConfigDialog {
 		layout.verticalSpacing = 12;
 		dialog.setLayout(layout);
 
-		if (darkTheme) {
+		if (cData.isDarkTheme()) {
 			final var table = action.getTable();
 			dialog.setBackground(table.getBackground());
 			dialog.setForeground(table.getForeground());
@@ -172,34 +171,23 @@ public class ConfigDialog {
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
 		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
-		new Label(dialog, SWT.NONE);
+		emptyLabel(dialog);
 
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgClPwd);
 		final var clearPwd = spinner(dialog, cData.getClearPasswd(), 10, 300, 0, 1, 10);
-		new Label(dialog, SWT.NONE);
+		emptyLabel(dialog);
 
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
-		new Label(dialog, SWT.NONE);
 
-		if (darkTheme) {
-			final var color = dialog.getForeground();
-			argonM.setForeground(color);
-			argonT.setForeground(color);
-			argonP.setForeground(color);
-			pbkdfIter.setForeground(color);
-			minPwdLength.setForeground(color);
-			clearPwd.setForeground(color);
-			columnWidth.setForeground(color);
-		}
-
-		new Label(dialog, SWT.NONE);
-		new Label(dialog, SWT.NONE);
-		new Label(dialog, SWT.NONE);
+		emptyLabel(dialog);
+		emptyLabel(dialog);
+		emptyLabel(dialog);
+		emptyLabel(dialog);
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> {
 			if (argon2.getSelection())
@@ -217,11 +205,12 @@ public class ConfigDialog {
 			dialog.close();
 			action.resizeColumns();
 		}), cData.entrOkay);
-		dialog.setDefaultButton(okBtn);
+
 		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 3, 1);
 		data.widthHint = 80;
 		okBtn.setLayoutData(data);
 		okBtn.setFocus();
+		dialog.setDefaultButton(okBtn);
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);

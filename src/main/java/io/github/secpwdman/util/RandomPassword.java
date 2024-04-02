@@ -20,11 +20,11 @@
  */
 package io.github.secpwdman.util;
 
+import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
@@ -111,7 +111,7 @@ public class RandomPassword {
 		final var randomPwd = new StringBuilder();
 
 		try {
-			final var random = SecureRandom.getInstanceStrong();
+			final var random = getSecureRandom();
 			final var spinner = ((Spinner) children[11]).getSelection();
 
 			do {

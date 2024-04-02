@@ -23,6 +23,8 @@ package io.github.secpwdman.util;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -57,6 +59,16 @@ public class Util {
 	 */
 	public static String getFilePath(final String f) {
 		return new File(f).getAbsolutePath();
+	}
+
+	/**
+	 * Get a new secure random.
+	 *
+	 * @return InstanceStrong
+	 * @throws NoSuchAlgorithmException
+	 */
+	public static SecureRandom getSecureRandom() throws NoSuchAlgorithmException {
+		return SecureRandom.getInstanceStrong();
 	}
 
 	/**
@@ -145,12 +157,11 @@ public class Util {
 	 * Center the shell.
 	 *
 	 * @param shell the shell
-	 * @return new Point
 	 */
-	public static Point setCenter(final Shell shell) {
+	public static void setCenter(final Shell shell) {
 		final var r = shell.getDisplay().getBounds();
 		final var s = shell.getBounds();
-		return new Point((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5);
+		shell.setLocation(new Point((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5));
 	}
 
 	private Util() {

@@ -195,7 +195,6 @@ public class ConfData {
 	public final String errorPwd = getString("MessageBox.Error.Password"); //$NON-NLS-1$
 	public final String warnNewF = getString("MessageBox.Warning.Changes"); //$NON-NLS-1$
 	public final String warnExit = getString("MessageBox.Warning.Exit"); //$NON-NLS-1$
-	public final String warnExpo = getString("MessageBox.Warning.Export"); //$NON-NLS-1$
 	public final String warnPass = getString("MessageBox.Warning.ShowPass"); //$NON-NLS-1$
 	public final String warnUPeq = getString("MessageBox.Warning.UserPassEqual"); //$NON-NLS-1$
 	public final String headerOp = getString("Header.Title.open"); //$NON-NLS-1$

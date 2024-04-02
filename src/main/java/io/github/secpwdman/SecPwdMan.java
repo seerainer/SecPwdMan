@@ -119,11 +119,11 @@ public class SecPwdMan {
 	});
 
 	private final SelectionListener newEntry = widgetSelectedAdapter(e -> {
-		new EntryDialog(-1, editAction);
+		new EntryDialog(editAction).open(-1);
 	});
 
 	private final SelectionListener editEntry = widgetSelectedAdapter(e -> {
-		new EntryDialog(table.getSelectionIndex(), editAction);
+		new EntryDialog(editAction).open(table.getSelectionIndex());
 	});
 
 	private final SelectionListener selectAll = widgetSelectedAdapter(e -> {
@@ -157,7 +157,7 @@ public class SecPwdMan {
 
 	private final ShellListener activated = shellActivatedAdapter(e -> {
 		if (isFileOpen(cData.getFile()) && !cData.isModified())
-			new PasswordDialog(false, fileAction);
+			new PasswordDialog(fileAction).open(false);
 		shell.removeListener(SWT.Activate, shell.getListeners(SWT.Activate)[3]);
 	});
 
@@ -332,7 +332,7 @@ public class SecPwdMan {
 
 		if (!isEmptyString(file))
 			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
-				new PasswordDialog(false, fileAction);
+				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
 			} else if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
 				if (new IO(fileAction).openFile(null))
@@ -373,7 +373,7 @@ public class SecPwdMan {
 	private void table() {
 		table = new Table(shell, SWT.FULL_SELECTION | SWT.MULTI);
 		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
-		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(table.getSelectionIndex(), editAction)));
+		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(editAction).open(table.getSelectionIndex())));
 		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
 		table.setFocus();
 		if (ConfData.WIN32)

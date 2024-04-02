@@ -22,6 +22,7 @@ package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
@@ -68,12 +69,10 @@ public class PasswordDialog {
 	/**
 	 * Instantiates a new password dialog.
 	 *
-	 * @param confirm the confirm
-	 * @param action  the action
+	 * @param action the action
 	 */
-	public PasswordDialog(final boolean confirm, final FileAction action) {
+	public PasswordDialog(final FileAction action) {
 		this.action = action;
-		open(confirm);
 	}
 
 	/**
@@ -81,7 +80,7 @@ public class PasswordDialog {
 	 *
 	 * @param confirm the confirm
 	 */
-	private void open(final boolean confirm) {
+	public void open(final boolean confirm) {
 		final var cData = action.getCData();
 		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL);
 		final var layout = new GridLayout(4, false);
@@ -112,8 +111,8 @@ public class PasswordDialog {
 			pwdConfirm.addModifyListener(e -> testPassword(e, cData, pwd));
 			pwdConfirm.setTextLimit(64);
 
-			new Label(dialog, SWT.NONE);
-			new Label(dialog, SWT.NONE);
+			emptyLabel(dialog);
+			emptyLabel(dialog);
 
 			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
@@ -122,7 +121,8 @@ public class PasswordDialog {
 		} else
 			dialog.setSize(500, 100);
 
-		dialog.setLocation(setCenter(dialog));
+		setCenter(dialog);
+
 		dialog.setText(cData.passTitl);
 		dialog.open();
 	}

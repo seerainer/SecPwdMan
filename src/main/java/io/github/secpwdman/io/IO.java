@@ -210,8 +210,8 @@ public class IO {
 
 			fos.close();
 			return true;
-		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException | IOException
-				| NoSuchAlgorithmException | NoSuchPaddingException e) {
+		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException
+				| IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		}
 

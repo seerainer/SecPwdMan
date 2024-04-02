@@ -35,7 +35,9 @@ import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -55,6 +57,15 @@ import io.github.secpwdman.images.IMG;
 public class Widgets {
 
 	/**
+	 * Empty label.
+	 *
+	 * @return the label
+	 */
+	public static Label emptyLabel(final Composite parent) {
+		return new Label(parent, SWT.NONE);
+	}
+
+	/**
 	 * File dialog.
 	 *
 	 * @param parent the parent
@@ -65,6 +76,25 @@ public class Widgets {
 		final var dialog = new FileDialog(parent, style);
 		dialog.setOverwrite(true);
 		return dialog;
+	}
+
+	/**
+	 * A group.
+	 *
+	 * @param parent the parent
+	 * @param layout the layout
+	 * @param text   the text
+	 * @return the group
+	 */
+	public static Group group(final Composite parent, final Layout layout, final String text, final boolean darkMode) {
+		final var group = new Group(parent, SWT.SHADOW_NONE);
+		group.setLayout(layout);
+		group.setText(text);
+
+		if (darkMode)
+			group.setForeground(parent.getForeground());
+
+		return group;
 	}
 
 	/**
@@ -127,8 +157,8 @@ public class Widgets {
 	 * @param selection the selection
 	 * @return the menu item
 	 */
-	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener, final int acc, final String text, final String image,
-			final boolean selection) {
+	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener, final int acc, final String text,
+			final String image, final boolean selection) {
 		final var item = new MenuItem(parent, state);
 
 		if (menu != null)
@@ -193,7 +223,8 @@ public class Widgets {
 	 * @param image    the image
 	 * @return the menu item
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc, final String text, final String image) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc, final String text,
+			final String image) {
 		return menuItem(parent, state, null, listener, acc, text, image, false);
 	}
 
@@ -288,6 +319,7 @@ public class Widgets {
 	 */
 	private static Button newButton(final Composite parent, final int style, final boolean select, final SelectionListener listener, final String text) {
 		final var button = new Button(parent, style);
+		button.setForeground(parent.getForeground());
 		button.setText(text);
 
 		if (listener != null)
@@ -295,14 +327,11 @@ public class Widgets {
 
 		GridData data;
 
-		if (style == SWT.CHECK) {
-			button.setForeground(parent.getForeground());
+		if (style == SWT.CHECK)
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1);
-		} else if (style == SWT.RADIO) {
-			button.setForeground(parent.getForeground());
+		else if (style == SWT.RADIO)
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
-		} else {
-			button.setBackground(parent.getBackground());
+		else {
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
 			data.widthHint = 80;
 		}
@@ -403,6 +432,7 @@ public class Widgets {
 	 */
 	public static Spinner spinner(final Composite parent, final int sel, final int min, final int max, final int dig, final int inc, final int pag) {
 		final var spinner = new Spinner(parent, SWT.BORDER);
+		spinner.setForeground(parent.getForeground());
 		spinner.setValues(sel, min, max, dig, inc, pag);
 		spinner.pack();
 		return spinner;

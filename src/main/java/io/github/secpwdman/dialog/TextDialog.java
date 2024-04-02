@@ -71,8 +71,6 @@ public class TextDialog {
 		layout.marginWidth = 0;
 		dialog.setImage(image);
 		dialog.setLayout(layout);
-		dialog.setLocation(setCenter(dialog));
-		dialog.setText(cData.textView);
 		image.dispose();
 
 		if (isWriteable)
@@ -94,13 +92,18 @@ public class TextDialog {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 			if (isWriteable && !tableData.equals(textData))
 				try {
-					cData.setModified(true);
 					new IO(action).fillTable(textData);
+					cData.setModified(true);
+					action.enableItems();
+					action.setText();
 				} catch (final IOException ex) {
 					msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 				}
 		}));
 
+		setCenter(dialog);
+
+		dialog.setText(cData.textView);
 		dialog.open();
 	}
 }
