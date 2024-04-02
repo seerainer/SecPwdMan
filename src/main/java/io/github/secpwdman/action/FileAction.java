@@ -34,7 +34,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 
 import io.github.secpwdman.config.ConfData;
@@ -60,7 +59,7 @@ public class FileAction extends Action {
 	/**
 	 * Clear data.
 	 */
-	private void clearData() {
+	public void clearData() {
 		table.setRedraw(false);
 		createColumns(cData.defaultHeader);
 		table.setRedraw(true);
@@ -77,50 +76,6 @@ public class FileAction extends Action {
 		clearClipboard();
 		enableItems();
 		setText();
-	}
-
-	/**
-	 * Confirm password.
-	 *
-	 * @param dialog the dialog
-	 */
-	public void confirmPassword(final Shell dialog) {
-		final var io = new IO(this);
-		final var pwd = ((Text) dialog.getChildren()[1]);
-		final var pwdStr = pwd.getText();
-		pwd.selectAll();
-
-		if (dialog.getBounds().height == 150) {
-			final var minPwdLength = cData.getPasswordMinLength();
-			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
-			pwdConfirm.selectAll();
-
-			if ((!isEmptyString(pwdStr) && pwdStr.equals(pwdConfirm.getText())))
-				if (pwd.getText().length() < minPwdLength)
-					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, String.format(cData.errorLen, Integer.valueOf(minPwdLength)));
-				else if (io.saveFile(pwdStr, cData.getFile())) {
-					cData.setModified(false);
-					dialog.close();
-
-					if (cData.isExitAfterSave())
-						shell.close();
-					else if (cData.isClearAfterSave())
-						clearData();
-				}
-		} else if (!isEmptyString(pwdStr) && io.openFile(pwdStr)) {
-			cData.setLocked(false);
-			cData.setModified(false);
-			cData.setReadOnly(true);
-			dialog.close();
-		}
-
-		if (!dialog.isDisposed())
-			pwd.setFocus();
-
-		if (shell != null && !shell.isDisposed()) {
-			enableItems();
-			setText();
-		}
 	}
 
 	/**

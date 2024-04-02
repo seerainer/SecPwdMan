@@ -27,6 +27,7 @@ import static io.github.secpwdman.widgets.Widgets.menuItem;
 import static io.github.secpwdman.widgets.Widgets.menuItemSeparator;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newMenu;
+import static io.github.secpwdman.widgets.Widgets.newTable;
 import static io.github.secpwdman.widgets.Widgets.toolItem;
 import static io.github.secpwdman.widgets.Widgets.toolItemSeparator;
 import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
@@ -43,8 +44,6 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -192,16 +191,12 @@ public class SecPwdMan {
 
 		System.setProperty(cData.systemThem, Boolean.TRUE.toString());
 
-		if (Display.isSystemDarkTheme()) {
-			if (ConfData.WIN32) {
-				display.setData(cData.darkModeTh, Boolean.TRUE);
-				display.setData(cData.shellTitle, Boolean.TRUE);
-				display.setData(cData.menuBackgr, new Color(0x32, 0x32, 0x32));
-				display.setData(cData.menuForegr, new Color(0xF8, 0xF8, 0xF8));
-				display.setData(cData.shellBordr, Boolean.TRUE);
-			}
-
-			cData.setDarkTheme(true);
+		if (ConfData.DARK && ConfData.WIN32) {
+			display.setData(cData.darkModeTh, Boolean.TRUE);
+			display.setData(cData.shellTitle, Boolean.TRUE);
+			display.setData(cData.menuBackgr, new Color(0x32, 0x32, 0x32));
+			display.setData(cData.menuForegr, new Color(0xF8, 0xF8, 0xF8));
+			display.setData(cData.shellBordr, Boolean.TRUE);
 		}
 	}
 
@@ -301,8 +296,8 @@ public class SecPwdMan {
 		image.dispose();
 
 		toolBar();
-		table();
 		shellColor(display);
+		table();
 
 		fileAction = new FileAction(cData, shell, table);
 		editAction = new EditAction(cData, shell, table);
@@ -349,18 +344,16 @@ public class SecPwdMan {
 	 * @param display the display
 	 */
 	private void shellColor(final Display display) {
-		if (cData.isDarkTheme()) {
+		if (ConfData.DARK) {
 			final var darkForeground = new Color(0xEE, 0xEE, 0xEE);
 			final var toolBar = (ToolBar) shell.getChildren()[0];
 			toolBar.setBackground(new Color(0x64, 0x64, 0x64));
 			toolBar.setForeground(darkForeground);
-			toolBar.setBackgroundMode(SWT.INHERIT_FORCE);
-			table.setBackground(new Color(0x32, 0x32, 0x32));
-			table.setForeground(darkForeground);
-			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
-			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
 			cData.setLinkColor(new Color(0x0, 0xBB, 0xFF));
 			cData.setTextColor(darkForeground);
+			shell.setBackground(new Color(0x32, 0x32, 0x32));
+			shell.setForeground(darkForeground);
+			shell.setBackgroundMode(SWT.INHERIT_FORCE);
 		} else {
 			cData.setLinkColor(display.getSystemColor(SWT.COLOR_LINK_FOREGROUND));
 			cData.setTextColor(display.getSystemColor(SWT.COLOR_LIST_FOREGROUND));
@@ -371,16 +364,11 @@ public class SecPwdMan {
 	 * Table.
 	 */
 	private void table() {
-		table = new Table(shell, SWT.FULL_SELECTION | SWT.MULTI);
+		table = newTable(shell);
 		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
 		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(editAction).open(table.getSelectionIndex())));
 		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
-		table.setFocus();
-		if (ConfData.WIN32)
-			table.setFont(new Font(shell.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
 		table.setHeaderVisible(true);
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		table.setLinesVisible(true);
 		table.setMenu(tableMenu());
 	}
 

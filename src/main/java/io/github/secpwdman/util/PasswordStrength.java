@@ -78,7 +78,7 @@ public class PasswordStrength {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 		else if (text == cData.passGood)
 			label.setForeground(label.getParent().getForeground());
-		else if (cData.isDarkTheme())
+		else if (ConfData.DARK)
 			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
 		else
 			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));

@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -86,12 +87,12 @@ public class Widgets {
 	 * @param text   the text
 	 * @return the group
 	 */
-	public static Group group(final Composite parent, final Layout layout, final String text, final boolean darkMode) {
+	public static Group group(final Composite parent, final Layout layout, final String text) {
 		final var group = new Group(parent, SWT.SHADOW_NONE);
 		group.setLayout(layout);
 		group.setText(text);
 
-		if (darkMode)
+		if (ConfData.DARK)
 			group.setForeground(parent.getForeground());
 
 		return group;
@@ -395,6 +396,31 @@ public class Widgets {
 	}
 
 	/**
+	 * Table.
+	 *
+	 * @param parent the parent
+	 * @return the table
+	 */
+	public static Table newTable(final Composite parent) {
+		final var table = new Table(parent, SWT.FULL_SELECTION | SWT.MULTI);
+		table.setFocus();
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setLinesVisible(true);
+
+		if (ConfData.DARK) {
+			table.setBackground(parent.getBackground());
+			table.setForeground(parent.getForeground());
+			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
+			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
+		}
+
+		if (ConfData.WIN32)
+			table.setFont(new Font(parent.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
+
+		return table;
+	}
+
+	/**
 	 * New text.
 	 *
 	 * @param parent the parent
@@ -416,6 +442,48 @@ public class Widgets {
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 
 		return text;
+	}
+
+	/**
+	 * Shell.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @param image  the image
+	 * @param layout the layout
+	 * @param text   the text
+	 * @return the shell
+	 */
+	public static Shell shell(final Shell parent, final int style, final Image image, final Layout layout, final String text) {
+		final var shell = new Shell(parent, style);
+		shell.setLayout(layout);
+
+		if (ConfData.DARK) {
+			shell.setBackground(parent.getBackground());
+			shell.setForeground(parent.getForeground());
+			shell.setBackgroundMode(SWT.INHERIT_FORCE);
+		}
+
+		if (image != null)
+			shell.setImage(image);
+
+		if (!isEmptyString(text))
+			shell.setText(text);
+
+		return shell;
+	}
+
+	/**
+	 * Shell.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @param layout the layout
+	 * @param text   the text
+	 * @return the shell
+	 */
+	public static Shell shell(final Shell parent, final int style, final Layout layout, final String text) {
+		return shell(parent, style, null, layout, text);
 	}
 
 	/**

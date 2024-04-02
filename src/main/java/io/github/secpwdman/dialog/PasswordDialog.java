@@ -21,11 +21,14 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
+import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
+import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
+import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
@@ -38,6 +41,7 @@ import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.action.FileAction;
 import io.github.secpwdman.config.ConfData;
+import io.github.secpwdman.io.IO;
 
 /**
  * The Class PasswordDialog.
@@ -76,33 +80,73 @@ public class PasswordDialog {
 	}
 
 	/**
+	 * Confirm password.
+	 *
+	 * @param dialog the dialog
+	 */
+	private void confirmPassword(final Shell dialog) {
+		final var cData = action.getCData();
+		final var shell = action.getShell();
+		final var io = new IO(action);
+		final var pwd = ((Text) dialog.getChildren()[1]);
+		final var pwdStr = pwd.getText();
+		pwd.selectAll();
+
+		if (dialog.getBounds().height == 150) {
+			final var minPwdLength = cData.getPasswordMinLength();
+			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
+			final var shortMsg = String.format(cData.errorLen, Integer.valueOf(minPwdLength));
+			pwdConfirm.selectAll();
+
+			if ((!isEmptyString(pwdStr) && pwdStr.equals(pwdConfirm.getText())))
+				if (pwd.getText().length() < minPwdLength)
+					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, shortMsg);
+				else if (io.saveFile(pwdStr, cData.getFile())) {
+					cData.setModified(false);
+					dialog.close();
+
+					if (cData.isExitAfterSave())
+						shell.close();
+					else if (cData.isClearAfterSave())
+						action.clearData();
+				}
+		} else if (!isEmptyString(pwdStr) && io.openFile(pwdStr)) {
+			cData.setLocked(false);
+			cData.setModified(false);
+			cData.setReadOnly(true);
+			dialog.close();
+		}
+
+		if (!dialog.isDisposed())
+			pwd.setFocus();
+
+		if (shell != null && !shell.isDisposed()) {
+			action.enableItems();
+			action.setText();
+		}
+	}
+
+	/**
 	 * Open.
 	 *
 	 * @param confirm the confirm
 	 */
 	public void open(final boolean confirm) {
 		final var cData = action.getCData();
-		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL);
 		final var layout = new GridLayout(4, false);
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		layout.marginTop = 10;
 		layout.verticalSpacing = 10;
-		dialog.setLayout(layout);
 
-		if (cData.isDarkTheme()) {
-			final var table = action.getTable();
-			dialog.setBackground(table.getBackground());
-			dialog.setForeground(table.getForeground());
-			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
-		}
+		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL, layout, cData.passTitl);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.passWord);
 		final var pwd = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
 		pwd.setFocus();
 		pwd.setTextLimit(64);
 
-		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> action.confirmPassword(dialog)), cData.entrOkay));
+		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> confirmPassword(dialog)), cData.entrOkay));
 
 		if (confirm) {
 			newLabel(dialog, SWT.HORIZONTAL, cData.passConf);
@@ -123,7 +167,6 @@ public class PasswordDialog {
 
 		setCenter(dialog);
 
-		dialog.setText(cData.passTitl);
 		dialog.open();
 	}
 }

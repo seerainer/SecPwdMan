@@ -23,6 +23,7 @@ package io.github.secpwdman.config;
 import static io.github.secpwdman.Messages.getString;
 
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * The Class ConfData.
@@ -32,12 +33,12 @@ public class ConfData {
 	public static final String APP_VERS = "0.8.0"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
+	public static final boolean DARK = Display.isSystemDarkTheme();
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
 	private boolean isClearAfterSave = false;
 	private boolean isCustomHeader = false;
-	private boolean isDarkTheme = false;
 	private boolean isExitAfterSave = false;
 	private boolean isLocked = false;
 	private boolean isModified = false;
@@ -308,13 +309,6 @@ public class ConfData {
 	}
 
 	/**
-	 * @return true, if is dark theme
-	 */
-	public boolean isDarkTheme() {
-		return isDarkTheme;
-	}
-
-	/**
 	 * @return true, if is exit after save
 	 */
 	public boolean isExitAfterSave() {
@@ -396,13 +390,6 @@ public class ConfData {
 	 */
 	public void setCustomHeader(final boolean isCustomHeader) {
 		this.isCustomHeader = isCustomHeader;
-	}
-
-	/**
-	 * @param isDarkTheme the new dark theme
-	 */
-	public void setDarkTheme(final boolean isDarkTheme) {
-		this.isDarkTheme = isDarkTheme;
 	}
 
 	/**

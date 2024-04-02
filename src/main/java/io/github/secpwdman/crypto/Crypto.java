@@ -83,14 +83,12 @@ public class Crypto {
 	 */
 	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException,
 			InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+		final var cipher = Cipher.getInstance(cData.cMode);
 		final var decoded = Base64.getDecoder().decode(txt);
 		final var iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);
 		final var salt = Arrays.copyOfRange(decoded, GCM_IV_LENGTH, GCM_IV_LENGTH + SALT_LENGTH);
 
-		final var cipher = Cipher.getInstance(cData.cMode);
-		final var ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-
-		cipher.init(Cipher.DECRYPT_MODE, keyDerivation(pwd, salt), ivSpec);
+		cipher.init(Cipher.DECRYPT_MODE, keyDerivation(pwd, salt), new GCMParameterSpec(GCM_TAG_LENGTH, iv));
 
 		return cipher.doFinal(decoded, GCM_IV_LENGTH + SALT_LENGTH, decoded.length - GCM_IV_LENGTH - SALT_LENGTH);
 	}
@@ -112,16 +110,14 @@ public class Crypto {
 	 */
 	public byte[] encrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+		final var cipher = Cipher.getInstance(cData.cMode);
 		final var secureRandom = getSecureRandom();
 		final var iv = new byte[GCM_IV_LENGTH];
 		final var salt = new byte[SALT_LENGTH];
 		secureRandom.nextBytes(iv);
 		secureRandom.nextBytes(salt);
 
-		final var cipher = Cipher.getInstance(cData.cMode);
-		final var ivSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
-
-		cipher.init(Cipher.ENCRYPT_MODE, keyDerivation(pwd, salt), ivSpec);
+		cipher.init(Cipher.ENCRYPT_MODE, keyDerivation(pwd, salt), new GCMParameterSpec(GCM_TAG_LENGTH, iv));
 
 		final var ciphertext = cipher.doFinal(txt);
 		final var encrypted = new byte[iv.length + salt.length + ciphertext.length];

@@ -26,6 +26,7 @@ import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
+import static io.github.secpwdman.widgets.Widgets.shell;
 import static io.github.secpwdman.widgets.Widgets.spinner;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -122,7 +123,6 @@ public class ConfigDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout(3, false);
 		layout.horizontalSpacing = 15;
 		layout.marginBottom = 15;
@@ -130,14 +130,8 @@ public class ConfigDialog {
 		layout.marginRight = 15;
 		layout.marginTop = 15;
 		layout.verticalSpacing = 12;
-		dialog.setLayout(layout);
 
-		if (cData.isDarkTheme()) {
-			final var table = action.getTable();
-			dialog.setBackground(table.getBackground());
-			dialog.setForeground(table.getForeground());
-			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
-		}
+		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, cData.cfgTitle);
 
 		var label = newLabel(dialog, SWT.HORIZONTAL, cData.cfgKeyDF);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
@@ -214,7 +208,6 @@ public class ConfigDialog {
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);
-		dialog.setText(cData.cfgTitle);
 		dialog.open();
 	}
 }

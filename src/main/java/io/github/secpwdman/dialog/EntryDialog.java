@@ -26,13 +26,13 @@ import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
+import static io.github.secpwdman.widgets.Widgets.shell;
 import static io.github.secpwdman.widgets.Widgets.spinner;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Shell;
 
 import io.github.secpwdman.action.EditAction;
 import io.github.secpwdman.images.IMG;
@@ -65,25 +65,15 @@ public class EntryDialog {
 		if (cData.isLocked() || cData.isCustomHeader() || (newEntry && cData.isReadOnly()))
 			return;
 
-		final var table = action.getTable();
-		final var darkMode = cData.isDarkTheme();
-		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
+		final var shell = action.getShell();
+		final var image = IMG.getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout(3, false);
 		layout.marginBottom = 20;
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		layout.marginTop = 8;
-		dialog.setImage(image);
-		dialog.setLayout(layout);
-		image.dispose();
 
-		if (darkMode) {
-			dialog.setBackground(table.getBackground());
-			dialog.setForeground(table.getForeground());
-			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
-		}
-
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, null);
 		final var uuid = newText(dialog, SWT.SINGLE);
 		final var group = newText(dialog, SWT.SINGLE);
 
@@ -104,7 +94,7 @@ public class EntryDialog {
 
 		emptyLabel(dialog);
 
-		final var pwdStrength = group(dialog, new GridLayout(), cData.entrPInd, darkMode);
+		final var pwdStrength = group(dialog, new GridLayout(), cData.entrPInd);
 		pwdStrength.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 
 		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
@@ -114,7 +104,7 @@ public class EntryDialog {
 
 		emptyLabel(dialog);
 
-		final var random = group(dialog, new GridLayout(4, false), cData.entrRand, darkMode);
+		final var random = group(dialog, new GridLayout(4, false), cData.entrRand);
 		random.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 
 		newButton(random, true, cData.rTextLoC);
@@ -158,7 +148,7 @@ public class EntryDialog {
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> action.editEntry(true, dialog, null)));
 			dialog.setText(cData.entrNewe);
 		} else {
-			final var item = table.getItem(editLine);
+			final var item = action.getTable().getItem(editLine);
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> action.editEntry(false, dialog, item)));
 			uuid.setText(item.getText(0));
 			group.setText(item.getText(1));
@@ -180,6 +170,7 @@ public class EntryDialog {
 				dialog.setText(cData.entrEdit);
 		}
 
+		image.dispose();
 		dialog.setSize(600, 550);
 		dialog.open();
 		title.selectAll();

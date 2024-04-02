@@ -25,6 +25,7 @@ import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
+import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
@@ -32,7 +33,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Shell;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
@@ -58,23 +58,14 @@ public class InfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var darkMode = cData.isDarkTheme();
-		final var linkColor = cData.getLinkColor();
-		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		final var layout = new GridLayout();
 		layout.marginBottom = 10;
 		layout.marginLeft = 30;
 		layout.marginRight = 30;
 		layout.marginTop = 20;
 		layout.verticalSpacing = 30;
-		dialog.setLayout(layout);
 
-		if (darkMode) {
-			final var table = action.getTable();
-			dialog.setBackground(table.getBackground());
-			dialog.setForeground(table.getForeground());
-			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
-		}
+		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, cData.titleInf);
 
 		final var info = newLabel(dialog, SWT.HORIZONTAL, ConfData.APP_INFO);
 		info.setAlignment(SWT.CENTER);
@@ -86,9 +77,10 @@ public class InfoDialog {
 		groupLayout.marginRight = 10;
 		groupLayout.marginTop = 10;
 
-		final var depend = group(dialog, groupLayout, cData.infoDepe, darkMode);
+		final var depend = group(dialog, groupLayout, cData.infoDepe);
 		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
+		final var linkColor = cData.getLinkColor();
 		link(depend, cData.valAddress, linkColor, cData.valLink);
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
 		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
@@ -106,7 +98,6 @@ public class InfoDialog {
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);
 		dialog.setDefaultButton(okBtn);
-		dialog.setText(cData.titleInf);
 
 		setCenter(dialog);
 

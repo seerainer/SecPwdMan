@@ -21,14 +21,13 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.widgets.Widgets.newTable;
+import static io.github.secpwdman.widgets.Widgets.shell;
 
 import java.util.Enumeration;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -56,25 +55,14 @@ public class SystemInfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var dialog = new Shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
-		final var image = IMG.getImage(dialog.getDisplay(), IMG.APP_ICON);
+		final var shell = action.getShell();
+		final var image = IMG.getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
-		dialog.setImage(image);
-		dialog.setLayout(layout);
-		image.dispose();
 
-		final var sysTable = new Table(dialog, SWT.FULL_SELECTION);
-		sysTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		sysTable.setLinesVisible(true);
-
-		if (cData.isDarkTheme()) {
-			final var table = action.getTable();
-			sysTable.setBackground(table.getBackground());
-			sysTable.setForeground(table.getForeground());
-		}
-
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.systInfo);
+		final var sysTable = newTable(dialog);
 		final var col1 = new TableColumn(sysTable, SWT.LEFT, 0);
 		final var col2 = new TableColumn(sysTable, SWT.LEFT, 1);
 
@@ -94,7 +82,7 @@ public class SystemInfoDialog {
 
 		setCenter(dialog);
 
-		dialog.setText(cData.systInfo);
+		image.dispose();
 		dialog.open();
 	}
 }
