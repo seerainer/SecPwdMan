@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newTable;
 import static io.github.secpwdman.widgets.Widgets.shell;
@@ -56,7 +57,7 @@ public class SystemInfoDialog {
 	private void open() {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
-		final var image = IMG.getImage(shell.getDisplay(), IMG.APP_ICON);
+		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;

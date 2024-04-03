@@ -57,6 +57,8 @@ public class ViewAction extends Action {
 
 		if (fontData != null)
 			table.setFont(new Font(shell.getDisplay(), fontData));
+
+		shell.setFont(table.getFont());
 	}
 
 	/**

@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman;
 
+import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
@@ -44,6 +45,8 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -276,7 +279,7 @@ public class SecPwdMan {
 		shell.addShellListener(shellIconifiedAdapter(e -> fileAction.setLocked()));
 
 		var height = 700;
-		final var image = IMG.getImage(display, IMG.APP_ICON);
+		final var image = getImage(display, IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.horizontalSpacing = 0;
 		layout.marginHeight = 0;
@@ -288,6 +291,7 @@ public class SecPwdMan {
 			height = display.getBounds().height - 40;
 			trayItem(display, image);
 			shell.setLocation(-9, 0);
+			shell.setFont(new Font(shell.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
 		}
 
 		shell.setImage(image);

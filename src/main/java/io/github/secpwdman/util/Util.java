@@ -22,15 +22,19 @@ package io.github.secpwdman.util;
 
 import static io.github.secpwdman.widgets.Widgets.msg;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.UUID;
 
 import org.apache.commons.validator.routines.UrlValidator;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
@@ -59,6 +63,19 @@ public class Util {
 	 */
 	public static String getFilePath(final String f) {
 		return new File(f).getAbsolutePath();
+	}
+
+	/**
+	 * Gets the image.
+	 *
+	 * @param display the display
+	 * @param image   the image
+	 * @return the image
+	 */
+	public static Image getImage(final Display display, final String image) {
+		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image)));
+		img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		return img;
 	}
 
 	/**

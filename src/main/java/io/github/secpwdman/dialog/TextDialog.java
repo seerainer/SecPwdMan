@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -34,7 +35,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 
 import io.github.secpwdman.action.FileAction;
-import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.images.IMG;
 import io.github.secpwdman.io.IO;
 
@@ -60,29 +60,19 @@ public class TextDialog {
 	private void open() {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
+		final var table = action.getTable();
 
 		if (!msgShowPasswords(cData, shell))
 			return;
 
-		final var image = IMG.getImage(shell.getDisplay(), IMG.APP_ICON);
+		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout(2, false);
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.textView);
 		final var isWriteable = !cData.isReadOnly();
-
-		if (isWriteable)
-			dialog.setText(cData.textView + cData.textWarn);
-
-		if (ConfData.DARK) {
-			final var table = action.getTable();
-			dialog.setBackground(table.getBackground());
-			dialog.setForeground(table.getForeground());
-			dialog.setBackgroundMode(SWT.INHERIT_FORCE);
-		}
-
-		final var tableData = new IO(action).extractData(cData).toString();
+		final var tableData = IO.extractData(cData, table).toString();
 		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
@@ -92,7 +82,7 @@ public class TextDialog {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 			if (isWriteable && !tableData.equals(textData))
 				try {
-					new IO(action).fillTable(textData);
+					new IO(action).fillTable(cData, textData, table);
 					cData.setModified(true);
 					action.enableItems();
 					action.setText();
@@ -102,6 +92,9 @@ public class TextDialog {
 		}));
 
 		setCenter(dialog);
+
+		if (isWriteable)
+			dialog.setText(cData.textView + cData.textWarn);
 
 		image.dispose();
 		dialog.open();

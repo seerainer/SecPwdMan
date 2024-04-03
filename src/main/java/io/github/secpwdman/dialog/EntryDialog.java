@@ -21,8 +21,13 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
+import static io.github.secpwdman.util.Util.getImage;
+import static io.github.secpwdman.util.Util.getUUID;
+import static io.github.secpwdman.util.Util.isArrayEqual;
+import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.group;
+import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
 import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
@@ -33,6 +38,12 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.action.EditAction;
 import io.github.secpwdman.images.IMG;
@@ -54,6 +65,86 @@ public class EntryDialog {
 	}
 
 	/**
+	 * Edits the entry.
+	 *
+	 * @param newEntry  true if new entry
+	 * @param dialog    the dialog
+	 * @param tableItem the table item
+	 */
+	private void editEntry(final boolean newEntry, final Shell dialog, final TableItem tableItem) {
+		final var child = dialog.getChildren();
+		final var uuid = ((Text) child[0]).getText();
+		final var group = ((Text) child[1]).getText();
+		final var title = ((Text) child[3]).getText();
+		final var url = ((Text) child[5]).getText();
+		final var user = ((Text) child[7]).getText();
+		final var pass = ((Text) child[9]).getText();
+		final var notes = ((Text) child[11]).getText();
+		final var textFields = new String[] { uuid, group, title, url, user, pass, notes };
+
+		if (!newEntry && tableItem != null) {
+			final var items = new String[textFields.length];
+			for (var i = 0; i < items.length; i++)
+				items[i] = tableItem.getText(i);
+
+			if (isArrayEqual(items, textFields)) {
+				dialog.close();
+				return;
+			}
+		}
+
+		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
+			editEntry(newEntry, textFields, ((Group) child[15]).getChildren());
+			dialog.close();
+		} else
+			((Text) child[3]).setFocus();
+	}
+
+	/**
+	 * Edits the entry.
+	 *
+	 * @param newEntry      true if new entry
+	 * @param textFields    the textFields
+	 * @param groupChildren the children of the group
+	 */
+	private void editEntry(final boolean newEntry, final String[] textFields, final Control[] groupChildren) {
+		final var cData = action.getCData();
+		final var table = action.getTable();
+
+		if (isEmptyString(textFields[0]))
+			textFields[0] = getUUID();
+
+		final boolean[] selection = { false, false, false, false, false };
+
+		for (var j = 0; j < selection.length; j++)
+			selection[j] = !((Button) groupChildren[j]).getSelection();
+
+		if (selection[0] && selection[1] && selection[2] && selection[3] && selection[4])
+			for (var k = 0; k < selection.length - 1; k++)
+				((Button) groupChildren[k]).setSelection(true);
+
+		if (isEmptyString(textFields[5]))
+			textFields[5] = new RandomPassword(action).generate(groupChildren);
+		else if (textFields[4].equals(textFields[5]))
+			msg(action.getShell(), SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
+
+		if (!isEmptyString(textFields[6]))
+			textFields[6] = textFields[6].replaceAll(System.lineSeparator(), cData.newLine);
+
+		if (newEntry)
+			new TableItem(table, SWT.NONE).setText(textFields);
+		else
+			table.getItem(table.getSelectionIndex()).setText(textFields);
+
+		cData.setModified(true);
+		action.colorURL();
+		action.enableItems();
+		action.resizeColumns();
+		action.setText();
+		table.redraw();
+	}
+
+	/**
 	 * Open.
 	 *
 	 * @param editLine the edit line
@@ -66,7 +157,7 @@ public class EntryDialog {
 			return;
 
 		final var shell = action.getShell();
-		final var image = IMG.getImage(shell.getDisplay(), IMG.APP_ICON);
+		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout(3, false);
 		layout.marginBottom = 20;
 		layout.marginLeft = 5;
@@ -104,26 +195,26 @@ public class EntryDialog {
 
 		emptyLabel(dialog);
 
-		final var random = group(dialog, new GridLayout(4, false), cData.entrRand);
-		random.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		final var rand = group(dialog, new GridLayout(4, false), cData.entrRand);
+		rand.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 
-		newButton(random, true, cData.rTextLoC);
-		newButton(random, true, cData.rTextUpC);
-		newButton(random, true, cData.rNumbers);
-		newButton(random, true, cData.rSpecia1);
-		newButton(random, false, cData.rSpecia2);
-		newButton(random, false, cData.entrSpac);
+		newButton(rand, true, cData.rTextLoC);
+		newButton(rand, true, cData.rTextUpC);
+		newButton(rand, true, cData.rNumbers);
+		newButton(rand, true, cData.rSpecia1);
+		newButton(rand, false, cData.rSpecia2);
+		newButton(rand, false, cData.entrSpac);
 
-		emptyLabel(random);
-		emptyLabel(random);
-		emptyLabel(random);
-		emptyLabel(random);
+		emptyLabel(rand);
+		emptyLabel(rand);
+		emptyLabel(rand);
+		emptyLabel(rand);
 
-		newLabel(random, SWT.HORIZONTAL, cData.entrLgth);
-		spinner(random, 20, cData.getPasswordMinLength(), 64, 0, 1, 4);
+		newLabel(rand, SWT.HORIZONTAL, cData.entrLgth);
+		spinner(rand, 20, cData.getPasswordMinLength(), 64, 0, 1, 4);
 
-		final var rand = new RandomPassword(action);
-		final var genButton = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> pwd.setText(rand.generate(random.getChildren()))), cData.entrGene);
+		final var r = new RandomPassword(action);
+		final var genBtn = newButton(rand, SWT.PUSH, widgetSelectedAdapter(e -> pwd.setText(r.generate(rand.getChildren()))), cData.entrGene);
 
 		emptyLabel(dialog);
 
@@ -145,11 +236,11 @@ public class EntryDialog {
 		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
 
 		if (newEntry) {
-			okBtn.addSelectionListener(widgetSelectedAdapter(e -> action.editEntry(true, dialog, null)));
+			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(true, dialog, null)));
 			dialog.setText(cData.entrNewe);
 		} else {
 			final var item = action.getTable().getItem(editLine);
-			okBtn.addSelectionListener(widgetSelectedAdapter(e -> action.editEntry(false, dialog, item)));
+			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(false, dialog, item)));
 			uuid.setText(item.getText(0));
 			group.setText(item.getText(1));
 			title.setText(item.getText(2));
@@ -164,7 +255,7 @@ public class EntryDialog {
 				user.setEditable(false);
 				pwd.setEditable(false);
 				notes.setEditable(false);
-				genButton.setEnabled(false);
+				genBtn.setEnabled(false);
 				dialog.setText(cData.entrView);
 			} else
 				dialog.setText(cData.entrEdit);

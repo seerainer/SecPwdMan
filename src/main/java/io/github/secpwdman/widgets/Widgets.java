@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.widgets;
 
+import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.isEmptyString;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -50,7 +51,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.images.IMG;
 
 /**
  * The Class Widgets.
@@ -89,6 +89,7 @@ public class Widgets {
 	 */
 	public static Group group(final Composite parent, final Layout layout, final String text) {
 		final var group = new Group(parent, SWT.SHADOW_NONE);
+		group.setFont(parent.getFont());
 		group.setLayout(layout);
 		group.setText(text);
 
@@ -172,7 +173,7 @@ public class Widgets {
 			item.setAccelerator(acc);
 
 		if (image != null && ConfData.WIN32) {
-			final var img = IMG.getImage(parent.getDisplay(), image);
+			final var img = getImage(parent.getDisplay(), image);
 			item.setImage(img);
 			img.dispose();
 		}
@@ -320,6 +321,7 @@ public class Widgets {
 	 */
 	private static Button newButton(final Composite parent, final int style, final boolean select, final SelectionListener listener, final String text) {
 		final var button = new Button(parent, style);
+		button.setFont(parent.getFont());
 		button.setForeground(parent.getForeground());
 		button.setText(text);
 
@@ -368,6 +370,7 @@ public class Widgets {
 	 */
 	public static Label newLabel(final Composite parent, final int style, final String text) {
 		final var label = new Label(parent, style);
+		label.setFont(parent.getFont());
 		label.setForeground(parent.getForeground());
 
 		if (style == SWT.HORIZONTAL + SWT.SEPARATOR)
@@ -404,6 +407,7 @@ public class Widgets {
 	public static Table newTable(final Composite parent) {
 		final var table = new Table(parent, SWT.FULL_SELECTION | SWT.MULTI);
 		table.setFocus();
+		table.setFont(parent.getFont());
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.setLinesVisible(true);
 
@@ -413,9 +417,6 @@ public class Widgets {
 			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
 			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
 		}
-
-		if (ConfData.WIN32)
-			table.setFont(new Font(parent.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
 
 		return table;
 	}
@@ -429,6 +430,7 @@ public class Widgets {
 	 */
 	public static Text newText(final Composite parent, final int style) {
 		final var text = new Text(parent, style);
+		text.setFont(parent.getFont());
 		text.setForeground(parent.getForeground());
 
 		if (style == SWT.SINGLE) {
@@ -456,6 +458,7 @@ public class Widgets {
 	 */
 	public static Shell shell(final Shell parent, final int style, final Image image, final Layout layout, final String text) {
 		final var shell = new Shell(parent, style);
+		shell.setFont(parent.getFont());
 		shell.setLayout(layout);
 
 		if (ConfData.DARK) {
@@ -500,6 +503,7 @@ public class Widgets {
 	 */
 	public static Spinner spinner(final Composite parent, final int sel, final int min, final int max, final int dig, final int inc, final int pag) {
 		final var spinner = new Spinner(parent, SWT.BORDER);
+		spinner.setFont(parent.getFont());
 		spinner.setForeground(parent.getForeground());
 		spinner.setValues(sel, min, max, dig, inc, pag);
 		spinner.pack();
@@ -518,7 +522,7 @@ public class Widgets {
 	public static ToolItem toolItem(final ToolBar toolBar, final String image, final SelectionListener listener, final String toolTip) {
 		final var display = toolBar.getDisplay();
 		final var item = new ToolItem(toolBar, SWT.PUSH);
-		final var img = IMG.getImage(display, image);
+		final var img = getImage(display, image);
 		item.addSelectionListener(listener);
 		item.setImage(img);
 		item.setDisabledImage(new Image(display, img, SWT.IMAGE_GRAY));

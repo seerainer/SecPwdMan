@@ -154,6 +154,7 @@ public class FileAction extends Action {
 		}
 
 		table.getFont().dispose();
+		shell.getFont().dispose();
 		clearClipboard();
 
 		return true;

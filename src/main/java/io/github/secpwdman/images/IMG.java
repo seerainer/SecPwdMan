@@ -20,13 +20,6 @@
  */
 package io.github.secpwdman.images;
 
-import java.io.ByteArrayInputStream;
-import java.util.Base64;
-
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
-
 /**
  * The Class IMG.
  */
@@ -240,22 +233,6 @@ public class IMG {
 			vdXbsSm3w/lqCrx2Nyhyt1cReEwg7xvqLR65DHUG8A+NCo1e7bjm6gAAAABJRU5ErkJggg==
 			"""; //$NON-NLS-1$
 
-	/**
-	 * Gets the image.
-	 *
-	 * @param display the display
-	 * @param image   the image
-	 * @return the image
-	 */
-	public static Image getImage(final Display display, final String image) {
-		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image)));
-		img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-		return img;
-	}
-
-	/**
-	 * Instantiates a new img.
-	 */
 	private IMG() {
 	}
 }

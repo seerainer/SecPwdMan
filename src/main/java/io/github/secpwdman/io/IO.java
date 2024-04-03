@@ -36,6 +36,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.csvreader.CsvReader;
@@ -75,26 +76,13 @@ public class IO {
 		return escapedData;
 	}
 
-	private final FileAction action;
-
-	/**
-	 * Instantiates a new io.
-	 *
-	 * @param action the action
-	 */
-	public IO(final FileAction action) {
-		this.action = action;
-	}
-
 	/**
 	 * Extract data from table.
 	 *
-	 * @param cData the cdata
 	 * @return the StringBuilder
 	 */
-	public StringBuilder extractData(final ConfData cData) {
+	public static StringBuilder extractData(final ConfData cData, final Table table) {
 		final var sb = new StringBuilder();
-		final var table = action.getTable();
 		final var items = table.getItems();
 
 		sb.append(cData.getHeader() + cData.newLine);
@@ -113,15 +101,24 @@ public class IO {
 		return sb;
 	}
 
+	private final FileAction action;
+
+	/**
+	 * Instantiates a new io.
+	 *
+	 * @param action the action
+	 */
+	public IO(final FileAction action) {
+		this.action = action;
+	}
+
 	/**
 	 * Fill table.
 	 *
 	 * @param str the string
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void fillTable(final String str) throws IOException {
-		final var cData = action.getCData();
-		final var table = action.getTable();
+	public void fillTable(final ConfData cData, final String str, final Table table) throws IOException {
 		final var csv = CsvReader.parse(str);
 
 		if (!csv.readHeaders())
@@ -174,7 +171,7 @@ public class IO {
 			} else
 				s = new String(new Crypto(cData).decrypt(fileBytes, pwd.getBytes()));
 
-			fillTable(s);
+			fillTable(cData, s, action.getTable());
 			return true;
 		} catch (final BadPaddingException e) {
 			exMsg = cData.errorPwd;
@@ -199,14 +196,15 @@ public class IO {
 	 */
 	public boolean saveFile(final String pwd, final String file) {
 		final var cData = action.getCData();
+		final var table = action.getTable();
 
 		try (final var fos = new FileOutputStream(file)) {
-			final var sb = extractData(cData);
+			final var data = extractData(cData, table).toString().getBytes();
 
 			if (isEmptyString(pwd))
-				fos.write(sb.toString().getBytes());
+				fos.write(data);
 			else
-				fos.write(new Crypto(cData).encrypt(sb.toString().getBytes(), pwd.getBytes()));
+				fos.write(new Crypto(cData).encrypt(data, pwd.getBytes()));
 
 			fos.close();
 			return true;
