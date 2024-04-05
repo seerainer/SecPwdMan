@@ -49,6 +49,15 @@ import io.github.secpwdman.crypto.Crypto;
  */
 public class ConfigDialog {
 
+	/**
+	 * Time test for Argon2.
+	 *
+	 * @param cData the cData
+	 * @param shell the parent
+	 * @param memo  the memory
+	 * @param iter  the iterations
+	 * @param para  the parallelism
+	 */
 	private static void argon2Test(final ConfData cData, final Shell parent, final Spinner memo, final Spinner iter, final Spinner para) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldMemo = cData.getArgonMemo();
@@ -67,6 +76,13 @@ public class ConfigDialog {
 		cData.setArgonPara(oldPara);
 	}
 
+	/**
+	 * Time test for PBKDF2-HMAC-SHA512.
+	 *
+	 * @param cData the cData
+	 * @param shell the parent
+	 * @param iter  the iterations
+	 */
 	private static void pbkdf2Test(final ConfData cData, final Shell parent, final Spinner iter) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();

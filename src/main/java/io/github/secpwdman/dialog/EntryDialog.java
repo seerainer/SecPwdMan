@@ -23,8 +23,8 @@ package io.github.secpwdman.dialog;
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.getUUID;
-import static io.github.secpwdman.util.Util.isArrayEqual;
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEmpty;
+import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -87,13 +87,13 @@ public class EntryDialog {
 			for (var i = 0; i < items.length; i++)
 				items[i] = tableItem.getText(i);
 
-			if (isArrayEqual(items, textFields)) {
+			if (isEqual(items, textFields)) {
 				dialog.close();
 				return;
 			}
 		}
 
-		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
+		if (!isEmpty(textFields[2]) || !isEmpty(textFields[4])) {
 			editEntry(newEntry, textFields, ((Group) child[15]).getChildren());
 			dialog.close();
 		} else
@@ -111,7 +111,7 @@ public class EntryDialog {
 		final var cData = action.getCData();
 		final var table = action.getTable();
 
-		if (isEmptyString(textFields[0]))
+		if (isEmpty(textFields[0]))
 			textFields[0] = getUUID();
 
 		final boolean[] selection = { false, false, false, false, false };
@@ -123,12 +123,12 @@ public class EntryDialog {
 			for (var k = 0; k < selection.length - 1; k++)
 				((Button) groupChildren[k]).setSelection(true);
 
-		if (isEmptyString(textFields[5]))
-			textFields[5] = new RandomPassword(action).generate(groupChildren);
+		if (isEmpty(textFields[5]))
+			textFields[5] = RandomPassword.generate(action, groupChildren);
 		else if (textFields[4].equals(textFields[5]))
 			msg(action.getShell(), SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
 
-		if (!isEmptyString(textFields[6]))
+		if (!isEmpty(textFields[6]))
 			textFields[6] = textFields[6].replaceAll(System.lineSeparator(), cData.newLine);
 
 		if (newEntry)
@@ -191,30 +191,31 @@ public class EntryDialog {
 		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
 		pwdStrengthLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 		pwdStrengthLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		pwd.addModifyListener(e -> evalPasswordStrength(cData, pwdStrengthLabel, pwd.getText()));
+		pwd.addModifyListener(e -> evalPasswordStrength(cData, pwdStrengthLabel, pwd.getTextChars()));
 
 		emptyLabel(dialog);
 
-		final var rand = group(dialog, new GridLayout(4, false), cData.entrRand);
-		rand.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		final var random = group(dialog, new GridLayout(4, false), cData.entrRand);
+		random.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 
-		newButton(rand, true, cData.rTextLoC);
-		newButton(rand, true, cData.rTextUpC);
-		newButton(rand, true, cData.rNumbers);
-		newButton(rand, true, cData.rSpecia1);
-		newButton(rand, false, cData.rSpecia2);
-		newButton(rand, false, cData.entrSpac);
+		newButton(random, true, cData.rTextLoC);
+		newButton(random, true, cData.rTextUpC);
+		newButton(random, true, cData.rNumbers);
+		newButton(random, true, cData.rSpecia1);
+		newButton(random, false, cData.rSpecia2);
+		newButton(random, false, cData.entrSpac);
 
-		emptyLabel(rand);
-		emptyLabel(rand);
-		emptyLabel(rand);
-		emptyLabel(rand);
+		emptyLabel(random);
+		emptyLabel(random);
+		emptyLabel(random);
+		emptyLabel(random);
 
-		newLabel(rand, SWT.HORIZONTAL, cData.entrLgth);
-		spinner(rand, 20, cData.getPasswordMinLength(), 64, 0, 1, 4);
+		newLabel(random, SWT.HORIZONTAL, cData.entrLgth);
+		spinner(random, 20, cData.getPasswordMinLength(), 64, 0, 1, 4);
 
-		final var r = new RandomPassword(action);
-		final var genBtn = newButton(rand, SWT.PUSH, widgetSelectedAdapter(e -> pwd.setText(r.generate(rand.getChildren()))), cData.entrGene);
+		final var genBtn = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> {
+			pwd.setText(RandomPassword.generate(action, random.getChildren()));
+		}), cData.entrGene);
 
 		emptyLabel(dialog);
 

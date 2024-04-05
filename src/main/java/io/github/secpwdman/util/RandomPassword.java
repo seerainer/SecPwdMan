@@ -20,12 +20,9 @@
  */
 package io.github.secpwdman.util;
 
-import static io.github.secpwdman.util.Util.getSecureRandom;
-import static io.github.secpwdman.util.Util.isEmptyString;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
@@ -39,6 +36,54 @@ import io.github.secpwdman.config.ConfData;
  * The Class RandomPassword.
  */
 public class RandomPassword {
+
+	/**
+	 * Generate a random password.
+	 *
+	 * @param children the children
+	 * @return the string
+	 */
+	public static String generate(final Action action, final Control[] children) {
+		final var cData = action.getCData();
+		final var sign = new StringBuilder();
+		final boolean[] select = { false, false, false, false, false, false };
+
+		for (var i = 0; i < select.length; i++) {
+			select[i] = ((Button) children[i]).getSelection();
+			final var text = ((Button) children[i]).getText();
+
+			if (select[i])
+				if (i == 5)
+					sign.append(cData.space);
+				else if (i == 3)
+					sign.append(text.substring(0, text.length() - 1));
+				else
+					sign.append(text);
+		}
+
+		if (Util.isEmpty(sign.toString()))
+			return cData.nullStr;
+
+		final var randomPwd = new StringBuilder();
+
+		try {
+			final var random = Util.getSecureRandom();
+			final var spinner = ((Spinner) children[11]).getSelection();
+
+			do {
+				randomPwd.setLength(0);
+				for (var count = spinner; 0 < count; count--) {
+					final var next = random.nextInt(sign.length());
+					final var c = sign.charAt(next % sign.length());
+					randomPwd.append(c);
+				}
+			} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
+		} catch (final NoSuchAlgorithmException e) {
+			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		}
+
+		return randomPwd.toString();
+	}
 
 	/**
 	 * Checks if it is a weak password.
@@ -64,68 +109,9 @@ public class RandomPassword {
 			else if (Character.isSpaceChar(c))
 				b[5] = true;
 
-		if (Arrays.equals(selection, b))
+		if (Util.isEqual(selection, b))
 			return false;
 
 		return true;
-	}
-
-	private final Action action;
-
-	/**
-	 * Instantiates a new random password.
-	 *
-	 * @param action the action
-	 */
-	public RandomPassword(final Action action) {
-		this.action = action;
-	}
-
-	/**
-	 * Generate a random password.
-	 *
-	 * @param children the children
-	 * @return the string
-	 */
-	public String generate(final Control[] children) {
-		final var cData = action.getCData();
-		final var sign = new StringBuilder();
-		final boolean[] select = { false, false, false, false, false, false };
-
-		for (var i = 0; i < select.length; i++) {
-			select[i] = ((Button) children[i]).getSelection();
-			final var text = ((Button) children[i]).getText();
-
-			if (select[i])
-				if (i == 5)
-					sign.append(cData.space);
-				else if (i == 3)
-					sign.append(text.substring(0, text.length() - 1));
-				else
-					sign.append(text);
-		}
-
-		if (isEmptyString(sign.toString()))
-			return cData.nullStr;
-
-		final var randomPwd = new StringBuilder();
-
-		try {
-			final var random = getSecureRandom();
-			final var spinner = ((Spinner) children[11]).getSelection();
-
-			do {
-				randomPwd.setLength(0);
-				for (var count = spinner; 0 < count; count--) {
-					final var next = random.nextInt(sign.length());
-					final var c = sign.charAt(next % sign.length());
-					randomPwd.append(c);
-				}
-			} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
-		} catch (final NoSuchAlgorithmException e) {
-			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
-		}
-
-		return randomPwd.toString();
 	}
 }

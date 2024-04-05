@@ -20,7 +20,7 @@
  */
 package io.github.secpwdman.io;
 
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.io.FileInputStream;
@@ -57,7 +57,7 @@ public class IO {
 	 * @return the string
 	 */
 	private static String escapeSpecialChar(final ConfData cData, final String s) {
-		if (isEmptyString(s))
+		if (isEmpty(s))
 			return s;
 
 		var escapedData = s.replaceAll(cData.lineBrk, cData.space);
@@ -79,6 +79,8 @@ public class IO {
 	/**
 	 * Extract data from table.
 	 *
+	 * @param cData the cdata
+	 * @param table the table
 	 * @return the StringBuilder
 	 */
 	public static StringBuilder extractData(final ConfData cData, final Table table) {
@@ -115,7 +117,9 @@ public class IO {
 	/**
 	 * Fill table.
 	 *
-	 * @param str the string
+	 * @param cData the cdata
+	 * @param str   the string
+	 * @param table the table
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void fillTable(final ConfData cData, final String str, final Table table) throws IOException {
@@ -149,7 +153,7 @@ public class IO {
 	 * @param pwd the password
 	 * @return true, if successful
 	 */
-	public boolean openFile(final String pwd) {
+	public boolean openFile(final byte[] pwd) {
 		final var cData = action.getCData();
 		var exMsg = cData.empty;
 
@@ -165,11 +169,12 @@ public class IO {
 
 			var s = cData.empty;
 
-			if (isEmptyString(pwd)) {
+			if (pwd != null && pwd.length > 0)
+				s = new String(new Crypto(cData).decrypt(fileBytes, pwd));
+			else {
 				s = new String(fileBytes).trim();
 				cData.setFile(null);
-			} else
-				s = new String(new Crypto(cData).decrypt(fileBytes, pwd.getBytes()));
+			}
 
 			fillTable(cData, s, action.getTable());
 			return true;
@@ -194,17 +199,17 @@ public class IO {
 	 * @param file the file
 	 * @return true, if successful
 	 */
-	public boolean saveFile(final String pwd, final String file) {
+	public boolean saveFile(final byte[] pwd, final String file) {
 		final var cData = action.getCData();
 		final var table = action.getTable();
 
 		try (final var fos = new FileOutputStream(file)) {
 			final var data = extractData(cData, table).toString().getBytes();
 
-			if (isEmptyString(pwd))
-				fos.write(data);
+			if (pwd != null && pwd.length > 0)
+				fos.write(new Crypto(cData).encrypt(data, pwd));
 			else
-				fos.write(new Crypto(cData).encrypt(data, pwd.getBytes()));
+				fos.write(data);
 
 			fos.close();
 			return true;

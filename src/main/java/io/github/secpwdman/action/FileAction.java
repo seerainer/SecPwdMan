@@ -20,10 +20,11 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.WIN32;
 import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.getFilePath;
-import static io.github.secpwdman.util.Util.isArrayEqual;
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEmpty;
+import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
 import static io.github.secpwdman.util.Util.msgShowPasswords;
@@ -105,7 +106,7 @@ public class FileAction extends Action {
 	 * @param header the header
 	 */
 	public void createColumns(final String[] header) {
-		final var stdHead = isArrayEqual(header, cData.defaultHeader);
+		final var stdHead = isEqual(header, cData.defaultHeader);
 
 		if (stdHead) {
 			cData.setCustomHeader(false);
@@ -188,7 +189,7 @@ public class FileAction extends Action {
 				return;
 
 			final var f = dialog.open();
-			if (!isEmptyString(f))
+			if (!isEmpty(f))
 				io.saveFile(null, f);
 		}
 	}
@@ -235,7 +236,7 @@ public class FileAction extends Action {
 			dialog.setFilterExtensions(new String[] { cData.passExte });
 			final var f = dialog.open();
 
-			if (!isEmptyString(f) && f.endsWith(cData.passExte.substring(1))) {
+			if (!isEmpty(f) && f.endsWith(cData.passExte.substring(1))) {
 				cData.setFile(f);
 
 				if (style == SWT.OPEN && isReadable(f)) {
@@ -266,7 +267,7 @@ public class FileAction extends Action {
 			setText();
 
 			final var tray = shell.getDisplay().getSystemTray();
-			if (tray != null && ConfData.WIN32) {
+			if (tray != null && WIN32) {
 				shell.setMinimized(true);
 				shell.setVisible(false);
 				final var trayItem = tray.getItem(0);

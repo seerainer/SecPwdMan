@@ -20,8 +20,10 @@
  */
 package io.github.secpwdman.widgets;
 
+import static io.github.secpwdman.util.Util.DARK;
+import static io.github.secpwdman.util.Util.WIN32;
 import static io.github.secpwdman.util.Util.getImage;
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEmpty;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
@@ -50,8 +52,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import io.github.secpwdman.config.ConfData;
-
 /**
  * The Class Widgets.
  */
@@ -60,6 +60,7 @@ public class Widgets {
 	/**
 	 * Empty label.
 	 *
+	 * @param parent the parent
 	 * @return the label
 	 */
 	public static Label emptyLabel(final Composite parent) {
@@ -93,7 +94,7 @@ public class Widgets {
 		group.setLayout(layout);
 		group.setText(text);
 
-		if (ConfData.DARK)
+		if (DARK)
 			group.setForeground(parent.getForeground());
 
 		return group;
@@ -140,7 +141,7 @@ public class Widgets {
 		link.setText(text);
 		link.setToolTipText(url);
 
-		if (!isEmptyString(font))
+		if (!isEmpty(font))
 			link.setFont(new Font(parent.getDisplay(), new FontData(font, 12, SWT.NORMAL)));
 
 		return link;
@@ -172,7 +173,7 @@ public class Widgets {
 		if (acc > 0)
 			item.setAccelerator(acc);
 
-		if (image != null && ConfData.WIN32) {
+		if (image != null && WIN32) {
 			final var img = getImage(parent.getDisplay(), image);
 			item.setImage(img);
 			img.dispose();
@@ -181,7 +182,7 @@ public class Widgets {
 		if (selection)
 			item.setSelection(selection);
 
-		if (!isEmptyString(text))
+		if (!isEmpty(text))
 			item.setText(text);
 
 		return item;
@@ -378,7 +379,7 @@ public class Widgets {
 		else
 			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1));
 
-		if (!isEmptyString(text))
+		if (!isEmpty(text))
 			label.setText(text);
 
 		return label;
@@ -411,7 +412,7 @@ public class Widgets {
 		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		table.setLinesVisible(true);
 
-		if (ConfData.DARK) {
+		if (DARK) {
 			table.setBackground(parent.getBackground());
 			table.setForeground(parent.getForeground());
 			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
@@ -461,7 +462,7 @@ public class Widgets {
 		shell.setFont(parent.getFont());
 		shell.setLayout(layout);
 
-		if (ConfData.DARK) {
+		if (DARK) {
 			shell.setBackground(parent.getBackground());
 			shell.setForeground(parent.getForeground());
 			shell.setBackgroundMode(SWT.INHERIT_FORCE);
@@ -470,7 +471,7 @@ public class Widgets {
 		if (image != null)
 			shell.setImage(image);
 
-		if (!isEmptyString(text))
+		if (!isEmpty(text))
 			shell.setText(text);
 
 		return shell;
@@ -513,7 +514,7 @@ public class Widgets {
 	/**
 	 * Tool item.
 	 *
-	 * @param toolBar  the tool bar
+	 * @param toolBar  the toolbar
 	 * @param image    the image
 	 * @param listener the listener
 	 * @param toolTip  the tooltip
@@ -533,7 +534,7 @@ public class Widgets {
 	/**
 	 * Tool item separator.
 	 *
-	 * @param toolBar the tool bar
+	 * @param toolBar the toolbar
 	 * @return the tool item
 	 */
 	public static ToolItem toolItemSeparator(final ToolBar toolBar) {

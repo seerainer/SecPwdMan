@@ -23,18 +23,14 @@ package io.github.secpwdman.config;
 import static io.github.secpwdman.Messages.getString;
 
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * The Class ConfData.
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.0"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.1"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
-
-	public static final boolean DARK = Display.isSystemDarkTheme();
-	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
 	private boolean isClearAfterSave = false;
@@ -143,8 +139,9 @@ public class ConfData {
 	public final String menuFont = getString("Menu.View.Font"); //$NON-NLS-1$
 	public final String menuText = getString("Menu.View.TextView"); //$NON-NLS-1$
 	public final String menuPref = getString("Menu.View.Preferences"); //$NON-NLS-1$
-	public final String menuInfo = getString("Menu.Info"); //$NON-NLS-1$
-	public final String menuSysI = getString("Menu.InfoSystem"); //$NON-NLS-1$
+	public final String menuInfo = getString("Menu.Help"); //$NON-NLS-1$
+	public final String menuAbou = getString("Menu.Help.About"); //$NON-NLS-1$
+	public final String menuSysI = getString("Menu.Help.System"); //$NON-NLS-1$
 	public final String cfgTitle = getString("Dialog.Config.Title"); //$NON-NLS-1$
 	public final String cfgKeyDF = getString("Dialog.Config.KeyDF"); //$NON-NLS-1$
 	public final String cfgArgon = getString("Dialog.Config.Argon"); //$NON-NLS-1$

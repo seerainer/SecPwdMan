@@ -24,6 +24,8 @@ import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -44,6 +46,8 @@ import io.github.secpwdman.config.ConfData;
  * The Class Util.
  */
 public class Util {
+	public static final boolean DARK = Display.isSystemDarkTheme();
+	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * Convert string array to string.
@@ -98,24 +102,46 @@ public class Util {
 	}
 
 	/**
+	 * Checks if is empty string.
+	 *
+	 * @param s the string s
+	 * @return true, if is empty string
+	 */
+	public static boolean isEmpty(final String s) {
+		return s == null || s.isBlank();
+	}
+
+	/**
+	 * Checks if array is equal.
+	 *
+	 * @param a the first boolean[] a
+	 * @param b the second boolean[] b
+	 * @return true, if equal
+	 */
+	public static boolean isEqual(final boolean[] a, final boolean[] b) {
+		return Arrays.equals(a, b);
+	}
+
+	/**
+	 * Checks if array is equal.
+	 *
+	 * @param a the first char[] a
+	 * @param b the second char[] b
+	 * @return true, if equal
+	 */
+	public static boolean isEqual(final char[] a, final char[] b) {
+		return Arrays.equals(a, b);
+	}
+
+	/**
 	 * Checks if array is equal.
 	 *
 	 * @param a the first object a
 	 * @param b the second object b
 	 * @return true, if equal
 	 */
-	public static boolean isArrayEqual(final Object[] a, final Object[] b) {
+	public static boolean isEqual(final Object[] a, final Object[] b) {
 		return Arrays.equals(a, b);
-	}
-
-	/**
-	 * Checks if is empty string.
-	 *
-	 * @param s the string s
-	 * @return true, if is empty string
-	 */
-	public static boolean isEmptyString(final String s) {
-		return s == null || s.isBlank();
 	}
 
 	/**
@@ -125,7 +151,7 @@ public class Util {
 	 * @return true, if is file open
 	 */
 	public static boolean isFileOpen(final String f) {
-		return !isEmptyString(f) && isReadable(f);
+		return !isEmpty(f) && isReadable(f);
 	}
 
 	/**
@@ -179,6 +205,31 @@ public class Util {
 		final var r = shell.getDisplay().getBounds();
 		final var s = shell.getBounds();
 		shell.setLocation(new Point((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5));
+	}
+
+	/**
+	 * Character array to byte array.
+	 *
+	 * @param c the char[]
+	 * @return the byte[]
+	 */
+	public static byte[] toBytes(final char[] c) {
+		final var charBuffer = CharBuffer.wrap(c);
+		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+		final var bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+		Arrays.fill(charBuffer.array(), '\u0000');
+		Arrays.fill(byteBuffer.array(), (byte) 0);
+		return bytes;
+	}
+
+	/**
+	 * Character array to CharSequence.
+	 *
+	 * @param c the char[]
+	 * @return the CharSequence
+	 */
+	public static CharSequence toCharSequence(final char[] c) {
+		return CharBuffer.wrap(c);
 	}
 
 	private Util() {

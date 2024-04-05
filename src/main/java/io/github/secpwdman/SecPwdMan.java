@@ -20,8 +20,10 @@
  */
 package io.github.secpwdman;
 
+import static io.github.secpwdman.util.Util.DARK;
+import static io.github.secpwdman.util.Util.WIN32;
 import static io.github.secpwdman.util.Util.getImage;
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
 import static io.github.secpwdman.widgets.Widgets.menuItem;
@@ -45,8 +47,6 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -165,7 +165,7 @@ public class SecPwdMan {
 
 	private final ShellListener deiconified = shellDeiconifiedAdapter(e -> {
 		final var tray = shell.getDisplay().getSystemTray();
-		if (tray != null && ConfData.WIN32)
+		if (tray != null && WIN32)
 			tray.getItem(0).setVisible(false);
 		shell.addShellListener(activated);
 	});
@@ -194,7 +194,7 @@ public class SecPwdMan {
 
 		System.setProperty(cData.systemThem, Boolean.TRUE.toString());
 
-		if (ConfData.DARK && ConfData.WIN32) {
+		if (DARK && WIN32) {
 			display.setData(cData.darkModeTh, Boolean.TRUE);
 			display.setData(cData.shellTitle, Boolean.TRUE);
 			display.setData(cData.menuBackgr, new Color(0x32, 0x32, 0x32));
@@ -259,7 +259,7 @@ public class SecPwdMan {
 		menuItem(menuBar, SWT.CASCADE, info, cData.menuInfo);
 		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new SystemInfoDialog(fileAction)), cData.menuSysI);
 		menuItemSeparator(info);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new InfoDialog(fileAction)), cData.menuInfo);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new InfoDialog(fileAction)), cData.menuAbou);
 
 		return menuBar;
 	}
@@ -286,12 +286,11 @@ public class SecPwdMan {
 		layout.marginWidth = 0;
 		layout.verticalSpacing = 0;
 
-		if (ConfData.WIN32) {
+		if (WIN32) {
 			layout.marginTop = -2;
 			height = display.getBounds().height - 40;
 			trayItem(display, image);
 			shell.setLocation(-9, 0);
-			shell.setFont(new Font(shell.getDisplay(), new FontData("Segoe UI Emoji", 9, SWT.NORMAL))); //$NON-NLS-1$
 		}
 
 		shell.setImage(image);
@@ -329,7 +328,7 @@ public class SecPwdMan {
 		final var csv = cData.imexExte.substring(1, 5);
 		final var txt = cData.imexExte.substring(8);
 
-		if (!isEmptyString(file))
+		if (!isEmpty(file))
 			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
 				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
@@ -348,7 +347,7 @@ public class SecPwdMan {
 	 * @param display the display
 	 */
 	private void shellColor(final Display display) {
-		if (ConfData.DARK) {
+		if (DARK) {
 			final var darkForeground = new Color(0xEE, 0xEE, 0xEE);
 			final var toolBar = (ToolBar) shell.getChildren()[0];
 			toolBar.setBackground(new Color(0x64, 0x64, 0x64));

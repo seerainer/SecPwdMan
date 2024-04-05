@@ -39,22 +39,25 @@ public class PasswordStrength {
 	 * @param label the label
 	 * @param pwd   the text
 	 */
-	public static void evalPasswordStrength(final ConfData cData, final Label label, final CharSequence pwd) {
+	public static void evalPasswordStrength(final ConfData cData, final Label label, final char[] pwd) {
 		final var display = label.getDisplay();
 		final var minLength = cData.getPasswordMinLength();
 
-		if (pwd.length() < minLength) {
+		if (pwd.length < minLength) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passShor + minLength);
 			label.setToolTipText(null);
 			return;
 		}
 
-		final var strength = new Zxcvbn().measure(pwd);
+		var pwdChar = Util.toCharSequence(pwd);
+		final var strength = new Zxcvbn().measure(pwdChar);
+		pwdChar = null;
+
 		final var crackTimes = strength.getCrackTimesDisplay();
-		final var ofs = crackTimes.getOfflineSlowHashing1e4perSecond();
-		final var onf = crackTimes.getOnlineNoThrottling10perSecond();
-		final var ons = crackTimes.getOnlineThrottling100perHour();
+		final var offlineSlow = crackTimes.getOfflineSlowHashing1e4perSecond();
+		final var onlineFast = crackTimes.getOnlineNoThrottling10perSecond();
+		final var onlineSlow = crackTimes.getOnlineThrottling100perHour();
 		var text = cData.passWeak;
 
 		switch (strength.getScore()) {
@@ -78,12 +81,12 @@ public class PasswordStrength {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 		else if (text == cData.passGood)
 			label.setForeground(label.getParent().getForeground());
-		else if (ConfData.DARK)
+		else if (Util.DARK)
 			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
 		else
 			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
 
 		label.setText(text);
-		label.setToolTipText(cData.passOfsl + ofs + cData.passOnfa + onf + cData.passOnsl + ons);
+		label.setToolTipText(cData.passOfsl + offlineSlow + cData.passOnfa + onlineFast + cData.passOnsl + onlineSlow);
 	}
 }

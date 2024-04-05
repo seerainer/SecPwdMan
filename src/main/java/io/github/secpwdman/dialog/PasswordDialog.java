@@ -21,8 +21,9 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
-import static io.github.secpwdman.util.Util.isEmptyString;
+import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.util.Util.toBytes;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
@@ -53,19 +54,24 @@ public class PasswordDialog {
 	 *
 	 * @param e     the ModifyEvent e
 	 * @param cData the cData
+	 * @param text2 the text2
 	 */
 	private static void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
 		final var text1 = (Text) e.widget;
 		final var label = (Label) text1.getParent().getChildren()[7];
-		final var text = text1.getText();
+		var pwd1 = text1.getTextChars();
+		var pwd2 = text2.getTextChars();
 
-		if (text.equals(text2.getText()))
-			evalPasswordStrength(cData, label, text);
+		if (isEqual(pwd1, pwd2))
+			evalPasswordStrength(cData, label, pwd1);
 		else {
 			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passNoMa);
 			label.setToolTipText(null);
 		}
+
+		pwd1 = null;
+		pwd2 = null;
 	}
 
 	private final FileAction action;
@@ -89,19 +95,22 @@ public class PasswordDialog {
 		final var shell = action.getShell();
 		final var io = new IO(action);
 		final var pwd = ((Text) dialog.getChildren()[1]);
-		final var pwdStr = pwd.getText();
+		var pwdChar = pwd.getTextChars();
+		final var length = pwdChar.length;
 		pwd.selectAll();
 
 		if (dialog.getBounds().height == 150) {
 			final var minPwdLength = cData.getPasswordMinLength();
-			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
 			final var shortMsg = String.format(cData.errorLen, Integer.valueOf(minPwdLength));
+			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
+			var pwdChar2 = pwdConfirm.getTextChars();
 			pwdConfirm.selectAll();
 
-			if ((!isEmptyString(pwdStr) && pwdStr.equals(pwdConfirm.getText())))
-				if (pwd.getText().length() < minPwdLength)
+			if ((length > 0 && isEqual(pwdChar, pwdChar2)))
+				if (length < minPwdLength)
 					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, shortMsg);
-				else if (io.saveFile(pwdStr, cData.getFile())) {
+				else if (io.saveFile(toBytes(pwdChar), cData.getFile())) {
+					pwdChar2 = null;
 					cData.setModified(false);
 					dialog.close();
 
@@ -110,7 +119,7 @@ public class PasswordDialog {
 					else if (cData.isClearAfterSave())
 						action.clearData();
 				}
-		} else if (!isEmptyString(pwdStr) && io.openFile(pwdStr)) {
+		} else if (length > 0 && io.openFile(toBytes(pwdChar))) {
 			cData.setLocked(false);
 			cData.setModified(false);
 			cData.setReadOnly(true);
@@ -123,15 +132,16 @@ public class PasswordDialog {
 		if (shell != null && !shell.isDisposed()) {
 			action.enableItems();
 			action.setText();
+			pwdChar = null;
 		}
 	}
 
 	/**
 	 * Open.
 	 *
-	 * @param confirm the confirm
+	 * @param save if true save file
 	 */
-	public void open(final boolean confirm) {
+	public void open(final boolean save) {
 		final var cData = action.getCData();
 		final var layout = new GridLayout(4, false);
 		layout.marginLeft = 5;
@@ -148,7 +158,7 @@ public class PasswordDialog {
 
 		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> confirmPassword(dialog)), cData.entrOkay));
 
-		if (confirm) {
+		if (save) {
 			newLabel(dialog, SWT.HORIZONTAL, cData.passConf);
 			final var pwdConfirm = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
 			pwd.addModifyListener(e -> testPassword(e, cData, pwdConfirm));

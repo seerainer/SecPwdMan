@@ -133,7 +133,9 @@ public class Crypto {
 	 *
 	 * @param pwd  the password
 	 * @param salt the salt
-	 * @return the SecretKey
+	 * @return the SecretKeySpec
+	 * @throws InvalidKeySpecException  the invalid key spec exception
+	 * @throws NoSuchAlgorithmException the no such algorithm exception
 	 */
 	private SecretKey keyDerivation(final byte[] pwd, final byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException {
 		if (cData.isArgon2id()) {
