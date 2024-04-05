@@ -72,7 +72,7 @@ public class RandomPassword {
 
 			do {
 				randomPwd.setLength(0);
-				for (var count = spinner; 0 < count; count--) {
+				for (var count = spinner; count > 0; count--) {
 					final var next = random.nextInt(sign.length());
 					final var c = sign.charAt(next % sign.length());
 					randomPwd.append(c);

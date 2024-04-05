@@ -136,7 +136,7 @@ public class Widgets {
 	public static Link link(final Composite parent, final String url, final Color color, final String text, final String font) {
 		final var link = new Link(parent, SWT.NONE);
 		link.addSelectionListener(widgetSelectedAdapter(e -> Program.launch(url)));
-		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 		link.setLinkForeground(color);
 		link.setText(text);
 		link.setToolTipText(url);
@@ -334,9 +334,9 @@ public class Widgets {
 		if (style == SWT.CHECK)
 			data = new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1);
 		else if (style == SWT.RADIO)
-			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
+			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 		else {
-			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1);
+			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
 			data.widthHint = 80;
 		}
 
@@ -377,7 +377,7 @@ public class Widgets {
 		if (style == SWT.HORIZONTAL + SWT.SEPARATOR)
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		else
-			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, 1, 1));
+			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 
 		if (!isEmpty(text))
 			label.setText(text);
@@ -388,13 +388,13 @@ public class Widgets {
 	/**
 	 * New menu.
 	 *
-	 * @param shell    the shell
+	 * @param parent   the parent
 	 * @param state    the state
 	 * @param listener the listener
 	 * @return the menu
 	 */
-	public static Menu newMenu(final Shell shell, final int state, final MenuListener listener) {
-		final var menu = new Menu(shell, state);
+	public static Menu newMenu(final Shell parent, final int state, final MenuListener listener) {
+		final var menu = new Menu(parent, state);
 		menu.addMenuListener(listener);
 		return menu;
 	}

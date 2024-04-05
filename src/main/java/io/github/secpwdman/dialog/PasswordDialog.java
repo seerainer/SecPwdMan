@@ -110,7 +110,6 @@ public class PasswordDialog {
 				if (length < minPwdLength)
 					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, shortMsg);
 				else if (io.saveFile(toBytes(pwdChar), cData.getFile())) {
-					pwdChar2 = null;
 					cData.setModified(false);
 					dialog.close();
 
@@ -119,6 +118,8 @@ public class PasswordDialog {
 					else if (cData.isClearAfterSave())
 						action.clearData();
 				}
+
+			pwdChar2 = null;
 		} else if (length > 0 && io.openFile(toBytes(pwdChar))) {
 			cData.setLocked(false);
 			cData.setModified(false);

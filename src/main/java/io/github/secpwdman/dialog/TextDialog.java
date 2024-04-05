@@ -62,27 +62,27 @@ public class TextDialog {
 		final var shell = action.getShell();
 		final var table = action.getTable();
 
-		if (!msgShowPasswords(cData, shell))
+		if (table.getItemCount() > 0 && !cData.isCustomHeader() && !msgShowPasswords(cData, shell))
 			return;
 
 		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
-		final var layout = new GridLayout(2, false);
+		final var layout = new GridLayout();
 		layout.marginHeight = 0;
 		layout.marginWidth = 0;
 
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.textView);
 		final var isWriteable = !cData.isReadOnly();
-		final var tableData = IO.extractData(cData, table).toString();
+		final var tableData = new String(new IO(action).extractData());
 		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		text.setText(tableData);
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 			if (isWriteable && !tableData.equals(textData))
 				try {
-					new IO(action).fillTable(cData, textData, table);
+					new IO(action).fillTable(textData.getBytes());
 					cData.setModified(true);
 					action.enableItems();
 					action.setText();

@@ -53,12 +53,12 @@ public class ConfigDialog {
 	 * Time test for Argon2.
 	 *
 	 * @param cData the cData
-	 * @param shell the parent
+	 * @param shell the shell
 	 * @param memo  the memory
 	 * @param iter  the iterations
 	 * @param para  the parallelism
 	 */
-	private static void argon2Test(final ConfData cData, final Shell parent, final Spinner memo, final Spinner iter, final Spinner para) {
+	private static void argon2Test(final ConfData cData, final Shell shell, final Spinner memo, final Spinner iter, final Spinner para) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldMemo = cData.getArgonMemo();
 		final var oldIter = cData.getArgonIter();
@@ -68,7 +68,7 @@ public class ConfigDialog {
 		cData.setArgonIter(iter.getSelection());
 		cData.setArgonPara(para.getSelection());
 
-		timeTest(cData, parent);
+		timeTest(cData, shell);
 
 		cData.setArgon2id(oldArgo);
 		cData.setArgonMemo(oldMemo);
@@ -80,16 +80,16 @@ public class ConfigDialog {
 	 * Time test for PBKDF2-HMAC-SHA512.
 	 *
 	 * @param cData the cData
-	 * @param shell the parent
+	 * @param shell the shell
 	 * @param iter  the iterations
 	 */
-	private static void pbkdf2Test(final ConfData cData, final Shell parent, final Spinner iter) {
+	private static void pbkdf2Test(final ConfData cData, final Shell shell, final Spinner iter) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();
 		cData.setArgon2id(false);
 		cData.setPBKDFIter(iter.getSelection());
 
-		timeTest(cData, parent);
+		timeTest(cData, shell);
 
 		cData.setArgon2id(oldArgo);
 		cData.setPBKDFIter(oldIter);
@@ -99,9 +99,9 @@ public class ConfigDialog {
 	 * Time test for encrypt / decrypt.
 	 *
 	 * @param cData the cData
-	 * @param shell the parent
+	 * @param shell the shell
 	 */
-	private static void timeTest(final ConfData cData, final Shell parent) {
+	private static void timeTest(final ConfData cData, final Shell shell) {
 		try {
 			final var rand = new Random();
 			final var txt = new byte[1024];
@@ -116,9 +116,9 @@ public class ConfigDialog {
 			new Crypto(cData).decrypt(enc, pwd);
 			final var t1 = Long.valueOf(ChronoUnit.MILLIS.between(start, Instant.now()));
 			final var str = String.format(cData.cfgTestI, t0, t1);
-			msg(parent, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, str);
+			msg(shell, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, str);
 		} catch (final Exception ex) {
-			msg(parent, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
+			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 		}
 	}
 

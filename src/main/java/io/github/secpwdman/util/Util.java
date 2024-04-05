@@ -125,6 +125,17 @@ public class Util {
 	/**
 	 * Checks if array is equal.
 	 *
+	 * @param a the first byte[] a
+	 * @param b the second byte[] b
+	 * @return true, if equal
+	 */
+	public static boolean isEqual(final byte[] a, final byte[] b) {
+		return Arrays.equals(a, b);
+	}
+
+	/**
+	 * Checks if array is equal.
+	 *
 	 * @param a the first char[] a
 	 * @param b the second char[] b
 	 * @return true, if equal
