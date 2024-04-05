@@ -20,24 +20,15 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.util.Util.getUUID;
-import static io.github.secpwdman.util.Util.isArrayEqual;
-import static io.github.secpwdman.util.Util.isEmptyString;
-import static io.github.secpwdman.widgets.Widgets.msg;
+import static io.github.secpwdman.util.Util.isEmpty;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.util.RandomPassword;
 
 /**
  * The Class EditAction.
@@ -63,7 +54,7 @@ public class EditAction extends Action {
 	public void copyToClipboard(final int index) {
 		var text = table.getItem(table.getSelectionIndex()).getText(index);
 
-		if (isEmptyString(text))
+		if (isEmpty(text))
 			text = cData.nullStr;
 
 		final var display = shell.getDisplay();
@@ -86,72 +77,5 @@ public class EditAction extends Action {
 
 		enableItems();
 		setText();
-	}
-
-	/**
-	 * Edits the entry.
-	 *
-	 * @param newEntry  true if new entry
-	 * @param dialog    the dialog
-	 * @param tableItem the table item
-	 */
-	public void editEntry(final boolean newEntry, final Shell dialog, final TableItem tableItem) {
-		final var child = dialog.getChildren();
-		final var uuid = ((Text) child[0]).getText();
-		final var group = ((Text) child[1]).getText();
-		final var title = ((Text) child[3]).getText();
-		final var url = ((Text) child[5]).getText();
-		final var user = ((Text) child[7]).getText();
-		final var pass = ((Text) child[9]).getText();
-		final var notes = ((Text) child[11]).getText();
-		final var textFields = new String[] { uuid, group, title, url, user, pass, notes };
-
-		if (!newEntry && tableItem != null) {
-			final var items = new String[textFields.length];
-			for (var i = 0; i < items.length; i++)
-				items[i] = tableItem.getText(i);
-
-			if (isArrayEqual(items, textFields)) {
-				dialog.close();
-				return;
-			}
-		}
-
-		if (!isEmptyString(textFields[2]) || !isEmptyString(textFields[4])) {
-			if (isEmptyString(textFields[0]))
-				textFields[0] = getUUID();
-
-			final var groupChildren = ((Group) child[15]).getChildren();
-			final boolean[] selection = { false, false, false, false, false };
-
-			for (var j = 0; j < selection.length; j++)
-				selection[j] = !((Button) groupChildren[j]).getSelection();
-
-			if (selection[0] && selection[1] && selection[2] && selection[3] && selection[4])
-				for (var k = 0; k < selection.length - 1; k++)
-					((Button) groupChildren[k]).setSelection(true);
-
-			if (isEmptyString(textFields[5]))
-				textFields[5] = new RandomPassword(this).generate(groupChildren);
-			else if (user.equals(pass))
-				msg(shell, SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
-
-			if (!isEmptyString(textFields[6]))
-				textFields[6] = notes.replaceAll(System.lineSeparator(), cData.newLine);
-
-			if (newEntry)
-				new TableItem(table, SWT.NONE).setText(textFields);
-			else
-				table.getItem(table.getSelectionIndex()).setText(textFields);
-
-			dialog.close();
-			cData.setModified(true);
-			colorURL();
-			enableItems();
-			resizeColumns();
-			setText();
-			table.redraw();
-		} else
-			((Text) child[3]).setFocus();
 	}
 }
