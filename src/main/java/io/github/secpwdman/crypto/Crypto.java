@@ -71,6 +71,8 @@ public class Crypto {
 	 * @param txt the text
 	 * @param pwd the password
 	 * @return the byte[]
+	 * @throws ArrayIndexOutOfBoundsException     the array index out of bounds
+	 *                                            exception
 	 * @throws BadPaddingException                the bad padding exception
 	 * @throws IllegalArgumentException           the illegal argument exception
 	 * @throws IllegalBlockSizeException          the illegal block size exception
@@ -81,8 +83,9 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalArgumentException, IllegalBlockSizeException,
-			InvalidAlgorithmParameterException, InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	public byte[] decrypt(final byte[] txt, final byte[] pwd)
+			throws ArrayIndexOutOfBoundsException, BadPaddingException, IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var cipher = Cipher.getInstance(cData.cMode);
 		final var decoded = Base64.getDecoder().decode(txt);
 		final var iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);

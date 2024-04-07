@@ -49,7 +49,7 @@ public class EditAction extends Action {
 	/**
 	 * Copy to clipboard.
 	 *
-	 * @param index the index
+	 * @param index the selected index number
 	 */
 	public void copyToClipboard(final int index) {
 		var text = table.getItem(table.getSelectionIndex()).getText(index);

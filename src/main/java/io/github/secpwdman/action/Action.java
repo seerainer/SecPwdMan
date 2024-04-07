@@ -109,6 +109,7 @@ public abstract class Action {
 		view.getItem(0).setSelection(cData.isReadOnly());
 		view.getItem(4).setEnabled(view.getItem(5).getSelection() && isStdHeader);
 		view.getItem(5).setEnabled(view.getItem(4).getSelection() && isStdHeader);
+		view.getItem(9).setEnabled(isUnlocked);
 
 		final var toolBar = (ToolBar) shell.getChildren()[0];
 		toolBar.getItem(0).setEnabled(file.getItem(1).getEnabled());
@@ -165,7 +166,7 @@ public abstract class Action {
 			final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
 			viewMenu.getItem(4).setSelection(false);
 			viewMenu.getItem(5).setSelection(true);
-			table.getColumn(2).setText(cData.defaultHeader[2]);
+			table.getColumn(2).setText(cData.tableHeader[2]);
 		}
 	}
 

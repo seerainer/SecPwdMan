@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.2"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.3"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -72,7 +72,7 @@ public class ConfData {
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 
-	public final String tableHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
+	public final String csvHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
 
 	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
 	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
@@ -187,9 +187,11 @@ public class ConfData {
 	public final String titleErr = getString("MessageBox.Title.Error"); //$NON-NLS-1$
 	public final String titleInf = getString("MessageBox.Title.Info"); //$NON-NLS-1$
 	public final String titleWar = getString("MessageBox.Title.Warning"); //$NON-NLS-1$
+	public final String errorHea = getString("MessageBox.Error.Header"); //$NON-NLS-1$
 	public final String errorImp = getString("MessageBox.Error.Import"); //$NON-NLS-1$
 	public final String errorFil = getString("MessageBox.Error.IO"); //$NON-NLS-1$
 	public final String errorLen = getString("MessageBox.Error.Length"); //$NON-NLS-1$
+	public final String errorNul = getString("MessageBox.Error.Null"); //$NON-NLS-1$
 	public final String errorPwd = getString("MessageBox.Error.Password"); //$NON-NLS-1$
 	public final String warnNewF = getString("MessageBox.Warning.Changes"); //$NON-NLS-1$
 	public final String warnExit = getString("MessageBox.Warning.Exit"); //$NON-NLS-1$
@@ -197,7 +199,7 @@ public class ConfData {
 	public final String warnUPeq = getString("MessageBox.Warning.UserPassEqual"); //$NON-NLS-1$
 	public final String headerOp = getString("Header.Title.open"); //$NON-NLS-1$
 
-	public final String[] defaultHeader = { "UUID", "Group", getString("Header.Title.closed"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	public final String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			getString("Header.URL"), getString("Header.User"), getString("Header.Pass"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			getString("Header.Notes") }; //$NON-NLS-1$
 

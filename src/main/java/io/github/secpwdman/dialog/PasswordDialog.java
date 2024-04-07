@@ -93,6 +93,7 @@ public class PasswordDialog {
 	private void confirmPassword(final Shell dialog) {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
+		final var file = cData.getFile();
 		final var io = new IO(action);
 		final var pwd = ((Text) dialog.getChildren()[1]);
 		var pwdChar = pwd.getTextChars();
@@ -109,7 +110,7 @@ public class PasswordDialog {
 			if ((length > 0 && isEqual(pwdChar, pwdChar2)))
 				if (length < minPwdLength)
 					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, shortMsg);
-				else if (io.saveFile(toBytes(pwdChar), cData.getFile())) {
+				else if (io.saveFile(toBytes(pwdChar), file)) {
 					cData.setModified(false);
 					dialog.close();
 
@@ -120,7 +121,7 @@ public class PasswordDialog {
 				}
 
 			pwdChar2 = null;
-		} else if (length > 0 && io.openFile(toBytes(pwdChar))) {
+		} else if (length > 0 && io.openFile(toBytes(pwdChar), file)) {
 			cData.setLocked(false);
 			cData.setModified(false);
 			cData.setReadOnly(true);

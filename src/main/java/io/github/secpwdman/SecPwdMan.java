@@ -305,8 +305,8 @@ public class SecPwdMan {
 		fileAction = new FileAction(cData, shell, table);
 		editAction = new EditAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
-		fileAction.createColumns(true, cData.defaultHeader);
-		cData.setHeader(cData.tableHeader);
+		fileAction.createColumns(true, cData.tableHeader);
+		cData.setHeader(cData.csvHeader);
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
@@ -333,8 +333,10 @@ public class SecPwdMan {
 				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
 			} else if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
-				if (new IO(fileAction).openFile(null))
+				if (new IO(fileAction).openFile(null, file)) {
+					cData.setFile(null);
 					cData.setModified(true);
+				}
 			} else {
 				msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
 				cData.setFile(null);

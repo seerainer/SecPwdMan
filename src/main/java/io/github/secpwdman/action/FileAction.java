@@ -62,7 +62,7 @@ public class FileAction extends Action {
 	 */
 	public void clearData() {
 		table.setRedraw(false);
-		createColumns(cData.defaultHeader);
+		createColumns(cData.tableHeader);
 		table.setRedraw(true);
 
 		cData.setArgon2id(true);
@@ -82,15 +82,15 @@ public class FileAction extends Action {
 	/**
 	 * Creates the columns.
 	 *
-	 * @param stdHead true if default header
-	 * @param header  the header
+	 * @param isDefaultHeader true if default header
+	 * @param header          the header
 	 */
-	public void createColumns(final boolean stdHead, final String[] header) {
+	public void createColumns(final boolean isDefaultHeader, final String[] header) {
 		for (var i = 0; i < header.length; i++) {
 			final var col = new TableColumn(table, SWT.NONE, i);
 			col.setText(header[i]);
 
-			if (stdHead && i < 2) {
+			if (isDefaultHeader && i < 2) {
 				col.setResizable(false);
 				col.setWidth(0);
 			} else
@@ -101,16 +101,16 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Create new table columns.
+	 * Creates new table columns.
 	 *
 	 * @param header the header
 	 */
 	public void createColumns(final String[] header) {
-		final var stdHead = isEqual(header, cData.defaultHeader);
+		final var isDefaultHeader = isEqual(header, cData.tableHeader);
 
-		if (stdHead) {
+		if (isDefaultHeader) {
 			cData.setCustomHeader(false);
-			cData.setHeader(cData.tableHeader);
+			cData.setHeader(cData.csvHeader);
 		} else {
 			cData.setCustomHeader(true);
 			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
@@ -122,7 +122,7 @@ public class FileAction extends Action {
 		while (table.getColumnCount() > 0)
 			table.getColumns()[0].dispose();
 
-		createColumns(stdHead, header);
+		createColumns(isDefaultHeader, header);
 	}
 
 	/**
@@ -175,12 +175,8 @@ public class FileAction extends Action {
 		if (style == SWT.OPEN) {
 			final var f = dialog.open();
 
-			if (isFileOpen(f)) {
-				cData.setFile(f);
-
-				if (io.openFile(null))
-					cData.setModified(true);
-
+			if (isFileOpen(f) && io.openFile(null, f)) {
+				cData.setModified(true);
 				enableItems();
 				setText();
 			}

@@ -123,24 +123,23 @@ public class IO {
 	 */
 	public void fillTable(final byte[] data) throws IOException {
 		final var csv = new CsvReader(new ByteArrayInputStream(data), Charset.defaultCharset());
+		final var cData = action.getCData();
 
 		if (!csv.readHeaders())
-			throw new IOException();
+			throw new IOException(cData.errorHea);
 
 		final var table = action.getTable();
 		table.setRedraw(false);
 
-		final var cData = action.getCData();
-
-		if (data.length < cData.tableHeader.length())
+		if (data.length < cData.csvHeader.length())
 			action.createColumns(csv.getHeaders());
 		else {
-			final var head1 = cData.tableHeader.getBytes();
+			final var head1 = cData.csvHeader.getBytes();
 			final var head2 = new byte[head1.length];
 			System.arraycopy(data, 0, head2, 0, head2.length);
 
 			if (isEqual(head1, head2))
-				action.createColumns(cData.defaultHeader);
+				action.createColumns(cData.tableHeader);
 			else
 				action.createColumns(csv.getHeaders());
 		}
@@ -163,32 +162,28 @@ public class IO {
 	 * @param pwd the password
 	 * @return true, if successful
 	 */
-	public boolean openFile(final byte[] pwd) {
+	public boolean openFile(final byte[] pwd, final String file) {
 		final var cData = action.getCData();
 		var exMsg = cData.empty;
 
-		try (final var fis = new FileInputStream(cData.getFile())) {
+		try (final var fis = new FileInputStream(file)) {
 			var fileBytes = new byte[fis.available()];
 			fis.read(fileBytes);
 			fis.close();
 
-			if (fileBytes.length <= 0) {
-				cData.setFile(null);
-				throw new NullPointerException();
-			}
+			if (fileBytes.length <= 0)
+				throw new NullPointerException(cData.errorNul);
 
 			if (pwd != null && pwd.length > 0)
 				fillTable(new Crypto(cData).decrypt(fileBytes, pwd));
-			else {
+			else
 				fillTable(fileBytes);
-				cData.setFile(null);
-			}
 
 			fileBytes = null;
 			return true;
 		} catch (final BadPaddingException e) {
 			exMsg = cData.errorPwd;
-		} catch (final IllegalArgumentException | IOException | NullPointerException e) {
+		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException | NullPointerException e) {
 			exMsg = cData.errorImp + cData.newLine + cData.newLine + e.fillInStackTrace().toString();
 		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException
 				| NoSuchPaddingException e) {
