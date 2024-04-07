@@ -8,6 +8,8 @@ git clone https://github.com/seerainer/SecPwdMan.git
 
 **SecPwdMan** stores all your passwords securely encrypted with only one master password.
 
+![grafik](https://github.com/seerainer/SecPwdMan/assets/50533219/95b4149a-e890-4efd-8707-d76edfd086db)
+
 ### Features
 
 - AES/GCM (256-bit)
