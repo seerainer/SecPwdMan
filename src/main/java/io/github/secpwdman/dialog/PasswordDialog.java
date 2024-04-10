@@ -133,6 +133,7 @@ public class PasswordDialog {
 
 		if (shell != null && !shell.isDisposed()) {
 			action.enableItems();
+			action.fillGroupList();
 			action.setText();
 			pwdChar = null;
 		}

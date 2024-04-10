@@ -39,39 +39,29 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.csvreader.CsvReader;
 
 import io.github.secpwdman.action.FileAction;
+import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
 
 /**
  * The Class IO.
  */
 public class IO {
-	private final FileAction action;
-
-	/**
-	 * Instantiates a new io.
-	 *
-	 * @param action the action
-	 */
-	public IO(final FileAction action) {
-		this.action = action;
-	}
-
 	/**
 	 * Escape special character.
 	 *
 	 * @param s the string
 	 * @return the string
 	 */
-	private String escapeSpecialChar(final String s) {
+	private static String escapeSpecialChar(final ConfData cData, final String s) {
 		if (isEmpty(s))
 			return s;
 
-		final var cData = action.getCData();
 		final var newLine = s.contains(cData.newLine);
 		final var doubleQ = s.contains(cData.doubleQ);
 		final var space = s.contains(cData.space);
@@ -93,18 +83,16 @@ public class IO {
 	 *
 	 * @return the byte[]
 	 */
-	public byte[] extractData() {
-		final var cData = action.getCData();
-		final var table = action.getTable();
+	public static byte[] extractData(final ConfData cData, final Table table) {
 		final var sb = new StringBuilder();
 		final var items = table.getItems();
 
 		sb.append(cData.getHeader() + cData.newLine);
 
-		for (final TableItem item : items) {
+		for (final var item : items) {
 			final var itemText = new String[table.getColumnCount()];
 			for (var i = 0; i < itemText.length; i++)
-				itemText[i] = escapeSpecialChar(item.getText(i));
+				itemText[i] = escapeSpecialChar(cData, item.getText(i));
 			final var line = new StringBuilder();
 			for (var j = 0; j < itemText.length - 1; j++)
 				line.append(itemText[j]).append(cData.comma);
@@ -113,6 +101,17 @@ public class IO {
 		}
 
 		return sb.toString().getBytes();
+	}
+
+	private final FileAction action;
+
+	/**
+	 * Instantiates a new io.
+	 *
+	 * @param action the action
+	 */
+	public IO(final FileAction action) {
+		this.action = action;
 	}
 
 	/**
@@ -153,6 +152,7 @@ public class IO {
 
 		action.colorURL();
 		action.resizeColumns();
+		cData.setData(action.cryptData(data, true));
 		table.redraw();
 	}
 
@@ -205,11 +205,14 @@ public class IO {
 	public boolean saveFile(final byte[] pwd, final String file) {
 		final var cData = action.getCData();
 
+		action.resetGroupState();
+
 		try (final var fos = new FileOutputStream(file)) {
+			final var table = action.getTable();
 			if (pwd != null && pwd.length > 0)
-				fos.write(new Crypto(cData).encrypt(extractData(), pwd));
+				fos.write(new Crypto(cData).encrypt(extractData(cData, table), pwd));
 			else
-				fos.write(extractData());
+				fos.write(extractData(cData, table));
 
 			fos.close();
 			return true;

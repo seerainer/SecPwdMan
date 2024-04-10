@@ -22,6 +22,7 @@ package io.github.secpwdman.action;
 
 import static io.github.secpwdman.util.Util.msgShowPasswords;
 
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.FontDialog;
@@ -56,9 +57,28 @@ public class ViewAction extends Action {
 		final var fontData = fontDialog.open();
 
 		if (fontData != null)
-			table.setFont(new Font(shell.getDisplay(), fontData));
+			shell.setFont(new Font(shell.getDisplay(), fontData));
 
-		shell.setFont(table.getFont());
+		final var font = shell.getFont();
+		table.setFont(font);
+		getList().setFont(font);
+	}
+
+	/**
+	 * Open group list.
+	 */
+	public void openGroupList() {
+		final var list = getList();
+
+		if (list.isVisible()) {
+			resetGroupState();
+			list.setVisible(false);
+		} else {
+			list.setVisible(true);
+			fillGroupList();
+		}
+
+		((SashForm) shell.getChildren()[1]).requestLayout();
 	}
 
 	/**
@@ -82,7 +102,7 @@ public class ViewAction extends Action {
 	public void showPasswordColumn(final SelectionEvent e) {
 		final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
 
-		if (viewMenu.getItem(5).getSelection())
+		if (viewMenu.getItem(7).getSelection())
 			hidePasswordColumn();
 		else if (((MenuItem) e.widget).getSelection())
 			if (msgShowPasswords(cData, shell)) {
@@ -91,8 +111,8 @@ public class ViewAction extends Action {
 				table.getColumn(2).setText(cData.headerOp);
 				table.redraw();
 			} else {
-				viewMenu.getItem(4).setSelection(false);
-				viewMenu.getItem(5).setSelection(true);
+				viewMenu.getItem(6).setSelection(false);
+				viewMenu.getItem(7).setSelection(true);
 			}
 	}
 }

@@ -22,6 +22,8 @@ package io.github.secpwdman.action;
 
 import static io.github.secpwdman.util.Util.isEmpty;
 
+import java.util.ArrayList;
+
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -29,6 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
 import io.github.secpwdman.config.ConfData;
+import io.github.secpwdman.io.IO;
 
 /**
  * The Class EditAction.
@@ -72,10 +75,30 @@ public class EditAction extends Action {
 	public void deleteLine() {
 		cData.setModified(true);
 		table.setRedraw(false);
-		table.remove(table.getSelectionIndices());
+
+		var items = table.getSelection();
+		final var texts = new ArrayList<String>(items.length);
+
+		for (final var item : items)
+			texts.add(item.getText(0));
+
+		resetGroupState();
+
+		for (final var item : table.getItems())
+			for (final var text : texts)
+				if (text.equals(item.getText(0))) {
+					item.dispose();
+					break;
+				}
+
 		table.setRedraw(true);
+		cData.setData(cryptData(IO.extractData(cData, table), true));
+
+		items = null;
+		texts.clear();
 
 		enableItems();
+		fillGroupList();
 		setText();
 	}
 }

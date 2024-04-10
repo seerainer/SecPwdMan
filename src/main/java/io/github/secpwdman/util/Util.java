@@ -60,6 +60,13 @@ public class Util {
 	}
 
 	/**
+	 * Clear byte[].
+	 */
+	public static void clear(final byte[] b) {
+		Arrays.fill(b, (byte) 0);
+	}
+
+	/**
 	 * Get the absolute pathname.
 	 *
 	 * @param f the string f
@@ -229,7 +236,7 @@ public class Util {
 		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
 		final var bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
 		Arrays.fill(charBuffer.array(), '\u0000');
-		Arrays.fill(byteBuffer.array(), (byte) 0);
+		clear(byteBuffer.array());
 		return bytes;
 	}
 

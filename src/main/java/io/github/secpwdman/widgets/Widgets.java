@@ -143,6 +143,8 @@ public class Widgets {
 
 		if (!isEmpty(font))
 			link.setFont(new Font(parent.getDisplay(), new FontData(font, 12, SWT.NORMAL)));
+		else
+			link.setFont(parent.getFont());
 
 		return link;
 	}

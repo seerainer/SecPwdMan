@@ -43,15 +43,18 @@ import static org.eclipse.swt.events.ShellListener.shellDeiconifiedAdapter;
 import static org.eclipse.swt.events.ShellListener.shellIconifiedAdapter;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -96,6 +99,7 @@ public class SecPwdMan {
 	private final ConfData cData = new ConfData();
 
 	private Shell shell;
+	private List list;
 	private Table table;
 
 	private FileAction fileAction;
@@ -244,6 +248,8 @@ public class SecPwdMan {
 		menuItem(menuBar, SWT.CASCADE, view, cData.menuView);
 		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.readOnlySwitch()), cData.menuReaO);
 		menuItemSeparator(view);
+		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.openGroupList()), cData.menuGrou);
+		menuItemSeparator(view);
 		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.resizeColumns()), cData.menuPcol);
 		menuItemSeparator(view);
 		menuItem(view, SWT.RADIO, widgetSelectedAdapter(e -> viewAction.showPasswordColumn(e)), cData.menuSpwd);
@@ -298,9 +304,8 @@ public class SecPwdMan {
 		shell.setMenuBar(menuBar());
 		image.dispose();
 
-		toolBar();
-		shellColor(display);
-		table();
+		shellColor(display, toolBar());
+		shellArea();
 
 		fileAction = new FileAction(cData, shell, table);
 		editAction = new EditAction(cData, shell, table);
@@ -332,15 +337,39 @@ public class SecPwdMan {
 			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
 				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
-			} else if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
-				if (new IO(fileAction).openFile(null, file)) {
-					cData.setFile(null);
-					cData.setModified(true);
-				}
 			} else {
-				msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
+				if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
+					if (new IO(fileAction).openFile(null, file))
+						cData.setModified(true);
+				} else
+					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
 				cData.setFile(null);
 			}
+	}
+
+	/**
+	 * SashForm with list & table.
+	 */
+	private void shellArea() {
+		final var form = new SashForm(shell, SWT.HORIZONTAL);
+		form.setForeground(shell.getForeground());
+		form.setFont(shell.getFont());
+		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		form.setLayout(new FillLayout());
+
+		list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		list.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
+		list.setForeground(shell.getForeground());
+		list.setVisible(false);
+
+		table = newTable(form);
+		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
+		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(editAction).open(table.getSelectionIndex())));
+		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
+		table.setHeaderVisible(true);
+		table.setMenu(tableMenu());
+
+		form.setWeights(15, 85);
 	}
 
 	/**
@@ -348,10 +377,9 @@ public class SecPwdMan {
 	 *
 	 * @param display the display
 	 */
-	private void shellColor(final Display display) {
+	private void shellColor(final Display display, final ToolBar toolBar) {
 		if (DARK) {
 			final var darkForeground = new Color(0xEE, 0xEE, 0xEE);
-			final var toolBar = (ToolBar) shell.getChildren()[0];
 			toolBar.setBackground(new Color(0x64, 0x64, 0x64));
 			toolBar.setForeground(darkForeground);
 			cData.setLinkColor(new Color(0x0, 0xBB, 0xFF));
@@ -363,18 +391,6 @@ public class SecPwdMan {
 			cData.setLinkColor(display.getSystemColor(SWT.COLOR_LINK_FOREGROUND));
 			cData.setTextColor(display.getSystemColor(SWT.COLOR_LIST_FOREGROUND));
 		}
-	}
-
-	/**
-	 * Table.
-	 */
-	private void table() {
-		table = newTable(shell);
-		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
-		table.addMouseListener(mouseDoubleClickAdapter(e -> new EntryDialog(editAction).open(table.getSelectionIndex())));
-		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
-		table.setHeaderVisible(true);
-		table.setMenu(tableMenu());
 	}
 
 	/**
@@ -416,7 +432,7 @@ public class SecPwdMan {
 	/**
 	 * Tool bar.
 	 */
-	private void toolBar() {
+	private ToolBar toolBar() {
 		final var toolBar = new ToolBar(shell, SWT.FLAT | SWT.SHADOW_OUT);
 		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
@@ -434,6 +450,8 @@ public class SecPwdMan {
 		toolItem(toolBar, IMG.NOTE, copyNotes, cData.menuCnot);
 		toolItemSeparator(toolBar);
 		toolItem(toolBar, IMG.WEB, openURL, cData.menuOurl);
+
+		return toolBar;
 	}
 
 	/**

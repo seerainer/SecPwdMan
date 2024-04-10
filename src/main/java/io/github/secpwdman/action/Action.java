@@ -20,18 +20,35 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.getFilePath;
+import static io.github.secpwdman.util.Util.getSecureRandom;
+import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isUrl;
+import static io.github.secpwdman.widgets.Widgets.msg;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.HashSet;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
 
+import com.csvreader.CsvReader;
+
 import io.github.secpwdman.config.ConfData;
+import io.github.secpwdman.crypto.Crypto;
+import io.github.secpwdman.io.IO;
 
 /**
  * The abstract class Action.
@@ -77,6 +94,43 @@ public abstract class Action {
 	}
 
 	/**
+	 * Decrypt/Encrypt data.
+	 *
+	 * @param data    the data
+	 * @param encrypt true if encrypt
+	 * @return byte[]
+	 */
+	public byte[] cryptData(final byte[] data, final boolean encrypt) {
+		if (data == null)
+			return null;
+
+		final var oldArgo = cData.isArgon2id();
+		final var oldIter = cData.getPBKDFIter();
+		cData.setArgon2id(false);
+		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
+
+		byte[] b = null;
+
+		try {
+			if (encrypt) {
+				final var pwd = new byte[64];
+				getSecureRandom().nextBytes(pwd);
+				b = new Crypto(cData).encrypt(data, pwd);
+				clear(data);
+				cData.setKey(pwd);
+			} else
+				b = new Crypto(cData).decrypt(data, cData.getKey());
+		} catch (final Exception e) {
+			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		}
+
+		cData.setArgon2id(oldArgo);
+		cData.setPBKDFIter(oldIter);
+
+		return b;
+	}
+
+	/**
 	 * Enable menu items.
 	 */
 	public void enableItems() {
@@ -86,7 +140,7 @@ public abstract class Action {
 		final var view = menu.getItem(2).getMenu();
 		final var isFileOpen = isFileOpen(cData.getFile());
 		final var isModified = cData.isModified();
-		final var isStdHeader = !cData.isCustomHeader();
+		final var isDefaultHeader = !cData.isCustomHeader();
 		final var isUnlocked = !cData.isLocked();
 		final var isWriteable = !cData.isReadOnly();
 		final var itemCount = table.getItemCount();
@@ -96,22 +150,23 @@ public abstract class Action {
 		file.getItem(4).setEnabled(isFileOpen && !isModified);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);
-		edit.getItem(0).setEnabled(isUnlocked && isWriteable && isStdHeader);
-		edit.getItem(1).setEnabled(selectionCount == 1 && isStdHeader);
+		edit.getItem(0).setEnabled(isUnlocked && isWriteable && isDefaultHeader);
+		edit.getItem(1).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(3).setEnabled(itemCount > 0 && isWriteable);
 		edit.getItem(4).setEnabled(selectionCount > 0 && isWriteable);
-		edit.getItem(6).setEnabled(selectionCount == 1 && isStdHeader);
-		edit.getItem(7).setEnabled(selectionCount == 1 && isStdHeader);
-		edit.getItem(8).setEnabled(selectionCount == 1 && isStdHeader);
-		edit.getItem(9).setEnabled(selectionCount == 1 && isStdHeader);
-		edit.getItem(11).setEnabled(selectionCount == 1 && isUrl(table) && isStdHeader);
-		view.getItem(0).setEnabled(isFileOpen && isUnlocked && !isModified && isStdHeader);
+		edit.getItem(6).setEnabled(selectionCount == 1 && isDefaultHeader);
+		edit.getItem(7).setEnabled(selectionCount == 1 && isDefaultHeader);
+		edit.getItem(8).setEnabled(selectionCount == 1 && isDefaultHeader);
+		edit.getItem(9).setEnabled(selectionCount == 1 && isDefaultHeader);
+		edit.getItem(11).setEnabled(selectionCount == 1 && isUrl(table) && isDefaultHeader);
+		view.getItem(0).setEnabled(isFileOpen && isUnlocked && !isModified && isDefaultHeader);
 		view.getItem(0).setSelection(cData.isReadOnly());
-		view.getItem(4).setEnabled(view.getItem(5).getSelection() && isStdHeader);
-		view.getItem(5).setEnabled(view.getItem(4).getSelection() && isStdHeader);
-		view.getItem(9).setEnabled(isUnlocked);
+		view.getItem(2).setEnabled(isDefaultHeader);
+		view.getItem(6).setEnabled(view.getItem(7).getSelection() && isDefaultHeader);
+		view.getItem(7).setEnabled(view.getItem(6).getSelection() && isDefaultHeader);
+		view.getItem(11).setEnabled(isUnlocked);
 
-		final var toolBar = (ToolBar) shell.getChildren()[0];
+		final var toolBar = getToolBar();
 		toolBar.getItem(0).setEnabled(file.getItem(1).getEnabled());
 		toolBar.getItem(1).setEnabled(file.getItem(2).getEnabled());
 		toolBar.getItem(3).setEnabled(file.getItem(4).getEnabled());
@@ -125,12 +180,46 @@ public abstract class Action {
 	}
 
 	/**
+	 * Fill group list.
+	 */
+	public void fillGroupList() {
+		final var list = getList();
+
+		if (list.isVisible()) {
+			list.setRedraw(false);
+			list.removeAll();
+
+			final var set = new HashSet<String>();
+
+			for (final var item : table.getItems())
+				set.add(item.getText(1));
+
+			list.add(cData.listFirs);
+
+			for (final var text : set)
+				if (!isEmpty(text))
+					list.add(text);
+
+			list.setRedraw(true);
+		}
+	}
+
+	/**
 	 * Gets the cdata.
 	 *
 	 * @return the cdata
 	 */
 	public ConfData getCData() {
 		return cData;
+	}
+
+	/**
+	 * Gets the shell.
+	 *
+	 * @return the shell
+	 */
+	public List getList() {
+		return (List) ((SashForm) shell.getChildren()[1]).getChildren()[0];
 	}
 
 	/**
@@ -152,9 +241,18 @@ public abstract class Action {
 	}
 
 	/**
+	 * Gets the table.
+	 *
+	 * @return the table
+	 */
+	public ToolBar getToolBar() {
+		return (ToolBar) shell.getChildren()[0];
+	}
+
+	/**
 	 * Hide password column.
 	 */
-	public void hidePasswordColumn() {
+	void hidePasswordColumn() {
 		if (cData.isCustomHeader())
 			return;
 
@@ -171,15 +269,70 @@ public abstract class Action {
 	}
 
 	/**
+	 * Reset group state.
+	 */
+	public void resetGroupState() {
+		final var list = getList();
+
+		if (list.isVisible() && list.getSelectionIndex() > 0) {
+			list.setSelection(0);
+			setGroupSelection();
+		}
+	}
+
+	/**
 	 * Resize columns.
 	 */
 	public void resizeColumns() {
 		for (final var col : table.getColumns())
 			if (col.getResizable())
-				if (shell.getMenuBar().getItem(2).getMenu().getItem(2).getSelection())
+				if (shell.getMenuBar().getItem(2).getMenu().getItem(4).getSelection())
 					col.pack();
 				else
 					col.setWidth(cData.getColumnWidth());
+	}
+
+	/**
+	 * Fill table with selected group.
+	 */
+	public void setGroupSelection() {
+		final var list = getList();
+		final var index = list.getSelectionIndex();
+
+		if (index < 0)
+			return;
+
+		final var listText = list.getItem(index);
+		var data = cryptData(cData.getData(), false);
+
+		if (data == null)
+			data = IO.extractData(cData, table);
+
+		table.setRedraw(false);
+		table.removeAll();
+
+		try {
+			final var csv = new CsvReader(new ByteArrayInputStream(data), Charset.defaultCharset());
+			if (!csv.readHeaders())
+				throw new IOException(cData.errorHea);
+			if (listText.equals(cData.listFirs))
+				while (csv.readRecord())
+					new TableItem(table, SWT.NONE).setText(csv.getValues());
+			else
+				while (csv.readRecord()) {
+					final var value = csv.getValues();
+					if (listText.equals(value[1]))
+						new TableItem(table, SWT.NONE).setText(value);
+				}
+		} catch (final IOException ex) {
+			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
+		} finally {
+			data = null;
+		}
+
+		colorURL();
+		enableItems();
+		table.setRedraw(true);
 	}
 
 	/**
@@ -199,7 +352,7 @@ public abstract class Action {
 			shell.setText(ConfData.APP_NAME);
 
 		final var menu = shell.getMenuBar();
-		final var tool = ((ToolBar) shell.getChildren()[0]);
+		final var tool = getToolBar();
 		final var lockMenu = menu.getItem(0).getMenu().getItem(4);
 		final var lockTool = tool.getItem(3);
 

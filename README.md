@@ -16,7 +16,7 @@ git clone https://github.com/seerainer/SecPwdMan.git
 - Argon2
 - PBKDF2-HMAC-SHA512
 - Measure password strength
-- Password generator
+- Random password generator
 - Cross-platform Linux, Mac & Windows
 
 ### Dependencies

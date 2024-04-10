@@ -72,7 +72,7 @@ public class TextDialog {
 
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.textView);
 		final var isWriteable = !cData.isReadOnly();
-		final var tableData = new String(new IO(action).extractData());
+		final var tableData = new String(IO.extractData(cData, table));
 		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

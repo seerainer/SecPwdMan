@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.action.EditAction;
 import io.github.secpwdman.images.IMG;
+import io.github.secpwdman.io.IO;
 import io.github.secpwdman.util.RandomPassword;
 
 /**
@@ -67,22 +68,21 @@ public class EntryDialog {
 	/**
 	 * Edits the entry.
 	 *
-	 * @param newEntry  true if new entry
 	 * @param dialog    the dialog
 	 * @param tableItem the table item
 	 */
-	private void editEntry(final boolean newEntry, final Shell dialog, final TableItem tableItem) {
+	private void editEntry(final Shell dialog, final TableItem tableItem) {
 		final var child = dialog.getChildren();
 		final var uuid = ((Text) child[0]).getText();
-		final var group = ((Text) child[1]).getText();
-		final var title = ((Text) child[3]).getText();
-		final var url = ((Text) child[5]).getText();
-		final var user = ((Text) child[7]).getText();
-		final var pass = ((Text) child[9]).getText();
-		final var notes = ((Text) child[11]).getText();
+		final var group = ((Text) child[2]).getText();
+		final var title = ((Text) child[4]).getText();
+		final var url = ((Text) child[6]).getText();
+		final var user = ((Text) child[8]).getText();
+		final var pass = ((Text) child[10]).getText();
+		final var notes = ((Text) child[12]).getText();
 		final var textFields = new String[] { uuid, group, title, url, user, pass, notes };
 
-		if (!newEntry && tableItem != null) {
+		if (tableItem != null) {
 			final var items = new String[textFields.length];
 			for (var i = 0; i < items.length; i++)
 				items[i] = tableItem.getText(i);
@@ -94,25 +94,22 @@ public class EntryDialog {
 		}
 
 		if (!isEmpty(textFields[2]) || !isEmpty(textFields[4])) {
-			editEntry(newEntry, textFields, ((Group) child[15]).getChildren());
+			editEntry(tableItem, textFields, ((Group) child[16]).getChildren());
 			dialog.close();
 		} else
-			((Text) child[3]).setFocus();
+			((Text) child[4]).setFocus();
 	}
 
 	/**
 	 * Edits the entry.
 	 *
-	 * @param newEntry      true if new entry
+	 * @param tableItem     the table item
 	 * @param textFields    the textFields
 	 * @param groupChildren the children of the group
 	 */
-	private void editEntry(final boolean newEntry, final String[] textFields, final Control[] groupChildren) {
+	private void editEntry(final TableItem tableItem, final String[] textFields, final Control[] groupChildren) {
 		final var cData = action.getCData();
 		final var table = action.getTable();
-
-		if (isEmpty(textFields[0]))
-			textFields[0] = getUUID();
 
 		final boolean[] selection = { false, false, false, false, false };
 
@@ -131,14 +128,30 @@ public class EntryDialog {
 		if (!isEmpty(textFields[6]))
 			textFields[6] = textFields[6].replaceAll(System.lineSeparator(), cData.newLine);
 
-		if (newEntry)
+		if (action.getList().isVisible()) {
+			if (tableItem == null) {
+				action.resetGroupState();
+				new TableItem(table, SWT.NONE).setText(textFields);
+			} else {
+				final var text = tableItem.getText(0);
+				action.resetGroupState();
+
+				for (final var item : table.getItems())
+					if (text.equals(item.getText(0))) {
+						item.setText(textFields);
+						break;
+					}
+			}
+		} else if (tableItem == null)
 			new TableItem(table, SWT.NONE).setText(textFields);
 		else
 			table.getItem(table.getSelectionIndex()).setText(textFields);
 
+		cData.setData(action.cryptData(IO.extractData(cData, table), true));
 		cData.setModified(true);
 		action.colorURL();
 		action.enableItems();
+		action.fillGroupList();
 		action.resizeColumns();
 		action.setText();
 		table.redraw();
@@ -166,7 +179,9 @@ public class EntryDialog {
 
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, null);
 		final var uuid = newText(dialog, SWT.SINGLE);
-		final var group = newText(dialog, SWT.SINGLE);
+
+		newLabel(dialog, SWT.HORIZONTAL, cData.entrGrou);
+		final var group = newText(dialog, SWT.BORDER | SWT.SINGLE);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.entrTitl);
 		final var title = newText(dialog, SWT.BORDER | SWT.SINGLE);
@@ -237,12 +252,19 @@ public class EntryDialog {
 		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
 
 		if (newEntry) {
-			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(true, dialog, null)));
+			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, null)));
 			dialog.setText(cData.entrNewe);
+			uuid.setText(getUUID());
 		} else {
 			final var item = action.getTable().getItem(editLine);
-			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(false, dialog, item)));
-			uuid.setText(item.getText(0));
+			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, item)));
+
+			final var id = item.getText(0);
+			if (isEmpty(id))
+				uuid.setText(getUUID());
+			else
+				uuid.setText(id);
+
 			group.setText(item.getText(1));
 			title.setText(item.getText(2));
 			url.setText(item.getText(3));
@@ -251,6 +273,7 @@ public class EntryDialog {
 			notes.setText(item.getText(6));
 
 			if (cData.isReadOnly()) {
+				group.setEditable(false);
 				title.setEditable(false);
 				url.setEditable(false);
 				user.setEditable(false);
@@ -263,8 +286,9 @@ public class EntryDialog {
 		}
 
 		image.dispose();
-		dialog.setSize(600, 550);
+		dialog.setSize(600, 580);
 		dialog.open();
+		group.selectAll();
 		title.selectAll();
 		url.selectAll();
 		user.selectAll();

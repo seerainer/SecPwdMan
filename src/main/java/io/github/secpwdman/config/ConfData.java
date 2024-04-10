@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.3"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.4"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -39,6 +39,9 @@ public class ConfData {
 	private boolean isLocked = false;
 	private boolean isModified = false;
 	private boolean isReadOnly = false;
+
+	private byte[] key = null;
+	private byte[] data = null;
 
 	private int argonMemo = 32;
 	private int argonIter = 10;
@@ -133,6 +136,7 @@ public class ConfData {
 	public final String menuOurl = getString("Menu.Edit.OpenURL"); //$NON-NLS-1$
 	public final String menuView = getString("Menu.View"); //$NON-NLS-1$
 	public final String menuReaO = getString("Menu.View.ReadOnly"); //$NON-NLS-1$
+	public final String menuGrou = getString("Menu.View.Group"); //$NON-NLS-1$
 	public final String menuPcol = getString("Menu.View.ResizeColumns"); //$NON-NLS-1$
 	public final String menuSpwd = getString("Menu.View.ShowPassword"); //$NON-NLS-1$
 	public final String menuHpwd = getString("Menu.View.HidePassword"); //$NON-NLS-1$
@@ -154,6 +158,7 @@ public class ConfData {
 	public final String entrNewe = getString("Dialog.Entry.New"); //$NON-NLS-1$
 	public final String entrEdit = getString("Dialog.Entry.Edit"); //$NON-NLS-1$
 	public final String entrView = getString("Dialog.Entry.View"); //$NON-NLS-1$
+	public final String entrGrou = getString("Dialog.Entry.Group"); //$NON-NLS-1$
 	public final String entrTitl = getString("Dialog.Entry.Title"); //$NON-NLS-1$
 	public final String entrLink = getString("Dialog.Entry.URL"); //$NON-NLS-1$
 	public final String entrUser = getString("Dialog.Entry.Username"); //$NON-NLS-1$
@@ -198,6 +203,7 @@ public class ConfData {
 	public final String warnPass = getString("MessageBox.Warning.ShowPass"); //$NON-NLS-1$
 	public final String warnUPeq = getString("MessageBox.Warning.UserPassEqual"); //$NON-NLS-1$
 	public final String headerOp = getString("Header.Title.open"); //$NON-NLS-1$
+	public final String listFirs = getString("List.All"); //$NON-NLS-1$
 
 	public final String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			getString("Header.URL"), getString("Header.User"), getString("Header.Pass"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -245,6 +251,13 @@ public class ConfData {
 	}
 
 	/**
+	 * @return the data
+	 */
+	public byte[] getData() {
+		return data;
+	}
+
+	/**
 	 * @return the file
 	 */
 	public String getFile() {
@@ -256,6 +269,13 @@ public class ConfData {
 	 */
 	public String getHeader() {
 		return header;
+	}
+
+	/**
+	 * @return the key
+	 */
+	public byte[] getKey() {
+		return key;
 	}
 
 	/**
@@ -392,6 +412,13 @@ public class ConfData {
 	}
 
 	/**
+	 * @param data the data to set
+	 */
+	public void setData(final byte[] data) {
+		this.data = data;
+	}
+
+	/**
 	 * @param isExitAfterSave the new exit after save
 	 */
 	public void setExitAfterSave(final boolean isExitAfterSave) {
@@ -410,6 +437,13 @@ public class ConfData {
 	 */
 	public void setHeader(final String header) {
 		this.header = header;
+	}
+
+	/**
+	 * @param key the key to set
+	 */
+	public void setKey(final byte[] key) {
+		this.key = key;
 	}
 
 	/**

@@ -35,7 +35,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.ToolBar;
 
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.dialog.PasswordDialog;
@@ -76,6 +75,7 @@ public class FileAction extends Action {
 
 		clearClipboard();
 		enableItems();
+		fillGroupList();
 		setText();
 	}
 
@@ -146,16 +146,17 @@ public class FileAction extends Action {
 				return false;
 			}
 
-		final var toolBar = (ToolBar) shell.getChildren()[0];
-		for (final var item : toolBar.getItems()) {
+		for (final var item : getToolBar().getItems()) {
 			final var image = item.getImage();
 
 			if (image != null)
 				image.dispose();
 		}
 
+		cData.setData(null);
 		table.getFont().dispose();
 		shell.getFont().dispose();
+		getList().getFont().dispose();
 		clearClipboard();
 
 		return true;
@@ -178,6 +179,7 @@ public class FileAction extends Action {
 			if (isFileOpen(f) && io.openFile(null, f)) {
 				cData.setModified(true);
 				enableItems();
+				fillGroupList();
 				setText();
 			}
 		} else if (style == SWT.SAVE) {
