@@ -20,9 +20,8 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.getArrayList;
 import static io.github.secpwdman.util.Util.isEmpty;
-
-import java.util.ArrayList;
 
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -78,7 +77,7 @@ public class EditAction extends Action {
 
 		if (getList().isVisible()) {
 			var items = table.getSelection();
-			final var texts = new ArrayList<String>(items.length);
+			final var texts = getArrayList(items.length);
 
 			for (final var item : items)
 				texts.add(item.getText(0));

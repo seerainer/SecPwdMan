@@ -385,6 +385,7 @@ public class SecPwdMan {
 	 * Shell color.
 	 *
 	 * @param display the display
+	 * @param toolbar the tool bar
 	 */
 	private void shellColor(final Display display, final ToolBar toolBar) {
 		if (DARK) {

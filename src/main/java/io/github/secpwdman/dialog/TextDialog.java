@@ -34,7 +34,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 
-import io.github.secpwdman.action.FileAction;
+import io.github.secpwdman.action.Action;
 import io.github.secpwdman.images.IMG;
 import io.github.secpwdman.io.IO;
 
@@ -42,14 +42,14 @@ import io.github.secpwdman.io.IO;
  * The Class TextDialog.
  */
 public class TextDialog {
-	private final FileAction action;
+	private final Action action;
 
 	/**
 	 * Instantiates a new text dialog.
 	 *
 	 * @param action the action
 	 */
-	public TextDialog(final FileAction action) {
+	public TextDialog(final Action action) {
 		this.action = action;
 		open();
 	}

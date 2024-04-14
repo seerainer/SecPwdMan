@@ -106,6 +106,17 @@ public class IO {
 		return sb.toString().getBytes();
 	}
 
+	/**
+	 * Fill table.
+	 *
+	 * @param iterator the mapping iterator
+	 * @param table    the table
+	 */
+	private static void fillTable(final MappingIterator<String[]> iterator, final Table table) {
+		while (iterator.hasNext())
+			new TableItem(table, SWT.NONE).setText(iterator.next());
+	}
+
 	private final Action action;
 
 	/**
@@ -125,47 +136,46 @@ public class IO {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void fillTable(final boolean newHeader, final byte[] data) throws IOException {
-		final var cData = action.getCData();
-		final var table = action.getTable();
 		final var csvMapper = new CsvMapper();
 		csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
 
+		final var table = action.getTable();
 		table.setRedraw(false);
+		table.setSortColumn(null);
+		table.removeAll();
 
 		try (final MappingIterator<String[]> iterator = csvMapper.readerFor(String[].class).readValues(data)) {
+			final var cData = action.getCData();
 			var header = cData.tableHeader;
 
 			if (iterator.hasNext())
 				header = iterator.next();
 			if (newHeader) {
 				if (data.length < cData.csvHeader.length())
-					action.createColumns(header);
+					action.createNewColumns(false, header);
 				else {
 					final var head1 = cData.csvHeader.getBytes();
 					final var head2 = new byte[head1.length];
 					System.arraycopy(data, 0, head2, 0, head2.length);
 
 					if (isEqual(head1, head2))
-						action.createColumns(cData.tableHeader);
+						action.createNewColumns(true, cData.tableHeader);
 					else
-						action.createColumns(header);
+						action.createNewColumns(false, header);
 				}
 
-				while (iterator.hasNext())
-					new TableItem(table, SWT.NONE).setText(iterator.next());
-
+				fillTable(iterator, table);
 				cData.setData(action.cryptData(data, true));
 			} else {
 				final var list = action.getList();
-				final var index = list.getSelectionIndex();
-				final var listText = action.getList().getItem(index);
-				if (listText.equals(cData.listFirs))
-					while (iterator.hasNext())
-						new TableItem(table, SWT.NONE).setText(iterator.next());
+				final var listSelection = list.getItem(list.getSelectionIndex());
+
+				if (listSelection.equals(cData.listFirs))
+					fillTable(iterator, table);
 				else
 					while (iterator.hasNext()) {
 						final var value = iterator.next();
-						if (listText.equals(value[1]))
+						if (listSelection.equals(value[1]))
 							new TableItem(table, SWT.NONE).setText(value);
 					}
 			}
@@ -182,7 +192,8 @@ public class IO {
 	/**
 	 * Open file.
 	 *
-	 * @param pwd the password
+	 * @param pwd  the password
+	 * @param file the file
 	 * @return true, if successful
 	 */
 	public boolean openFile(final byte[] pwd, final String file) {
@@ -235,6 +246,7 @@ public class IO {
 
 		try (final var fos = new FileOutputStream(file)) {
 			final var table = action.getTable();
+
 			if (pwd != null && pwd.length > 0)
 				fos.write(new Crypto(cData).encrypt(extractData(cData, table), pwd));
 			else

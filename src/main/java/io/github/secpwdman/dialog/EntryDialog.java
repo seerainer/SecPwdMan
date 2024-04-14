@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import io.github.secpwdman.action.EditAction;
+import io.github.secpwdman.action.Action;
 import io.github.secpwdman.images.IMG;
 import io.github.secpwdman.io.IO;
 import io.github.secpwdman.util.RandomPassword;
@@ -54,14 +54,14 @@ import io.github.secpwdman.util.RandomPassword;
  * The Class EntryDialog.
  */
 public class EntryDialog {
-	private final EditAction action;
+	private final Action action;
 
 	/**
 	 * Instantiates a new entry dialog.
 	 *
 	 * @param action the action
 	 */
-	public EntryDialog(final EditAction action) {
+	public EntryDialog(final Action action) {
 		this.action = action;
 	}
 

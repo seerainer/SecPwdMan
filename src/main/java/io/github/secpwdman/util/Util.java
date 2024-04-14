@@ -28,8 +28,11 @@ import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.apache.commons.validator.routines.UrlValidator;
@@ -61,9 +64,30 @@ public class Util {
 
 	/**
 	 * Clear byte[].
+	 *
+	 * @param b the byte[]
 	 */
 	public static void clear(final byte[] b) {
 		Arrays.fill(b, (byte) 0);
+	}
+
+	/**
+	 * Get a new array list.
+	 *
+	 * @param initialCapacity the initial capacity
+	 * @return ArrayList
+	 */
+	public static ArrayList<String> getArrayList(final int initialCapacity) {
+		return new ArrayList<>(initialCapacity);
+	}
+
+	/**
+	 * Get a new collator instance.
+	 *
+	 * @return collator
+	 */
+	public static Collator getCollator() {
+		return Collator.getInstance();
 	}
 
 	/**
@@ -74,6 +98,15 @@ public class Util {
 	 */
 	public static String getFilePath(final String f) {
 		return new File(f).getAbsolutePath();
+	}
+
+	/**
+	 * Get a new hash set.
+	 *
+	 * @return HashSet
+	 */
+	public static HashSet<String> getHashSet() {
+		return new HashSet<>();
 	}
 
 	/**
@@ -90,7 +123,7 @@ public class Util {
 	}
 
 	/**
-	 * Get a new secure random.
+	 * Get a new secure random instance strong.
 	 *
 	 * @return InstanceStrong
 	 * @throws NoSuchAlgorithmException

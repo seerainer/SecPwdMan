@@ -27,14 +27,13 @@ import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import io.github.secpwdman.action.FileAction;
+import io.github.secpwdman.action.Action;
 
 /**
  * The Class SearchDialog.
@@ -46,14 +45,14 @@ public class SearchDialog {
 		return dialog;
 	}
 
-	private final FileAction action;
+	private final Action action;
 
 	/**
 	 * Instantiates a new search dialog.
 	 *
 	 * @param action the action
 	 */
-	public SearchDialog(final FileAction action) {
+	public SearchDialog(final Action action) {
 		this.action = action;
 
 		if (dialog != null && !dialog.isDisposed())
@@ -72,7 +71,6 @@ public class SearchDialog {
 		layout.verticalSpacing = 10;
 
 		dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.TOOL, layout, cData.searTitl);
-		dialog.addShellListener(shellClosedAdapter(e -> ((Shell) e.widget).dispose()));
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.searText);
 		final var text = newText(dialog, SWT.BORDER | SWT.SINGLE);
@@ -99,6 +97,7 @@ public class SearchDialog {
 			return;
 		}
 
+		final var shell = action.getShell();
 		final var table = action.getTable();
 		final var itemCount = table.getItemCount();
 		final var columnCount = table.getColumnCount();
@@ -109,8 +108,6 @@ public class SearchDialog {
 			selectionIndex += 1;
 		else
 			selectionIndex = 0;
-
-		final var shell = action.getShell();
 
 		for (var i = selectionIndex; i < itemCount; i++)
 			for (var j = 0; j < columnCount; j++)

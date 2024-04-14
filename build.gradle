@@ -32,7 +32,7 @@ dependencies {
     implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.17.0') {
     	exclude group: 'net.bytebuddy', module: 'byte-buddy'
     }
-    implementation 'com.nulab-inc:zxcvbn:1.8.2'
+    implementation 'com.nulab-inc:zxcvbn:1.9.0'
     implementation 'com.password4j:password4j:1.8.1'
     implementation("org.eclipse.platform:${swtArtifact}:3.125.0") {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'

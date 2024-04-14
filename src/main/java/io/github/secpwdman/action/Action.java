@@ -22,18 +22,17 @@ package io.github.secpwdman.action;
 
 import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.clear;
+import static io.github.secpwdman.util.Util.getCollator;
 import static io.github.secpwdman.util.Util.getFilePath;
+import static io.github.secpwdman.util.Util.getHashSet;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmpty;
-import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isUrl;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.IOException;
-import java.text.Collator;
-import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -124,11 +123,10 @@ public abstract class Action {
 	/**
 	 * Creates new table columns.
 	 *
-	 * @param header the header
+	 * @param isDefaultHeader true if default header
+	 * @param header          the header
 	 */
-	public void createColumns(final String[] header) {
-		final var isDefaultHeader = isEqual(header, cData.tableHeader);
-
+	public void createNewColumns(final boolean isDefaultHeader, final String[] header) {
 		if (isDefaultHeader) {
 			cData.setCustomHeader(false);
 			cData.setHeader(cData.csvHeader);
@@ -137,8 +135,6 @@ public abstract class Action {
 			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
 			cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
 		}
-
-		table.removeAll();
 
 		while (table.getColumnCount() > 0)
 			table.getColumns()[0].dispose();
@@ -249,7 +245,7 @@ public abstract class Action {
 			list.setRedraw(false);
 			list.removeAll();
 
-			final var set = new HashSet<String>();
+			final var set = getHashSet();
 
 			for (final var item : table.getItems())
 				set.add(item.getText(1));
@@ -367,10 +363,6 @@ public abstract class Action {
 		if (data == null)
 			data = IO.extractData(cData, table);
 
-		table.setRedraw(false);
-		table.setSortColumn(null);
-		table.removeAll();
-
 		try {
 			new IO(this).fillTable(false, data);
 		} catch (final IOException ex) {
@@ -378,9 +370,6 @@ public abstract class Action {
 		} finally {
 			data = null;
 		}
-
-		colorURL();
-		table.setRedraw(true);
 	}
 
 	/**
@@ -462,7 +451,7 @@ public abstract class Action {
 				break;
 			}
 
-		final var collator = Collator.getInstance();
+		final var collator = getCollator();
 		var items = table.getItems();
 
 		for (var j = 1; j < items.length; j++)

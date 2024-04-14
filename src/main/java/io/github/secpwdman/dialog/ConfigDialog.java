@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
+import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.horizontalSeparator;
 import static io.github.secpwdman.widgets.Widgets.link;
@@ -29,10 +30,6 @@ import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static io.github.secpwdman.widgets.Widgets.spinner;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Random;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -103,18 +100,18 @@ public class ConfigDialog {
 	 */
 	private static void timeTest(final ConfData cData, final Shell shell) {
 		try {
-			final var rand = new Random();
+			final var rand = getSecureRandom();
 			final var txt = new byte[1024];
 			final var pwd = new byte[64];
 			rand.nextBytes(txt);
 			rand.nextBytes(pwd);
 
-			var start = Instant.now();
+			final var start = System.currentTimeMillis();
 			final var enc = new Crypto(cData).encrypt(txt, pwd);
-			final var t0 = Long.valueOf(ChronoUnit.MILLIS.between(start, Instant.now()));
-			start = Instant.now();
+			final var end = System.currentTimeMillis();
 			new Crypto(cData).decrypt(enc, pwd);
-			final var t1 = Long.valueOf(ChronoUnit.MILLIS.between(start, Instant.now()));
+			final var t0 = Long.valueOf(end - start);
+			final var t1 = Long.valueOf(System.currentTimeMillis() - end);
 			final var str = String.format(cData.cfgTestI, t0, t1);
 			msg(shell, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, str);
 		} catch (final Exception ex) {

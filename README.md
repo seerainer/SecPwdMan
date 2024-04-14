@@ -8,7 +8,7 @@ git clone https://github.com/seerainer/SecPwdMan.git
 
 **SecPwdMan** stores all your passwords securely encrypted with only one master password.
 
-![grafik](https://github.com/seerainer/SecPwdMan/assets/50533219/95b4149a-e890-4efd-8707-d76edfd086db)
+![grafik](https://github.com/seerainer/SecPwdMan/assets/50533219/3651e148-d5a7-4f5c-b288-3df4a21ca774)
 
 ### Features
 
@@ -26,3 +26,7 @@ git clone https://github.com/seerainer/SecPwdMan.git
 - [nulab/zxcvbn4j](https://github.com/nulab/zxcvbn4j)
 - [Password4j](https://github.com/Password4j/password4j)
 - [eclipse.org/swt](https://www.eclipse.org/swt/)
+
+### Bugs and Feedback
+
+For bugs, questions and discussions please use the [GitHub Issues](https://github.com/seerainer/SecPwdMan/issues).
