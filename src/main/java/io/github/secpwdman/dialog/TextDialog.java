@@ -82,7 +82,7 @@ public class TextDialog {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 			if (isWriteable && !tableData.equals(textData))
 				try {
-					new IO(action).fillTable(textData.getBytes());
+					new IO(action).fillTable(true, textData.getBytes());
 					cData.setModified(true);
 					action.enableItems();
 					action.setText();

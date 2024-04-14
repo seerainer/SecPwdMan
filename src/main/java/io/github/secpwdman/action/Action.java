@@ -20,15 +20,19 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.getFilePath;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmpty;
+import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isUrl;
 import static io.github.secpwdman.widgets.Widgets.msg;
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.IOException;
+import java.text.Collator;
 import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
@@ -36,15 +40,13 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
-
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
 
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
@@ -91,6 +93,57 @@ public abstract class Action {
 			if (isUrl(item.getText(3)))
 				item.setForeground(3, cData.getLinkColor());
 		}
+	}
+
+	/**
+	 * Creates the columns.
+	 *
+	 * @param isDefaultHeader true if default header
+	 * @param header          the header
+	 */
+	public void createColumns(final boolean isDefaultHeader, final String[] header) {
+		for (final var head : header) {
+			final var col = new TableColumn(table, SWT.NONE);
+			col.addSelectionListener(widgetSelectedAdapter(this::sortTable));
+			col.setText(head);
+			col.setWidth(cData.getColumnWidth());
+		}
+
+		if (isDefaultHeader) {
+			final var uuid = table.getColumn(0);
+			final var group = table.getColumn(1);
+			uuid.setResizable(false);
+			uuid.setWidth(0);
+			group.setResizable(false);
+			group.setWidth(0);
+
+			hidePasswordColumn();
+		}
+	}
+
+	/**
+	 * Creates new table columns.
+	 *
+	 * @param header the header
+	 */
+	public void createColumns(final String[] header) {
+		final var isDefaultHeader = isEqual(header, cData.tableHeader);
+
+		if (isDefaultHeader) {
+			cData.setCustomHeader(false);
+			cData.setHeader(cData.csvHeader);
+		} else {
+			cData.setCustomHeader(true);
+			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
+			cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
+		}
+
+		table.removeAll();
+
+		while (table.getColumnCount() > 0)
+			table.getColumns()[0].dispose();
+
+		createColumns(isDefaultHeader, header);
 	}
 
 	/**
@@ -309,30 +362,17 @@ public abstract class Action {
 		if (index < 0)
 			return;
 
-		final var listText = list.getItem(index);
 		var data = cryptData(cData.getData(), false);
 
 		if (data == null)
 			data = IO.extractData(cData, table);
 
 		table.setRedraw(false);
+		table.setSortColumn(null);
 		table.removeAll();
 
-		final var csvMapper = new CsvMapper();
-		csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-
-		try (final MappingIterator<String[]> iterator = csvMapper.readerFor(String[].class).readValues(data)) {
-			if (iterator.hasNext())
-				iterator.next();
-			if (listText.equals(cData.listFirs))
-				while (iterator.hasNext())
-					new TableItem(table, SWT.NONE).setText(iterator.next());
-			else
-				while (iterator.hasNext()) {
-					final var value = iterator.next();
-					if (listText.equals(value[1]))
-						new TableItem(table, SWT.NONE).setText(value);
-				}
+		try {
+			new IO(this).fillTable(false, data);
 		} catch (final IOException ex) {
 			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 		} finally {
@@ -385,5 +425,67 @@ public abstract class Action {
 			readMenu.setText(cData.menuEent);
 			readTool.setToolTipText(cData.entrEdit);
 		}
+	}
+
+	/**
+	 * Sort table.
+	 *
+	 * @param e the SelectionEvent
+	 */
+	private void sortTable(final SelectionEvent e) {
+		final var list = getList();
+		final var noGroupSelection = !list.isVisible() || (list.isVisible() && list.getSelectionIndex() < 1);
+
+		if ((table.getItemCount() < 2) || (cData.isReadOnly() && noGroupSelection))
+			return;
+
+		if (noGroupSelection)
+			cData.setModified(true);
+
+		final var sortColumn = table.getSortColumn();
+		final var selectedColumn = (TableColumn) e.widget;
+		var dir = table.getSortDirection();
+
+		if (sortColumn == selectedColumn)
+			dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
+		else {
+			table.setSortColumn(selectedColumn);
+			dir = SWT.UP;
+		}
+
+		final var count = table.getColumnCount();
+		var index = 0;
+
+		for (var i = 0; i < count; i++)
+			if (selectedColumn.equals(table.getColumn(i))) {
+				index = i;
+				break;
+			}
+
+		final var collator = Collator.getInstance();
+		var items = table.getItems();
+
+		for (var j = 1; j < items.length; j++)
+			for (var k = 0; k < j; k++) {
+				final var value1 = items[j].getText(index);
+				final var value2 = items[k].getText(index);
+				final var up = collator.compare(value1, value2) < 0 && dir == SWT.UP;
+				final var down = collator.compare(value1, value2) > 0 && dir == SWT.DOWN;
+				if (up || down) {
+					final var values = new String[count];
+					for (var l = 0; l < count; l++)
+						values[l] = items[j].getText(l);
+					items[j].dispose();
+					new TableItem(table, SWT.NONE, k).setText(values);
+					items = table.getItems();
+					break;
+				}
+			}
+
+		items = null;
+		colorURL();
+		enableItems();
+		setText();
+		table.setSortDirection(dir);
 	}
 }

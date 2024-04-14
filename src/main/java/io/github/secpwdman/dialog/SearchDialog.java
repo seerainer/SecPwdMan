@@ -94,8 +94,10 @@ public class SearchDialog {
 
 		final var value = text.getText();
 
-		if (isEmpty(value))
+		if (isEmpty(value)) {
+			text.setFocus();
 			return;
+		}
 
 		final var table = action.getTable();
 		final var itemCount = table.getItemCount();

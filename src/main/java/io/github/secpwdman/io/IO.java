@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 
-import io.github.secpwdman.action.FileAction;
+import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
 
@@ -55,7 +55,8 @@ public class IO {
 	/**
 	 * Escape special character.
 	 *
-	 * @param s the string
+	 * @param cData the ConfData
+	 * @param s     the string
 	 * @return the string
 	 */
 	private static String escapeSpecialChar(final ConfData cData, final String s) {
@@ -81,6 +82,8 @@ public class IO {
 	/**
 	 * Extract data from table.
 	 *
+	 * @param cData the ConfData
+	 * @param table the table
 	 * @return the byte[]
 	 */
 	public static byte[] extractData(final ConfData cData, final Table table) {
@@ -103,24 +106,25 @@ public class IO {
 		return sb.toString().getBytes();
 	}
 
-	private final FileAction action;
+	private final Action action;
 
 	/**
 	 * Instantiates a new io.
 	 *
 	 * @param action the action
 	 */
-	public IO(final FileAction action) {
+	public IO(final Action action) {
 		this.action = action;
 	}
 
 	/**
 	 * Fill table.
 	 *
-	 * @param data the data
+	 * @param newHeader true if new header
+	 * @param data      the data
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
-	public void fillTable(final byte[] data) throws IOException {
+	public void fillTable(final boolean newHeader, final byte[] data) throws IOException {
 		final var cData = action.getCData();
 		final var table = action.getTable();
 		final var csvMapper = new CsvMapper();
@@ -133,31 +137,45 @@ public class IO {
 
 			if (iterator.hasNext())
 				header = iterator.next();
-
-			if (data.length < cData.csvHeader.length())
-				action.createColumns(header);
-			else {
-				final var head1 = cData.csvHeader.getBytes();
-				final var head2 = new byte[head1.length];
-				System.arraycopy(data, 0, head2, 0, head2.length);
-
-				if (isEqual(head1, head2))
-					action.createColumns(cData.tableHeader);
-				else
+			if (newHeader) {
+				if (data.length < cData.csvHeader.length())
 					action.createColumns(header);
-			}
+				else {
+					final var head1 = cData.csvHeader.getBytes();
+					final var head2 = new byte[head1.length];
+					System.arraycopy(data, 0, head2, 0, head2.length);
 
-			while (iterator.hasNext())
-				new TableItem(table, SWT.NONE).setText(iterator.next());
+					if (isEqual(head1, head2))
+						action.createColumns(cData.tableHeader);
+					else
+						action.createColumns(header);
+				}
+
+				while (iterator.hasNext())
+					new TableItem(table, SWT.NONE).setText(iterator.next());
+
+				cData.setData(action.cryptData(data, true));
+			} else {
+				final var list = action.getList();
+				final var index = list.getSelectionIndex();
+				final var listText = action.getList().getItem(index);
+				if (listText.equals(cData.listFirs))
+					while (iterator.hasNext())
+						new TableItem(table, SWT.NONE).setText(iterator.next());
+				else
+					while (iterator.hasNext()) {
+						final var value = iterator.next();
+						if (listText.equals(value[1]))
+							new TableItem(table, SWT.NONE).setText(value);
+					}
+			}
 
 			iterator.close();
 		}
 
-		table.setRedraw(true);
-
 		action.colorURL();
 		action.resizeColumns();
-		cData.setData(action.cryptData(data, true));
+		table.setRedraw(true);
 		table.redraw();
 	}
 
@@ -182,9 +200,9 @@ public class IO {
 				throw new NullPointerException(cData.errorNul);
 
 			if (pwd != null && pwd.length > 0)
-				fillTable(new Crypto(cData).decrypt(fileBytes, pwd));
+				fillTable(true, new Crypto(cData).decrypt(fileBytes, pwd));
 			else
-				fillTable(fileBytes);
+				fillTable(true, fileBytes);
 
 			return true;
 		} catch (final BadPaddingException e) {
