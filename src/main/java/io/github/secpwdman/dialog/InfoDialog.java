@@ -82,9 +82,9 @@ public class InfoDialog {
 
 		final var linkColor = cData.getLinkColor();
 		link(depend, cData.valAddress, linkColor, cData.valLink);
+		link(depend, cData.csvAddress, linkColor, cData.csvLink);
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
 		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
-		link(depend, cData.csvAddress, linkColor, cData.csvLink);
 		link(depend, cData.swtAddress, linkColor, cData.swtLink);
 
 		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$

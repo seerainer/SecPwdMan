@@ -42,10 +42,18 @@
     "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
   }, {
     "pattern":"\\Qpsw4j.properties\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt74b/nfc.nrm\\E"
   }]},
   "bundles":[{
     "name":"messages",
     "locales":["de", "und"]
+  }, {
+    "name":"sun.text.resources.CollationData",
+    "locales":["und"]
+  }, {
+    "name":"sun.text.resources.cldr.FormatData",
+    "locales":["en", "en-US", "und"]
   }, {
     "name":"sun.util.resources.cldr.CalendarData",
     "locales":["und"]
