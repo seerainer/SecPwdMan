@@ -76,26 +76,29 @@ public class EditAction extends Action {
 		cData.setModified(true);
 		table.setRedraw(false);
 
-		var items = table.getSelection();
-		final var texts = new ArrayList<String>(items.length);
+		if (getList().isVisible()) {
+			var items = table.getSelection();
+			final var texts = new ArrayList<String>(items.length);
 
-		for (final var item : items)
-			texts.add(item.getText(0));
+			for (final var item : items)
+				texts.add(item.getText(0));
 
-		resetGroupState();
+			resetGroupList();
 
-		for (final var item : table.getItems())
-			for (final var text : texts)
-				if (text.equals(item.getText(0))) {
-					item.dispose();
-					break;
-				}
+			for (final var item : table.getItems())
+				for (final var text : texts)
+					if (text.equals(item.getText(0))) {
+						item.dispose();
+						break;
+					}
+
+			items = null;
+			texts.clear();
+		} else
+			table.remove(table.getSelectionIndices());
 
 		table.setRedraw(true);
 		cData.setData(cryptData(IO.extractData(cData, table), true));
-
-		items = null;
-		texts.clear();
 
 		enableItems();
 		fillGroupList();

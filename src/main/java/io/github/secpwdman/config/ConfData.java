@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.4"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.5"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -64,12 +64,12 @@ public class ConfData {
 	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
 	public final String valLink = "<a>commons.apache.org/validator</a>"; //$NON-NLS-1$
 	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
+	public final String csvLink = "<a>github.com/FasterXML/jackson</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://github.com/FasterXML/jackson"; //$NON-NLS-1$
 	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
 	public final String p4jAddress = "https://github.com/Password4j/password4j"; //$NON-NLS-1$
-	public final String csvLink = "<a>sourceforge.net/projects/javacsv</a>"; //$NON-NLS-1$
-	public final String csvAddress = "https://sourceforge.net/projects/javacsv/"; //$NON-NLS-1$
 	public final String swtLink = "<a>www.eclipse.org/swt</a>"; //$NON-NLS-1$
 	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
@@ -134,6 +134,8 @@ public class ConfData {
 	public final String menuCnot = getString("Menu.Edit.CopyNotes"); //$NON-NLS-1$
 	public final String menuClCb = getString("Menu.Edit.ClearClipboard"); //$NON-NLS-1$
 	public final String menuOurl = getString("Menu.Edit.OpenURL"); //$NON-NLS-1$
+	public final String menuSear = getString("Menu.Search"); //$NON-NLS-1$
+	public final String menuFind = getString("Menu.Search.Find"); //$NON-NLS-1$
 	public final String menuView = getString("Menu.View"); //$NON-NLS-1$
 	public final String menuReaO = getString("Menu.View.ReadOnly"); //$NON-NLS-1$
 	public final String menuGrou = getString("Menu.View.Group"); //$NON-NLS-1$
@@ -186,6 +188,9 @@ public class ConfData {
 	public final String passOfsl = getString("Dialog.Password.OfflineSlow"); //$NON-NLS-1$
 	public final String passOnfa = getString("Dialog.Password.OnlineFast"); //$NON-NLS-1$
 	public final String passOnsl = getString("Dialog.Password.OnlineSlow"); //$NON-NLS-1$
+	public final String searTitl = getString("Dialog.Search.Title"); //$NON-NLS-1$
+	public final String searText = getString("Dialog.Search.Text"); //$NON-NLS-1$
+	public final String searMess = getString("Dialog.Search.Message"); //$NON-NLS-1$
 	public final String textView = getString("Dialog.TextView"); //$NON-NLS-1$
 	public final String textWarn = getString("Dialog.TextWarning"); //$NON-NLS-1$
 	public final String systInfo = getString("Dialog.SystemInfo"); //$NON-NLS-1$

@@ -91,6 +91,11 @@ public class PasswordDialog {
 	 * @param dialog the dialog
 	 */
 	private void confirmPassword(final Shell dialog) {
+		final var search = SearchDialog.getDialog();
+
+		if (search != null && !search.isDisposed())
+			search.close();
+
 		final var cData = action.getCData();
 		final var shell = action.getShell();
 		final var file = cData.getFile();

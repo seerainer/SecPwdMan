@@ -56,12 +56,12 @@ public class ViewAction extends Action {
 		fontDialog.setFontList(table.getFont().getFontData());
 		final var fontData = fontDialog.open();
 
-		if (fontData != null)
-			shell.setFont(new Font(shell.getDisplay(), fontData));
-
-		final var font = shell.getFont();
-		table.setFont(font);
-		getList().setFont(font);
+		if (fontData != null) {
+			final var font = new Font(shell.getDisplay(), fontData);
+			shell.setFont(font);
+			table.setFont(font);
+			getList().setFont(font);
+		}
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class ViewAction extends Action {
 		final var list = getList();
 
 		if (list.isVisible()) {
-			resetGroupState();
+			resetGroupList();
 			list.setVisible(false);
 		} else {
 			list.setVisible(true);
@@ -100,7 +100,7 @@ public class ViewAction extends Action {
 	 * @param e the SelectionEvent
 	 */
 	public void showPasswordColumn(final SelectionEvent e) {
-		final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
+		final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
 
 		if (viewMenu.getItem(7).getSelection())
 			hidePasswordColumn();

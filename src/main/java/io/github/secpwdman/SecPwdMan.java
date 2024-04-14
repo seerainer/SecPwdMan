@@ -69,6 +69,7 @@ import io.github.secpwdman.dialog.ConfigDialog;
 import io.github.secpwdman.dialog.EntryDialog;
 import io.github.secpwdman.dialog.InfoDialog;
 import io.github.secpwdman.dialog.PasswordDialog;
+import io.github.secpwdman.dialog.SearchDialog;
 import io.github.secpwdman.dialog.SystemInfoDialog;
 import io.github.secpwdman.dialog.TextDialog;
 import io.github.secpwdman.images.IMG;
@@ -99,7 +100,6 @@ public class SecPwdMan {
 	private final ConfData cData = new ConfData();
 
 	private Shell shell;
-	private List list;
 	private Table table;
 
 	private FileAction fileAction;
@@ -132,9 +132,14 @@ public class SecPwdMan {
 		new EntryDialog(editAction).open(table.getSelectionIndex());
 	});
 
+	private final SelectionListener openSearch = widgetSelectedAdapter(e -> {
+		new SearchDialog(fileAction).open();
+	});
+
 	private final SelectionListener selectAll = widgetSelectedAdapter(e -> {
 		table.selectAll();
 		fileAction.enableItems();
+		table.setFocus();
 	});
 
 	private final SelectionListener deleteLine = widgetSelectedAdapter(e -> {
@@ -240,9 +245,13 @@ public class SecPwdMan {
 		menuItem(edit, SWT.PUSH, copyPass, SWT.CTRL + 'P', cData.menuCpwd, IMG.KEY);
 		menuItem(edit, SWT.PUSH, copyNotes, SWT.CTRL + 'K', cData.menuCnot, IMG.NOTE);
 		menuItemSeparator(edit);
-		menuItem(edit, SWT.PUSH, openURL, SWT.CTRL + 'F', cData.menuOurl, IMG.WEB);
+		menuItem(edit, SWT.PUSH, openURL, SWT.CTRL + 'D', cData.menuOurl, IMG.WEB);
 		menuItemSeparator(edit);
 		menuItem(edit, SWT.PUSH, widgetSelectedAdapter(e -> editAction.clearClipboard()), SWT.CTRL + 'Z', cData.menuClCb);
+
+		final var search = newMenu(shell, SWT.DROP_DOWN, enableItems);
+		menuItem(menuBar, SWT.CASCADE, search, cData.menuSear);
+		menuItem(search, SWT.PUSH, openSearch, SWT.CTRL + 'F', cData.menuFind, IMG.SEARCH);
 
 		final var view = newMenu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, view, cData.menuView);
@@ -357,7 +366,7 @@ public class SecPwdMan {
 		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		form.setLayout(new FillLayout());
 
-		list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		final var list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
 		list.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
 		list.setForeground(shell.getForeground());
 		list.setVisible(false);
@@ -443,6 +452,8 @@ public class SecPwdMan {
 		toolItemSeparator(toolBar);
 		toolItem(toolBar, IMG.NEW, newEntry, cData.menuNent);
 		toolItem(toolBar, IMG.EDIT, editEntry, cData.menuEent);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, IMG.SEARCH, openSearch, cData.menuSear);
 		toolItemSeparator(toolBar);
 		toolItem(toolBar, IMG.LINK, copyURL, cData.menuCurl);
 		toolItem(toolBar, IMG.USER, copyName, cData.menuCusr);

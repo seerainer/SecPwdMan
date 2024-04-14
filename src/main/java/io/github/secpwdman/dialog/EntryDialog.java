@@ -130,14 +130,14 @@ public class EntryDialog {
 
 		if (action.getList().isVisible()) {
 			if (tableItem == null) {
-				action.resetGroupState();
+				action.resetGroupList();
 				new TableItem(table, SWT.NONE).setText(textFields);
 			} else {
-				final var text = tableItem.getText(0);
-				action.resetGroupState();
+				final var uuid = tableItem.getText(0);
+				action.resetGroupList();
 
 				for (final var item : table.getItems())
-					if (text.equals(item.getText(0))) {
+					if (uuid.equals(item.getText(0))) {
 						item.setText(textFields);
 						break;
 					}
@@ -168,6 +168,11 @@ public class EntryDialog {
 
 		if (cData.isLocked() || cData.isCustomHeader() || (newEntry && cData.isReadOnly()))
 			return;
+
+		final var search = SearchDialog.getDialog();
+
+		if (search != null && !search.isDisposed())
+			search.close();
 
 		final var shell = action.getShell();
 		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);

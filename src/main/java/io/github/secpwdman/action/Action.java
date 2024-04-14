@@ -28,9 +28,7 @@ import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isUrl;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
@@ -44,7 +42,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
 
-import com.csvreader.CsvReader;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
 
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
@@ -54,9 +54,9 @@ import io.github.secpwdman.io.IO;
  * The abstract class Action.
  */
 public abstract class Action {
-	protected final ConfData cData;
-	protected final Shell shell;
-	protected final Table table;
+	final ConfData cData;
+	final Shell shell;
+	final Table table;
 
 	/**
 	 * Instantiates a new action.
@@ -65,7 +65,7 @@ public abstract class Action {
 	 * @param shell the shell
 	 * @param table the table
 	 */
-	public Action(final ConfData cData, final Shell shell, final Table table) {
+	Action(final ConfData cData, final Shell shell, final Table table) {
 		this.cData = cData;
 		this.shell = shell;
 		this.table = table;
@@ -94,7 +94,7 @@ public abstract class Action {
 	}
 
 	/**
-	 * Decrypt/Encrypt data.
+	 * Decrypt/Encrypt data for the group list.
 	 *
 	 * @param data    the data
 	 * @param encrypt true if encrypt
@@ -106,18 +106,22 @@ public abstract class Action {
 
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();
+		final var max = Double.SIZE;
 		cData.setArgon2id(false);
-		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
+		cData.setPBKDFIter(max * max);
 
 		byte[] b = null;
 
 		try {
 			if (encrypt) {
-				final var pwd = new byte[64];
-				getSecureRandom().nextBytes(pwd);
+				final var min = Integer.SIZE;
+				final var random = getSecureRandom();
+				final var length = random.nextInt(max - min) + min;
+				final var pwd = new byte[length];
+				random.nextBytes(pwd);
 				b = new Crypto(cData).encrypt(data, pwd);
-				clear(data);
 				cData.setKey(pwd);
+				clear(data);
 			} else
 				b = new Crypto(cData).decrypt(data, cData.getKey());
 		} catch (final Exception e) {
@@ -137,7 +141,8 @@ public abstract class Action {
 		final var menu = shell.getMenuBar();
 		final var file = menu.getItem(0).getMenu();
 		final var edit = menu.getItem(1).getMenu();
-		final var view = menu.getItem(2).getMenu();
+		final var find = menu.getItem(2).getMenu();
+		final var view = menu.getItem(3).getMenu();
 		final var isFileOpen = isFileOpen(cData.getFile());
 		final var isModified = cData.isModified();
 		final var isDefaultHeader = !cData.isCustomHeader();
@@ -146,7 +151,7 @@ public abstract class Action {
 		final var itemCount = table.getItemCount();
 		final var selectionCount = table.getSelectionCount();
 		file.getItem(1).setEnabled(!isFileOpen);
-		file.getItem(2).setEnabled(itemCount > 0);
+		file.getItem(2).setEnabled(itemCount > 0 && isModified);
 		file.getItem(4).setEnabled(isFileOpen && !isModified);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);
@@ -159,6 +164,7 @@ public abstract class Action {
 		edit.getItem(8).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(9).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(11).setEnabled(selectionCount == 1 && isUrl(table) && isDefaultHeader);
+		find.getItem(0).setEnabled(itemCount > 1);
 		view.getItem(0).setEnabled(isFileOpen && isUnlocked && !isModified && isDefaultHeader);
 		view.getItem(0).setSelection(cData.isReadOnly());
 		view.getItem(2).setEnabled(isDefaultHeader);
@@ -172,11 +178,12 @@ public abstract class Action {
 		toolBar.getItem(3).setEnabled(file.getItem(4).getEnabled());
 		toolBar.getItem(5).setEnabled(edit.getItem(0).getEnabled());
 		toolBar.getItem(6).setEnabled(edit.getItem(1).getEnabled());
-		toolBar.getItem(8).setEnabled(edit.getItem(6).getEnabled());
-		toolBar.getItem(9).setEnabled(edit.getItem(7).getEnabled());
-		toolBar.getItem(10).setEnabled(edit.getItem(8).getEnabled());
-		toolBar.getItem(11).setEnabled(edit.getItem(9).getEnabled());
-		toolBar.getItem(13).setEnabled(edit.getItem(11).getEnabled());
+		toolBar.getItem(8).setEnabled(find.getItem(0).getEnabled());
+		toolBar.getItem(10).setEnabled(edit.getItem(6).getEnabled());
+		toolBar.getItem(11).setEnabled(edit.getItem(7).getEnabled());
+		toolBar.getItem(12).setEnabled(edit.getItem(8).getEnabled());
+		toolBar.getItem(13).setEnabled(edit.getItem(9).getEnabled());
+		toolBar.getItem(15).setEnabled(edit.getItem(11).getEnabled());
 	}
 
 	/**
@@ -245,7 +252,7 @@ public abstract class Action {
 	 *
 	 * @return the table
 	 */
-	public ToolBar getToolBar() {
+	ToolBar getToolBar() {
 		return (ToolBar) shell.getChildren()[0];
 	}
 
@@ -261,17 +268,17 @@ public abstract class Action {
 		if (pwdCol.getResizable()) {
 			pwdCol.setWidth(0);
 			pwdCol.setResizable(false);
-			final var viewMenu = shell.getMenuBar().getItem(2).getMenu();
-			viewMenu.getItem(4).setSelection(false);
-			viewMenu.getItem(5).setSelection(true);
+			final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
+			viewMenu.getItem(6).setSelection(false);
+			viewMenu.getItem(7).setSelection(true);
 			table.getColumn(2).setText(cData.tableHeader[2]);
 		}
 	}
 
 	/**
-	 * Reset group state.
+	 * Reset group list.
 	 */
-	public void resetGroupState() {
+	public void resetGroupList() {
 		final var list = getList();
 
 		if (list.isVisible() && list.getSelectionIndex() > 0) {
@@ -286,7 +293,7 @@ public abstract class Action {
 	public void resizeColumns() {
 		for (final var col : table.getColumns())
 			if (col.getResizable())
-				if (shell.getMenuBar().getItem(2).getMenu().getItem(4).getSelection())
+				if (shell.getMenuBar().getItem(3).getMenu().getItem(4).getSelection())
 					col.pack();
 				else
 					col.setWidth(cData.getColumnWidth());
@@ -311,16 +318,18 @@ public abstract class Action {
 		table.setRedraw(false);
 		table.removeAll();
 
-		try {
-			final var csv = new CsvReader(new ByteArrayInputStream(data), Charset.defaultCharset());
-			if (!csv.readHeaders())
-				throw new IOException(cData.errorHea);
+		final var csvMapper = new CsvMapper();
+		csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
+
+		try (final MappingIterator<String[]> iterator = csvMapper.readerFor(String[].class).readValues(data)) {
+			if (iterator.hasNext())
+				iterator.next();
 			if (listText.equals(cData.listFirs))
-				while (csv.readRecord())
-					new TableItem(table, SWT.NONE).setText(csv.getValues());
+				while (iterator.hasNext())
+					new TableItem(table, SWT.NONE).setText(iterator.next());
 			else
-				while (csv.readRecord()) {
-					final var value = csv.getValues();
+				while (iterator.hasNext()) {
+					final var value = iterator.next();
 					if (listText.equals(value[1]))
 						new TableItem(table, SWT.NONE).setText(value);
 				}
@@ -331,7 +340,6 @@ public abstract class Action {
 		}
 
 		colorURL();
-		enableItems();
 		table.setRedraw(true);
 	}
 
