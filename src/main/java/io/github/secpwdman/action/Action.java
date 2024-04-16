@@ -83,6 +83,16 @@ public abstract class Action {
 	}
 
 	/**
+	 * Clear the table and remove all columns.
+	 */
+	private void clearTable() {
+		table.removeAll();
+
+		while (table.getColumnCount() > 0)
+			table.getColumns()[0].dispose();
+	}
+
+	/**
 	 * Color URL.
 	 */
 	public void colorURL() {
@@ -97,49 +107,49 @@ public abstract class Action {
 	/**
 	 * Creates the columns.
 	 *
-	 * @param isDefaultHeader true if default header
-	 * @param header          the header
+	 * @param header the header
 	 */
-	public void createColumns(final boolean isDefaultHeader, final String[] header) {
+	private void createColumns(final String[] header) {
 		for (final var head : header) {
 			final var col = new TableColumn(table, SWT.NONE);
 			col.addSelectionListener(widgetSelectedAdapter(this::sortTable));
 			col.setText(head);
 			col.setWidth(cData.getColumnWidth());
 		}
-
-		if (isDefaultHeader) {
-			final var uuid = table.getColumn(0);
-			final var group = table.getColumn(1);
-			uuid.setResizable(false);
-			uuid.setWidth(0);
-			group.setResizable(false);
-			group.setWidth(0);
-
-			hidePasswordColumn();
-		}
 	}
 
 	/**
-	 * Creates new table columns.
+	 * Creates custom table columns.
 	 *
-	 * @param isDefaultHeader true if default header
-	 * @param header          the header
+	 * @param header the header
 	 */
-	public void createNewColumns(final boolean isDefaultHeader, final String[] header) {
-		if (isDefaultHeader) {
-			cData.setCustomHeader(false);
-			cData.setHeader(cData.csvHeader);
-		} else {
-			cData.setCustomHeader(true);
-			final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
-			cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
-		}
+	public void createCustomHeader(final String[] header) {
+		cData.setCustomHeader(true);
+		final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
+		cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
 
-		while (table.getColumnCount() > 0)
-			table.getColumns()[0].dispose();
+		clearTable();
+		createColumns(header);
+	}
 
-		createColumns(isDefaultHeader, header);
+	/**
+	 * Creates the default table columns.
+	 */
+	public void createDefaultHeader() {
+		clearTable();
+		createColumns(cData.tableHeader);
+
+		cData.setCustomHeader(false);
+		cData.setHeader(cData.csvHeader);
+
+		final var uuid = table.getColumn(0);
+		final var group = table.getColumn(1);
+		uuid.setResizable(false);
+		uuid.setWidth(0);
+		group.setResizable(false);
+		group.setWidth(0);
+
+		hidePasswordColumn();
 	}
 
 	/**
@@ -170,11 +180,12 @@ public abstract class Action {
 				random.nextBytes(pwd);
 				b = new Crypto(cData).encrypt(data, pwd);
 				cData.setKey(pwd);
-				clear(data);
 			} else
 				b = new Crypto(cData).decrypt(data, cData.getKey());
 		} catch (final Exception e) {
 			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		} finally {
+			clear(data);
 		}
 
 		cData.setArgon2id(oldArgo);
@@ -309,9 +320,6 @@ public abstract class Action {
 	 * Hide password column.
 	 */
 	void hidePasswordColumn() {
-		if (cData.isCustomHeader())
-			return;
-
 		final var pwdCol = table.getColumn(5);
 
 		if (pwdCol.getResizable()) {
@@ -352,8 +360,7 @@ public abstract class Action {
 	 * Fill table with selected group.
 	 */
 	public void setGroupSelection() {
-		final var list = getList();
-		final var index = list.getSelectionIndex();
+		final var index = getList().getSelectionIndex();
 
 		if (index < 0)
 			return;

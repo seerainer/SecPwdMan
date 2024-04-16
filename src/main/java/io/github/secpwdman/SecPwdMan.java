@@ -319,8 +319,7 @@ public class SecPwdMan {
 		fileAction = new FileAction(cData, shell, table);
 		editAction = new EditAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
-		fileAction.createColumns(true, cData.tableHeader);
-		cData.setHeader(cData.csvHeader);
+		fileAction.createDefaultHeader();
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
@@ -339,14 +338,15 @@ public class SecPwdMan {
 	 */
 	private void openFileArg() {
 		final var file = cData.getFile();
-		final var csv = cData.imexExte.substring(1, 5);
-		final var txt = cData.imexExte.substring(8);
 
 		if (!isEmpty(file))
 			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
 				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
 			} else {
+				final var csv = cData.imexExte.substring(1, 5);
+				final var txt = cData.imexExte.substring(8);
+
 				if (isReadable(file) && (file.endsWith(csv) || file.endsWith(txt))) {
 					if (new IO(fileAction).openFile(null, file))
 						cData.setModified(true);
@@ -366,7 +366,7 @@ public class SecPwdMan {
 		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		form.setLayout(new FillLayout());
 
-		final var list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		final var list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
 		list.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
 		list.setForeground(shell.getForeground());
 		list.setVisible(false);

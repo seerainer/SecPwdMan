@@ -91,11 +91,6 @@ public class PasswordDialog {
 	 * @param dialog the dialog
 	 */
 	private void confirmPassword(final Shell dialog) {
-		final var search = SearchDialog.getDialog();
-
-		if (search != null && !search.isDisposed())
-			search.close();
-
 		final var cData = action.getCData();
 		final var shell = action.getShell();
 		final var file = cData.getFile();
@@ -150,6 +145,11 @@ public class PasswordDialog {
 	 * @param save if true save file
 	 */
 	public void open(final boolean save) {
+		final var search = SearchDialog.getDialog();
+
+		if (search != null && !search.isDisposed())
+			search.close();
+
 		final var cData = action.getCData();
 		final var layout = new GridLayout(4, false);
 		layout.marginLeft = 5;

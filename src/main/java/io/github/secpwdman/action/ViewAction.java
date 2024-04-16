@@ -100,6 +100,9 @@ public class ViewAction extends Action {
 	 * @param e the SelectionEvent
 	 */
 	public void showPasswordColumn(final SelectionEvent e) {
+		if (cData.isCustomHeader())
+			return;
+
 		final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
 
 		if (viewMenu.getItem(7).getSelection())

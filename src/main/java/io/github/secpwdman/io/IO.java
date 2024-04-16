@@ -52,6 +52,7 @@ import io.github.secpwdman.crypto.Crypto;
  * The Class IO.
  */
 public class IO {
+
 	/**
 	 * Escape special character.
 	 *
@@ -152,16 +153,16 @@ public class IO {
 				header = iterator.next();
 			if (newHeader) {
 				if (data.length < cData.csvHeader.length())
-					action.createNewColumns(false, header);
+					action.createCustomHeader(header);
 				else {
 					final var head1 = cData.csvHeader.getBytes();
 					final var head2 = new byte[head1.length];
 					System.arraycopy(data, 0, head2, 0, head2.length);
 
 					if (isEqual(head1, head2))
-						action.createNewColumns(true, cData.tableHeader);
+						action.createDefaultHeader();
 					else
-						action.createNewColumns(false, header);
+						action.createCustomHeader(header);
 				}
 
 				fillTable(iterator, table);
