@@ -180,12 +180,11 @@ public abstract class Action {
 				random.nextBytes(pwd);
 				b = new Crypto(cData).encrypt(data, pwd);
 				cData.setKey(pwd);
+				clear(data);
 			} else
 				b = new Crypto(cData).decrypt(data, cData.getKey());
 		} catch (final Exception e) {
 			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
-		} finally {
-			clear(data);
 		}
 
 		cData.setArgon2id(oldArgo);

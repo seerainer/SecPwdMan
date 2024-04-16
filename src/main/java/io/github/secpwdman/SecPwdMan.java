@@ -102,8 +102,8 @@ public class SecPwdMan {
 	private Shell shell;
 	private Table table;
 
-	private FileAction fileAction;
 	private EditAction editAction;
+	private FileAction fileAction;
 	private ViewAction viewAction;
 
 	private final MenuListener enableItems = menuShownAdapter(e -> {
@@ -138,8 +138,8 @@ public class SecPwdMan {
 
 	private final SelectionListener selectAll = widgetSelectedAdapter(e -> {
 		table.selectAll();
-		fileAction.enableItems();
 		table.setFocus();
+		fileAction.enableItems();
 	});
 
 	private final SelectionListener deleteLine = widgetSelectedAdapter(e -> {
@@ -266,7 +266,7 @@ public class SecPwdMan {
 		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont()), cData.menuFont);
 		menuItemSeparator(view);
-		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new TextDialog(fileAction)), cData.menuText);
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new TextDialog(viewAction)), cData.menuText);
 		menuItemSeparator(view);
 		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> new ConfigDialog(viewAction)), cData.menuPref, IMG.GEAR);
 
@@ -316,10 +316,10 @@ public class SecPwdMan {
 		shellColor(display, toolBar());
 		shellArea();
 
-		fileAction = new FileAction(cData, shell, table);
 		editAction = new EditAction(cData, shell, table);
+		fileAction = new FileAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
-		fileAction.createDefaultHeader();
+		viewAction.createDefaultHeader();
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
@@ -362,7 +362,6 @@ public class SecPwdMan {
 	private void shellArea() {
 		final var form = new SashForm(shell, SWT.HORIZONTAL);
 		form.setForeground(shell.getForeground());
-		form.setFont(shell.getFont());
 		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		form.setLayout(new FillLayout());
 
