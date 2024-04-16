@@ -21,6 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.getImage;
+import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -80,7 +81,7 @@ public class TextDialog {
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
-			if (isWriteable && !tableData.equals(textData))
+			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData))
 				try {
 					new IO(action).fillTable(true, textData.getBytes());
 					cData.setModified(true);

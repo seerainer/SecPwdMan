@@ -68,6 +68,7 @@ public class ViewAction extends Action {
 	 * Open group list.
 	 */
 	public void openGroupList() {
+		final var form = (SashForm) shell.getChildren()[1];
 		final var list = getList();
 
 		if (list.isVisible()) {
@@ -78,7 +79,7 @@ public class ViewAction extends Action {
 			fillGroupList();
 		}
 
-		((SashForm) shell.getChildren()[1]).requestLayout();
+		form.requestLayout();
 	}
 
 	/**

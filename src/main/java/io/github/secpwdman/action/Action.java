@@ -124,8 +124,8 @@ public abstract class Action {
 	 * @param header the header
 	 */
 	public void createCustomHeader(final String[] header) {
-		cData.setCustomHeader(true);
 		final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
+		cData.setCustomHeader(true);
 		cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
 
 		clearTable();
@@ -136,11 +136,11 @@ public abstract class Action {
 	 * Creates the default table columns.
 	 */
 	public void createDefaultHeader() {
-		clearTable();
-		createColumns(cData.tableHeader);
-
 		cData.setCustomHeader(false);
 		cData.setHeader(cData.csvHeader);
+
+		clearTable();
+		createColumns(cData.tableHeader);
 
 		final var uuid = table.getColumn(0);
 		final var group = table.getColumn(1);
