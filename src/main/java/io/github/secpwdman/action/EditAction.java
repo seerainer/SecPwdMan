@@ -77,22 +77,22 @@ public class EditAction extends Action {
 
 		if (getList().isVisible()) {
 			var items = table.getSelection();
-			final var texts = getArrayList(items.length);
+			final var arrayList = getArrayList(items.length);
 
 			for (final var item : items)
-				texts.add(item.getText(0));
+				arrayList.add(item.getText(0));
 
 			resetGroupList();
 
 			for (final var item : table.getItems())
-				for (final var text : texts)
+				for (final var text : arrayList)
 					if (text.equals(item.getText(0))) {
 						item.dispose();
 						break;
 					}
 
 			items = null;
-			texts.clear();
+			arrayList.clear();
 		} else
 			table.remove(table.getSelectionIndices());
 

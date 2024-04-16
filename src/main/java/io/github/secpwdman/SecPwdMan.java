@@ -201,7 +201,7 @@ public class SecPwdMan {
 		Display.setAppName(ConfData.APP_NAME);
 		Display.setAppVersion(ConfData.APP_VERS);
 
-		System.setProperty(cData.systemThem, Boolean.TRUE.toString());
+		System.setProperty(cData.systemThem, "true"); //$NON-NLS-1$
 
 		if (DARK && WIN32) {
 			display.setData(cData.darkModeTh, Boolean.TRUE);
@@ -352,6 +352,7 @@ public class SecPwdMan {
 						cData.setModified(true);
 				} else
 					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, cData.errorFil + file);
+
 				cData.setFile(null);
 			}
 	}
