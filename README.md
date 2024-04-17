@@ -1,6 +1,7 @@
 # SecPwdMan
 
 [![Build Status](https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml/badge.svg)](https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml)
+[![CodeQL](https://github.com/seerainer/SecPwdMan/workflows/CodeQL/badge.svg)](https://github.com/seerainer/SecPwdMan/security/code-scanning)
 
 ~~~ sh
 git clone https://github.com/seerainer/SecPwdMan.git
