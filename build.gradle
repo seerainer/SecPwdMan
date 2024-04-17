@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.8.5'
+version = '0.8.6'
 
 repositories {
     mavenCentral()
@@ -29,20 +29,20 @@ dependencies {
         exclude group: 'commons-digester', module: 'commons-digester'
         exclude group: 'commons-logging', module: 'commons-logging'
     }
-    implementation('com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.17.0') {
-    	exclude group: 'net.bytebuddy', module: 'byte-buddy'
-    }
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
     implementation 'com.password4j:password4j:1.8.1'
     implementation("org.eclipse.platform:${swtArtifact}:3.125.0") {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
+    }
+    implementation('org.simpleflatmapper:lightning-csv:9.0.0') {
+    	exclude group: 'org.simpleflatmapper', module: 'ow2-asm'
     }
     implementation 'org.slf4j:slf4j-nop:2.0.13'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(22)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

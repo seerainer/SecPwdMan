@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.5"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.6"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -64,8 +64,8 @@ public class ConfData {
 	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
 	public final String valLink = "<a>commons.apache.org/validator</a>"; //$NON-NLS-1$
 	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
-	public final String csvLink = "<a>github.com/FasterXML/jackson</a>"; //$NON-NLS-1$
-	public final String csvAddress = "https://github.com/FasterXML/jackson"; //$NON-NLS-1$
+	public final String csvLink = "<a>github.com/arnaudroger/SimpleFlatMapper</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://github.com/arnaudroger/SimpleFlatMapper"; //$NON-NLS-1$
 	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$

@@ -219,6 +219,7 @@ public class FileAction extends Action {
 			clearClipboard();
 			hidePasswordColumn();
 			enableItems();
+			fillGroupList();
 			setText();
 
 			final var tray = shell.getDisplay().getSystemTray();

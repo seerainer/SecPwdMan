@@ -24,13 +24,16 @@ import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Iterator;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -39,10 +42,7 @@ import javax.crypto.NoSuchPaddingException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
+import org.simpleflatmapper.lightningcsv.CsvParser;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
@@ -110,10 +110,10 @@ public class IO {
 	/**
 	 * Fill table.
 	 *
-	 * @param iterator the mapping iterator
+	 * @param iterator the iterator
 	 * @param table    the table
 	 */
-	private static void fillTable(final MappingIterator<String[]> iterator, final Table table) {
+	private static void fillTable(final Iterator<String[]> iterator, final Table table) {
 		while (iterator.hasNext())
 			new TableItem(table, SWT.NONE).setText(iterator.next());
 	}
@@ -137,51 +137,45 @@ public class IO {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 */
 	public void fillTable(final boolean newHeader, final byte[] data) throws IOException {
-		final var csvMapper = new CsvMapper();
-		csvMapper.enable(CsvParser.Feature.WRAP_AS_ARRAY);
-
+		final var iterator = CsvParser.iterator(new InputStreamReader(new ByteArrayInputStream(data)));
 		final var table = action.getTable();
 		table.setRedraw(false);
 		table.setSortColumn(null);
 		table.removeAll();
 
-		try (final MappingIterator<String[]> iterator = csvMapper.readerFor(String[].class).readValues(data)) {
-			final var cData = action.getCData();
-			var header = cData.tableHeader;
+		final var cData = action.getCData();
+		var header = cData.tableHeader;
 
-			if (iterator.hasNext())
-				header = iterator.next();
-			if (newHeader) {
-				if (data.length < cData.csvHeader.length())
-					action.createCustomHeader(header);
-				else {
-					final var head1 = cData.csvHeader.getBytes();
-					final var head2 = new byte[head1.length];
-					System.arraycopy(data, 0, head2, 0, head2.length);
+		if (iterator.hasNext())
+			header = iterator.next();
+		if (newHeader) {
+			if (data.length < cData.csvHeader.length())
+				action.createCustomHeader(header);
+			else {
+				final var head1 = cData.csvHeader.getBytes();
+				final var head2 = new byte[head1.length];
+				System.arraycopy(data, 0, head2, 0, head2.length);
 
-					if (isEqual(head1, head2))
-						action.createDefaultHeader();
-					else
-						action.createCustomHeader(header);
-				}
-
-				fillTable(iterator, table);
-				cData.setData(action.cryptData(data, true));
-			} else {
-				final var list = action.getList();
-				final var listSelection = list.getItem(list.getSelectionIndex());
-
-				if (listSelection.equals(cData.listFirs))
-					fillTable(iterator, table);
+				if (isEqual(head1, head2))
+					action.createDefaultHeader();
 				else
-					while (iterator.hasNext()) {
-						final var value = iterator.next();
-						if (listSelection.equals(value[1]))
-							new TableItem(table, SWT.NONE).setText(value);
-					}
+					action.createCustomHeader(header);
 			}
 
-			iterator.close();
+			fillTable(iterator, table);
+			cData.setData(action.cryptData(data, true));
+		} else {
+			final var list = action.getList();
+			final var listSelection = list.getItem(list.getSelectionIndex());
+
+			if (listSelection.equals(cData.listFirs))
+				fillTable(iterator, table);
+			else
+				while (iterator.hasNext()) {
+					final var value = iterator.next();
+					if (listSelection.equals(value[1]))
+						new TableItem(table, SWT.NONE).setText(value);
+				}
 		}
 
 		action.colorURL();
