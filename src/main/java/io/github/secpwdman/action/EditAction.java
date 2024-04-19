@@ -65,7 +65,7 @@ public class EditAction extends Action {
 		cb.dispose();
 
 		if (index == 5)
-			display.timerExec(cData.getClearPasswd() * 1000, this::clearClipboard);
+			display.timerExec(cData.getClearPassword() * 1000, this::clearClipboard);
 	}
 
 	/**

@@ -81,10 +81,18 @@ public class TextDialog {
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
+
 			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData))
 				try {
 					new IO(action).fillTable(true, textData.getBytes());
 					cData.setModified(true);
+
+					if (!cData.isCustomHeader()) {
+						action.colorURL();
+						action.fillGroupList();
+						action.resizeColumns();
+					}
+
 					action.enableItems();
 					action.setText();
 				} catch (final IOException ex) {

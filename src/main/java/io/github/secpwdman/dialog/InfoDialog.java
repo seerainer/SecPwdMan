@@ -58,7 +58,7 @@ public class InfoDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var layout = new GridLayout();
+		var layout = new GridLayout();
 		layout.marginBottom = 10;
 		layout.marginLeft = 30;
 		layout.marginRight = 30;
@@ -71,13 +71,14 @@ public class InfoDialog {
 		info.setAlignment(SWT.CENTER);
 		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
 
-		final var groupLayout = new GridLayout();
-		groupLayout.marginBottom = 10;
-		groupLayout.marginLeft = 10;
-		groupLayout.marginRight = 10;
-		groupLayout.marginTop = 10;
+		layout = new GridLayout();
+		layout.marginBottom = 10;
+		layout.marginLeft = 10;
+		layout.marginRight = 10;
+		layout.marginTop = 10;
+		layout.verticalSpacing = 5;
 
-		final var depend = group(dialog, groupLayout, cData.infoDepe);
+		final var depend = group(dialog, layout, cData.infoDepe);
 		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
 
 		final var linkColor = cData.getLinkColor();

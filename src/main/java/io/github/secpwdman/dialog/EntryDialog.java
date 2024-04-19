@@ -84,6 +84,7 @@ public class EntryDialog {
 
 		if (tableItem != null) {
 			final var items = new String[textFields.length];
+
 			for (var i = 0; i < items.length; i++)
 				items[i] = tableItem.getText(i);
 
@@ -206,8 +207,6 @@ public class EntryDialog {
 		emptyLabel(dialog);
 
 		final var pwdStrength = group(dialog, new GridLayout(), cData.entrPInd);
-		pwdStrength.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
-
 		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
 		pwdStrengthLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 		pwdStrengthLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -216,8 +215,6 @@ public class EntryDialog {
 		emptyLabel(dialog);
 
 		final var random = group(dialog, new GridLayout(4, false), cData.entrRand);
-		random.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
-
 		newButton(random, true, cData.rTextLoC);
 		newButton(random, true, cData.rTextUpC);
 		newButton(random, true, cData.rNumbers);
@@ -265,6 +262,7 @@ public class EntryDialog {
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, item)));
 
 			final var id = item.getText(0);
+
 			if (isEmpty(id))
 				uuid.setText(getUUID());
 			else

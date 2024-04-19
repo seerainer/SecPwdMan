@@ -68,6 +68,7 @@ public class SystemInfoDialog {
 		final var col2 = new TableColumn(sysTable, SWT.LEFT, 1);
 
 		final var properties = System.getProperties();
+
 		for (final Enumeration<?> e = properties.keys(); e.hasMoreElements();) {
 			final var item = new TableItem(sysTable, SWT.NONE);
 			final Object key = e.nextElement();
@@ -75,6 +76,7 @@ public class SystemInfoDialog {
 		}
 
 		final var env = System.getenv();
+
 		for (final String envName : env.keySet())
 			new TableItem(sysTable, SWT.NONE).setText(new String[] { envName, env.get(envName) });
 

@@ -211,7 +211,7 @@ public abstract class Action {
 		final var selectionCount = table.getSelectionCount();
 		file.getItem(1).setEnabled(!isFileOpen);
 		file.getItem(2).setEnabled(itemCount > 0 && isModified);
-		file.getItem(4).setEnabled(isFileOpen && !isModified);
+		file.getItem(4).setEnabled(isFileOpen && !isModified && isDefaultHeader);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);
 		edit.getItem(0).setEnabled(isUnlocked && isWriteable && isDefaultHeader);
@@ -428,14 +428,8 @@ public abstract class Action {
 	 * @param e the SelectionEvent
 	 */
 	private void sortTable(final SelectionEvent e) {
-		final var list = getList();
-		final var noGroupSelection = !list.isVisible() || (list.isVisible() && list.getSelectionIndex() < 1);
-
-		if ((table.getItemCount() < 2) || (cData.isReadOnly() && noGroupSelection))
+		if (table.getItemCount() < 2)
 			return;
-
-		if (noGroupSelection)
-			cData.setModified(true);
 
 		final var sortColumn = table.getSortColumn();
 		final var selectedColumn = (TableColumn) e.widget;
@@ -451,27 +445,28 @@ public abstract class Action {
 		final var count = table.getColumnCount();
 		var index = 0;
 
-		for (var i = 0; i < count; i++)
-			if (selectedColumn.equals(table.getColumn(i))) {
-				index = i;
+		for (; index < count; index++)
+			if (selectedColumn.equals(table.getColumn(index)))
 				break;
-			}
 
 		final var collator = getCollator();
 		var items = table.getItems();
 
-		for (var j = 1; j < items.length; j++)
-			for (var k = 0; k < j; k++) {
-				final var value1 = items[j].getText(index);
-				final var value2 = items[k].getText(index);
+		for (var i = 1; i < items.length; i++)
+			for (var j = 0; j < i; j++) {
+				final var value1 = items[i].getText(index);
+				final var value2 = items[j].getText(index);
 				final var up = collator.compare(value1, value2) < 0 && dir == SWT.UP;
 				final var down = collator.compare(value1, value2) > 0 && dir == SWT.DOWN;
+
 				if (up || down) {
 					final var values = new String[count];
-					for (var l = 0; l < count; l++)
-						values[l] = items[j].getText(l);
-					items[j].dispose();
-					new TableItem(table, SWT.NONE, k).setText(values);
+
+					for (var k = 0; k < count; k++)
+						values[k] = items[i].getText(k);
+
+					items[i].dispose();
+					new TableItem(table, SWT.NONE, j).setText(values);
 					items = table.getItems();
 					break;
 				}

@@ -92,6 +92,7 @@ public class Widgets {
 		final var group = new Group(parent, SWT.SHADOW_NONE);
 		group.setFont(parent.getFont());
 		group.setLayout(layout);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 		group.setText(text);
 
 		if (DARK)

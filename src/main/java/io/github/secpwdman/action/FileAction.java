@@ -139,6 +139,7 @@ public class FileAction extends Action {
 				return;
 
 			final var f = dialog.open();
+
 			if (!isEmpty(f))
 				io.saveFile(null, f);
 		}
@@ -217,12 +218,13 @@ public class FileAction extends Action {
 				search.close();
 
 			clearClipboard();
-			hidePasswordColumn();
 			enableItems();
 			fillGroupList();
+			hidePasswordColumn();
 			setText();
 
 			final var tray = shell.getDisplay().getSystemTray();
+
 			if (tray != null && WIN32) {
 				shell.setMinimized(true);
 				shell.setVisible(false);

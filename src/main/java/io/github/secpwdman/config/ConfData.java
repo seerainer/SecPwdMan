@@ -29,7 +29,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.6"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.7"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -47,7 +47,7 @@ public class ConfData {
 	private int argonIter = 10;
 	private int argonPara = 1;
 	private int pbkdfIter = 420000;
-	private int clearPasswd = 20;
+	private int clearPassword = 20;
 	private int columnWidth = 167;
 	private int passwordMinLength = 8;
 
@@ -242,10 +242,10 @@ public class ConfData {
 	}
 
 	/**
-	 * @return the clear passwd
+	 * @return the clear password
 	 */
-	public int getClearPasswd() {
-		return clearPasswd;
+	public int getClearPassword() {
+		return clearPassword;
 	}
 
 	/**
@@ -396,10 +396,10 @@ public class ConfData {
 	}
 
 	/**
-	 * @param clearPasswd the new clear passwd
+	 * @param clearPassword the new clear passwd
 	 */
-	public void setClearPasswd(final int clearPasswd) {
-		this.clearPasswd = clearPasswd;
+	public void setClearPassword(final int clearPassword) {
+		this.clearPassword = clearPassword;
 	}
 
 	/**

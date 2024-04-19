@@ -128,8 +128,12 @@ public class Util {
 	 * @return InstanceStrong
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static SecureRandom getSecureRandom() throws NoSuchAlgorithmException {
-		return SecureRandom.getInstanceStrong();
+	public static SecureRandom getSecureRandom() {
+		try {
+			return SecureRandom.getInstanceStrong();
+		} catch (final NoSuchAlgorithmException e) {
+			return new SecureRandom();
+		}
 	}
 
 	/**

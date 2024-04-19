@@ -20,11 +20,6 @@
  */
 package io.github.secpwdman.util;
 
-import static io.github.secpwdman.widgets.Widgets.msg;
-
-import java.security.NoSuchAlgorithmException;
-
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Spinner;
@@ -65,22 +60,18 @@ public class RandomPassword {
 			return cData.nullStr;
 
 		final var randomPwd = new StringBuilder();
+		final var random = Util.getSecureRandom();
+		final var spinner = ((Spinner) children[11]).getSelection();
 
-		try {
-			final var random = Util.getSecureRandom();
-			final var spinner = ((Spinner) children[11]).getSelection();
+		do {
+			randomPwd.setLength(0);
 
-			do {
-				randomPwd.setLength(0);
-				for (var count = spinner; count > 0; count--) {
-					final var next = random.nextInt(sign.length());
-					final var c = sign.charAt(next % sign.length());
-					randomPwd.append(c);
-				}
-			} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
-		} catch (final NoSuchAlgorithmException e) {
-			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
-		}
+			for (var count = spinner; count > 0; count--) {
+				final var next = random.nextInt(sign.length());
+				final var c = sign.charAt(next % sign.length());
+				randomPwd.append(c);
+			}
+		} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
 
 		return randomPwd.toString();
 	}

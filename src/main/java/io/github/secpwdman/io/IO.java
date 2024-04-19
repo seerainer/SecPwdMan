@@ -20,15 +20,16 @@
  */
 package io.github.secpwdman.io;
 
+import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -95,11 +96,15 @@ public class IO {
 
 		for (final var item : items) {
 			final var itemText = new String[table.getColumnCount()];
+
 			for (var i = 0; i < itemText.length; i++)
 				itemText[i] = escapeSpecialChar(cData, item.getText(i));
+
 			final var line = new StringBuilder();
+
 			for (var j = 0; j < itemText.length - 1; j++)
 				line.append(itemText[j]).append(cData.comma);
+
 			line.append(itemText[itemText.length - 1]).append(cData.newLine);
 			sb.append(line.toString());
 		}
@@ -144,19 +149,19 @@ public class IO {
 		table.removeAll();
 
 		final var cData = action.getCData();
-		var header = cData.tableHeader;
+		final var header = iterator.next();
 
-		if (iterator.hasNext())
-			header = iterator.next();
 		if (newHeader) {
-			if (data.length < cData.csvHeader.length())
+			final var defaultHeader = cData.csvHeader;
+			final var headerLength = defaultHeader.length();
+
+			if (data.length < headerLength)
 				action.createCustomHeader(header);
 			else {
-				final var head1 = cData.csvHeader.getBytes();
-				final var head2 = new byte[head1.length];
-				System.arraycopy(data, 0, head2, 0, head2.length);
+				final var dataHeader = new byte[headerLength];
+				System.arraycopy(data, 0, dataHeader, 0, headerLength);
 
-				if (isEqual(head1, head2))
+				if (isEqual(defaultHeader.getBytes(), dataHeader))
 					action.createDefaultHeader();
 				else
 					action.createCustomHeader(header);
@@ -173,11 +178,13 @@ public class IO {
 			else
 				while (iterator.hasNext()) {
 					final var value = iterator.next();
+
 					if (listSelection.equals(value[1]))
 						new TableItem(table, SWT.NONE).setText(value);
 				}
 		}
 
+		clear(data);
 		action.colorURL();
 		action.resizeColumns();
 		table.setRedraw(true);
@@ -195,14 +202,10 @@ public class IO {
 		final var cData = action.getCData();
 		var exMsg = cData.empty;
 
-		byte[] fileBytes;
+		try {
+			final var fileBytes = Files.readAllBytes(Path.of(file));
 
-		try (final var fis = new FileInputStream(file)) {
-			fileBytes = new byte[fis.available()];
-			fis.read(fileBytes);
-			fis.close();
-
-			if (fileBytes.length <= 0)
+			if (fileBytes.length < 1)
 				throw new NullPointerException(cData.errorNul);
 
 			if (pwd != null && pwd.length > 0)
@@ -216,10 +219,11 @@ public class IO {
 		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException | NullPointerException e) {
 			exMsg = cData.errorImp + cData.newLine + cData.newLine + e.fillInStackTrace().toString();
 		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException
-				| NoSuchPaddingException e) {
+				| NoSuchPaddingException | OutOfMemoryError e) {
 			exMsg = e.fillInStackTrace().toString();
 		} finally {
-			fileBytes = null;
+			if (pwd != null)
+				clear(pwd);
 		}
 
 		msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, exMsg);
@@ -239,19 +243,25 @@ public class IO {
 
 		action.resetGroupList();
 
-		try (final var fos = new FileOutputStream(file)) {
-			final var table = action.getTable();
+		final var table = action.getTable();
+		byte[] b;
 
+		try {
 			if (pwd != null && pwd.length > 0)
-				fos.write(new Crypto(cData).encrypt(extractData(cData, table), pwd));
+				b = new Crypto(cData).encrypt(extractData(cData, table), pwd);
 			else
-				fos.write(extractData(cData, table));
+				b = extractData(cData, table);
 
-			fos.close();
+			Files.write(Path.of(file), b);
 			return true;
 		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException
 				| IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		} finally {
+			if (pwd != null)
+				clear(pwd);
+
+			b = null;
 		}
 
 		return false;

@@ -49,7 +49,7 @@ public class ViewAction extends Action {
 	}
 
 	/**
-	 * Change the font of the table.
+	 * Change the font.
 	 */
 	public void changeFont() {
 		final var fontDialog = new FontDialog(shell);

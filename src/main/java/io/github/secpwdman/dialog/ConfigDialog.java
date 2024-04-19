@@ -22,6 +22,7 @@ package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
+import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.horizontalSeparator;
 import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -34,6 +35,8 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -47,6 +50,47 @@ import io.github.secpwdman.crypto.Crypto;
 public class ConfigDialog {
 
 	/**
+	 * Enables the selected key derivation function.
+	 *
+	 * @param shell the shell
+	 */
+	private static void enableSelectedKDF(final Shell shell) {
+		final var groupKey = (Group) shell.getChildren()[0];
+		final var groupArgon = (Group) shell.getChildren()[1];
+		final var groupPBKDF = (Group) shell.getChildren()[2];
+		final var selection = ((Button) groupKey.getChildren()[0]).getSelection();
+
+		groupArgon.setRedraw(false);
+		groupPBKDF.setRedraw(false);
+
+		for (final var item : groupArgon.getChildren())
+			item.setEnabled(selection);
+
+		for (final var item : groupPBKDF.getChildren())
+			item.setEnabled(!selection);
+
+		groupArgon.setRedraw(true);
+		groupPBKDF.setRedraw(true);
+	}
+
+	/**
+	 * Get the grid layout.
+	 *
+	 * @param numColumns
+	 * @return GridLayout
+	 */
+	private static GridLayout getLayout(final int numColumns) {
+		final var layout = new GridLayout(numColumns, false);
+		layout.horizontalSpacing = 50;
+		layout.marginBottom = 10;
+		layout.marginLeft = 10;
+		layout.marginRight = 10;
+		layout.marginTop = 10;
+		layout.verticalSpacing = 12;
+		return layout;
+	}
+
+	/**
 	 * Time test for Argon2.
 	 *
 	 * @param cData the cData
@@ -55,7 +99,7 @@ public class ConfigDialog {
 	 * @param iter  the iterations
 	 * @param para  the parallelism
 	 */
-	private static void argon2Test(final ConfData cData, final Shell shell, final Spinner memo, final Spinner iter, final Spinner para) {
+	private static void testArgon2(final ConfData cData, final Shell shell, final Spinner memo, final Spinner iter, final Spinner para) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldMemo = cData.getArgonMemo();
 		final var oldIter = cData.getArgonIter();
@@ -80,7 +124,7 @@ public class ConfigDialog {
 	 * @param shell the shell
 	 * @param iter  the iterations
 	 */
-	private static void pbkdf2Test(final ConfData cData, final Shell shell, final Spinner iter) {
+	private static void testPBKDF2(final ConfData cData, final Shell shell, final Spinner iter) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();
 		cData.setArgon2id(false);
@@ -136,63 +180,35 @@ public class ConfigDialog {
 	 */
 	private void open() {
 		final var cData = action.getCData();
-		final var layout = new GridLayout(3, false);
-		layout.horizontalSpacing = 15;
-		layout.marginBottom = 15;
-		layout.marginLeft = 15;
-		layout.marginRight = 15;
-		layout.marginTop = 15;
-		layout.verticalSpacing = 12;
+		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, getLayout(2), cData.cfgTitle);
 
-		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, cData.cfgTitle);
+		final var groupKey = group(dialog, getLayout(3), cData.cfgKeyDF);
+		final var argon2 = newButton(groupKey, SWT.RADIO, widgetSelectedAdapter(e -> enableSelectedKDF(dialog)), cData.argon);
+		final var pbkdf2 = newButton(groupKey, SWT.RADIO, widgetSelectedAdapter(e -> enableSelectedKDF(dialog)), cData.pbkdf);
+		link(groupKey, cData.owaAddress, cData.getLinkColor(), cData.owaLink);
 
-		var label = newLabel(dialog, SWT.HORIZONTAL, cData.cfgKeyDF);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
-		final var argon2 = newButton(dialog, SWT.RADIO, null, cData.argon);
-		final var pbkdf2 = newButton(dialog, SWT.RADIO, null, cData.pbkdf);
-		link(dialog, cData.owaAddress, cData.getLinkColor(), cData.owaLink);
+		final var groupArgon = group(dialog, getLayout(4), cData.cfgArgon);
+		final var argonM = spinner(groupArgon, cData.getArgonMemo(), 0, 256, 0, 1, 16);
+		final var argonT = spinner(groupArgon, cData.getArgonIter(), 0, 128, 0, 1, 8);
+		final var argonP = spinner(groupArgon, cData.getArgonPara(), 1, 64, 0, 1, 4);
+		newButton(groupArgon, SWT.PUSH, widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)), cData.cfgTestB);
 
-		if (cData.isArgon2id())
-			argon2.setSelection(true);
-		else
-			pbkdf2.setSelection(true);
-
-		horizontalSeparator(dialog);
-
-		label = newLabel(dialog, SWT.HORIZONTAL, cData.cfgArgon);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		final var testB = newButton(dialog, SWT.PUSH, null, cData.cfgTestB);
-
-		final var argonM = spinner(dialog, cData.getArgonMemo(), 0, 256, 0, 1, 16);
-		final var argonT = spinner(dialog, cData.getArgonIter(), 0, 128, 0, 1, 8);
-		final var argonP = spinner(dialog, cData.getArgonPara(), 1, 64, 0, 1, 4);
-		testB.addSelectionListener(widgetSelectedAdapter(e -> argon2Test(cData, dialog, argonM, argonT, argonP)));
-
-		horizontalSeparator(dialog);
-
-		newLabel(dialog, SWT.HORIZONTAL, cData.cfgPIter);
-		final var pbkdfIter = spinner(dialog, cData.getPBKDFIter(), 210000, 9999999, 0, 1, 10000);
-		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> pbkdf2Test(cData, dialog, pbkdfIter)), cData.cfgTestB);
+		final var groupPBKDF = group(dialog, getLayout(2), cData.cfgPIter);
+		final var pbkdfIter = spinner(groupPBKDF, cData.getPBKDFIter(), 210000, 9999999, 0, 1, 10000);
+		pbkdfIter.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, false));
+		newButton(groupPBKDF, SWT.PUSH, widgetSelectedAdapter(e -> testPBKDF2(cData, dialog, pbkdfIter)), cData.cfgTestB);
 
 		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
 		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
-		emptyLabel(dialog);
-
-		horizontalSeparator(dialog);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgClPwd);
-		final var clearPwd = spinner(dialog, cData.getClearPasswd(), 10, 300, 0, 1, 10);
-		emptyLabel(dialog);
-
-		horizontalSeparator(dialog);
+		final var clearPwd = spinner(dialog, cData.getClearPassword(), 10, 300, 0, 1, 10);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
 
-		emptyLabel(dialog);
-		emptyLabel(dialog);
 		emptyLabel(dialog);
 		emptyLabel(dialog);
 
@@ -206,18 +222,25 @@ public class ConfigDialog {
 			cData.setArgonIter(argonT.getSelection());
 			cData.setArgonPara(argonP.getSelection());
 			cData.setPBKDFIter(pbkdfIter.getSelection());
-			cData.setClearPasswd(clearPwd.getSelection());
+			cData.setClearPassword(clearPwd.getSelection());
 			cData.setColumnWidth(columnWidth.getSelection());
 			cData.setPasswordMinLength(minPwdLength.getSelection());
 			dialog.close();
 			action.resizeColumns();
 		}), cData.entrOkay);
 
-		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 3, 1);
+		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 2, 1);
 		data.widthHint = 80;
 		okBtn.setLayoutData(data);
 		okBtn.setFocus();
 		dialog.setDefaultButton(okBtn);
+
+		if (cData.isArgon2id())
+			argon2.setSelection(true);
+		else
+			pbkdf2.setSelection(true);
+
+		enableSelectedKDF(dialog);
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);
