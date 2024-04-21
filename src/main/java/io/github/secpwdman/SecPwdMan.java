@@ -88,6 +88,11 @@ public class SecPwdMan {
 	 * @param args the arguments
 	 */
 	public static void main(final String[] args) {
+		Display.setAppName(ConfData.APP_NAME);
+		Display.setAppVersion(ConfData.APP_VERS);
+
+		System.setProperty("org.eclipse.swt.display.useSystemTheme", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		final var display = Display.getDefault();
 		final var shell = new SecPwdMan(args).open(display);
 
@@ -163,7 +168,8 @@ public class SecPwdMan {
 	});
 
 	private final SelectionListener openURL = widgetSelectedAdapter(e -> {
-		Program.launch(table.getSelection()[0].getText(3));
+		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
+		Program.launch(table.getSelection()[0].getText(index));
 	});
 
 	private final ShellListener activated = shellActivatedAdapter(e -> {
@@ -198,11 +204,6 @@ public class SecPwdMan {
 	 * @param display the display
 	 */
 	private void configDisplay(final Display display) {
-		Display.setAppName(ConfData.APP_NAME);
-		Display.setAppVersion(ConfData.APP_VERS);
-
-		System.setProperty(cData.systemThem, "true"); //$NON-NLS-1$
-
 		if (DARK && WIN32) {
 			display.setData(cData.darkModeTh, Boolean.TRUE);
 			display.setData(cData.shellTitle, Boolean.TRUE);
@@ -319,7 +320,7 @@ public class SecPwdMan {
 		editAction = new EditAction(cData, shell, table);
 		fileAction = new FileAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
-		viewAction.createDefaultHeader();
+		viewAction.createHeader(null);
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();
