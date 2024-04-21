@@ -101,18 +101,18 @@ public class ViewAction extends Action {
 	 * @param e the SelectionEvent
 	 */
 	public void showPasswordColumn(final SelectionEvent e) {
-		if (cData.isCustomHeader())
-			return;
-
 		final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
 
 		if (viewMenu.getItem(7).getSelection())
 			hidePasswordColumn();
 		else if (((MenuItem) e.widget).getSelection())
 			if (msgShowPasswords(cData, shell)) {
-				table.getColumn(5).setResizable(true);
+				final var map = cData.getColumnMap();
+				final var pwdIndex = map.get(cData.csvHeader[5]).intValue();
+				table.getColumn(pwdIndex).setResizable(true);
 				resizeColumns();
-				table.getColumn(2).setText(cData.headerOp);
+				final var titleIndex = map.get(cData.csvHeader[2]).intValue();
+				table.getColumn(titleIndex).setText(cData.headerOp);
 				table.redraw();
 			} else {
 				viewMenu.getItem(6).setSelection(false);

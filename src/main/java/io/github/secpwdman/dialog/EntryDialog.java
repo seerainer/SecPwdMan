@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.secpwdman.action.Action;
+import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.images.IMG;
 import io.github.secpwdman.io.IO;
 import io.github.secpwdman.util.RandomPassword;
@@ -54,6 +55,25 @@ import io.github.secpwdman.util.RandomPassword;
  * The Class EntryDialog.
  */
 public class EntryDialog {
+
+	/**
+	 * Get column index numbers.
+	 *
+	 * @param cData the cData
+	 * @return int[]
+	 */
+	private static int[] getColumnIndexNumbers(final ConfData cData) {
+		final var csvHeader = cData.csvHeader;
+		final var length = csvHeader.length;
+		final var header = new int[length];
+		final var map = cData.getColumnMap();
+
+		for (var i = 0; i < length; i++)
+			header[i] = map.get(csvHeader[i]).intValue();
+
+		return header;
+	}
+
 	private final Action action;
 
 	/**
@@ -73,14 +93,15 @@ public class EntryDialog {
 	 */
 	private void editEntry(final Shell dialog, final TableItem tableItem) {
 		final var child = dialog.getChildren();
-		final var uuid = ((Text) child[0]).getText();
-		final var group = ((Text) child[2]).getText();
-		final var title = ((Text) child[4]).getText();
-		final var url = ((Text) child[6]).getText();
-		final var user = ((Text) child[8]).getText();
-		final var pass = ((Text) child[10]).getText();
-		final var notes = ((Text) child[12]).getText();
-		final var textFields = new String[] { uuid, group, title, url, user, pass, notes };
+		final var index = getColumnIndexNumbers(action.getCData());
+		final var textFields = new String[7];
+		textFields[index[0]] = ((Text) child[0]).getText();
+		textFields[index[1]] = ((Text) child[2]).getText();
+		textFields[index[2]] = ((Text) child[4]).getText();
+		textFields[index[3]] = ((Text) child[6]).getText();
+		textFields[index[4]] = ((Text) child[8]).getText();
+		textFields[index[5]] = ((Text) child[10]).getText();
+		textFields[index[6]] = ((Text) child[12]).getText();
 
 		if (tableItem != null) {
 			final var items = new String[textFields.length];
@@ -261,19 +282,18 @@ public class EntryDialog {
 			final var item = action.getTable().getItem(editLine);
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, item)));
 
-			final var id = item.getText(0);
+			final var index = getColumnIndexNumbers(cData);
+			uuid.setText(item.getText(index[0]));
 
-			if (isEmpty(id))
+			if (isEmpty(uuid.getText()))
 				uuid.setText(getUUID());
-			else
-				uuid.setText(id);
 
-			group.setText(item.getText(1));
-			title.setText(item.getText(2));
-			url.setText(item.getText(3));
-			user.setText(item.getText(4));
-			pwd.setText(item.getText(5));
-			notes.setText(item.getText(6));
+			group.setText(item.getText(index[1]));
+			title.setText(item.getText(index[2]));
+			url.setText(item.getText(index[3]));
+			user.setText(item.getText(index[4]));
+			pwd.setText(item.getText(index[5]));
+			notes.setText(item.getText(index[6]));
 
 			if (cData.isReadOnly()) {
 				group.setEditable(false);

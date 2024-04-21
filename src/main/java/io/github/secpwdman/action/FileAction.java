@@ -59,7 +59,7 @@ public class FileAction extends Action {
 	 */
 	public void clearData() {
 		table.setRedraw(false);
-		createDefaultHeader();
+		createHeader(null);
 		table.setRedraw(true);
 
 		cData.setArgon2id(true);

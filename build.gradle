@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.8.7'
+version = '0.8.8'
 
 repositories {
     mavenCentral()
@@ -61,10 +61,6 @@ graalvmNative {
             buildArgs.add('-Ob')
             buildArgs.add('-march=x86-64-v3')
             buildArgs.add('--no-fallback')
-            // buildArgs.add('--pgo-instrument')
-            // buildArgs.add('--pgo=default.iprof')
-            // buildArgs.add('-H:+UnlockExperimentalVMOptions')
-            // buildArgs.add('-H:+BuildReport')
             buildArgs.add('-R:MinHeapSize=32m')
             buildArgs.add('-R:MaxHeapSize=4g')
             buildArgs.add('-R:MaxNewSize=32m')

@@ -90,11 +90,9 @@ public class IO {
 	 */
 	public static byte[] extractData(final ConfData cData, final Table table) {
 		final var sb = new StringBuilder();
-		final var items = table.getItems();
-
 		sb.append(cData.getHeader() + cData.newLine);
 
-		for (final var item : items) {
+		for (final var item : table.getItems()) {
 			final var itemText = new String[table.getColumnCount()];
 
 			for (var i = 0; i < itemText.length; i++)
@@ -143,29 +141,22 @@ public class IO {
 	 */
 	public void fillTable(final boolean newHeader, final byte[] data) throws IOException {
 		final var iterator = CsvParser.iterator(new InputStreamReader(new ByteArrayInputStream(data)));
+		final var cData = action.getCData();
+
+		if (!iterator.hasNext())
+			throw new IOException(cData.errorNul);
+
+		final var header = iterator.next();
 		final var table = action.getTable();
 		table.setRedraw(false);
 		table.setSortColumn(null);
 		table.removeAll();
 
-		final var cData = action.getCData();
-		final var header = iterator.next();
-
 		if (newHeader) {
-			final var defaultHeader = cData.csvHeader;
-			final var headerLength = defaultHeader.length();
-
-			if (data.length < headerLength)
-				action.createCustomHeader(header);
-			else {
-				final var dataHeader = new byte[headerLength];
-				System.arraycopy(data, 0, dataHeader, 0, headerLength);
-
-				if (isEqual(defaultHeader.getBytes(), dataHeader))
-					action.createDefaultHeader();
-				else
-					action.createCustomHeader(header);
-			}
+			if (isEqual(header, cData.csvHeader))
+				action.createHeader(null);
+			else
+				action.createHeader(header);
 
 			fillTable(iterator, table);
 			cData.setData(action.cryptData(data, true));
@@ -205,9 +196,6 @@ public class IO {
 		try {
 			final var fileBytes = Files.readAllBytes(Path.of(file));
 
-			if (fileBytes.length < 1)
-				throw new NullPointerException(cData.errorNul);
-
 			if (pwd != null && pwd.length > 0)
 				fillTable(true, new Crypto(cData).decrypt(fileBytes, pwd));
 			else
@@ -216,7 +204,7 @@ public class IO {
 			return true;
 		} catch (final BadPaddingException e) {
 			exMsg = cData.errorPwd;
-		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException | NullPointerException e) {
+		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException e) {
 			exMsg = cData.errorImp + cData.newLine + cData.newLine + e.fillInStackTrace().toString();
 		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException
 				| NoSuchPaddingException | OutOfMemoryError e) {

@@ -87,12 +87,9 @@ public class TextDialog {
 					new IO(action).fillTable(true, textData.getBytes());
 					cData.setModified(true);
 
-					if (!cData.isCustomHeader()) {
-						action.colorURL();
-						action.fillGroupList();
-						action.resizeColumns();
-					}
-
+					action.colorURL();
+					action.fillGroupList();
+					action.resizeColumns();
 					action.enableItems();
 					action.setText();
 				} catch (final IOException ex) {

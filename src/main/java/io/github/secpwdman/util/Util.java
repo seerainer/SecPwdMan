@@ -32,6 +32,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -55,11 +56,13 @@ public class Util {
 	/**
 	 * Convert string array to string.
 	 *
-	 * @param s the string s
+	 * @param cData the cData
+	 * @param s     the string s
 	 * @return absolutePath
 	 */
-	public static String arrayToString(final String[] s) {
-		return Arrays.toString(s);
+	public static String arrayToString(final ConfData cData, final String[] s) {
+		final var str = Arrays.toString(s).replace(cData.comma + cData.space, cData.comma);
+		return str.substring(1, str.length() - 1);
 	}
 
 	/**
@@ -98,6 +101,15 @@ public class Util {
 	 */
 	public static String getFilePath(final String f) {
 		return new File(f).getAbsolutePath();
+	}
+
+	/**
+	 * Get a new hash map.
+	 *
+	 * @return HashMap
+	 */
+	public static HashMap<String, Integer> getHashMap() {
+		return new HashMap<>();
 	}
 
 	/**
@@ -169,17 +181,6 @@ public class Util {
 	/**
 	 * Checks if array is equal.
 	 *
-	 * @param a the first byte[] a
-	 * @param b the second byte[] b
-	 * @return true, if equal
-	 */
-	public static boolean isEqual(final byte[] a, final byte[] b) {
-		return Arrays.equals(a, b);
-	}
-
-	/**
-	 * Checks if array is equal.
-	 *
 	 * @param a the first char[] a
 	 * @param b the second char[] b
 	 * @return true, if equal
@@ -223,21 +224,23 @@ public class Util {
 	/**
 	 * Checks if is url.
 	 *
-	 * @param url the string url
+	 * @param cData the cData
+	 * @param table the table
 	 * @return true, if is url
 	 */
-	public static boolean isUrl(final String url) {
-		return UrlValidator.getInstance().isValid(url);
+	public static boolean isUrl(final ConfData cData, final Table table) {
+		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
+		return isUrl(table.getSelection()[0].getText(index));
 	}
 
 	/**
 	 * Checks if is url.
 	 *
-	 * @param table the table
+	 * @param url the string url
 	 * @return true, if is url
 	 */
-	public static boolean isUrl(final Table table) {
-		return isUrl(table.getSelection()[0].getText(3));
+	public static boolean isUrl(final String url) {
+		return UrlValidator.getInstance().isValid(url);
 	}
 
 	/**

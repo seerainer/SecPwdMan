@@ -24,6 +24,7 @@ import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.getCollator;
 import static io.github.secpwdman.util.Util.getFilePath;
+import static io.github.secpwdman.util.Util.getHashMap;
 import static io.github.secpwdman.util.Util.getHashSet;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmpty;
@@ -96,11 +97,16 @@ public abstract class Action {
 	 * Color URL.
 	 */
 	public void colorURL() {
-		for (final var item : table.getItems()) {
-			item.setForeground(3, cData.getTextColor());
+		if (cData.isCustomHeader())
+			return;
 
-			if (isUrl(item.getText(3)))
-				item.setForeground(3, cData.getLinkColor());
+		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
+
+		for (final var item : table.getItems()) {
+			item.setForeground(index, cData.getTextColor());
+
+			if (isUrl(item.getText(index)))
+				item.setForeground(index, cData.getLinkColor());
 		}
 	}
 
@@ -110,46 +116,79 @@ public abstract class Action {
 	 * @param header the header
 	 */
 	private void createColumns(final String[] header) {
+		clearTable();
+
 		for (final var head : header) {
 			final var col = new TableColumn(table, SWT.NONE);
 			col.addSelectionListener(widgetSelectedAdapter(this::sortTable));
+			col.setMoveable(true);
 			col.setText(head);
 			col.setWidth(cData.getColumnWidth());
 		}
 	}
 
 	/**
-	 * Creates custom table columns.
+	 * Creates the column header.
 	 *
 	 * @param header the header
 	 */
-	public void createCustomHeader(final String[] header) {
-		final var strTrim = arrayToString(header).replace(cData.comma + cData.space, cData.comma);
-		cData.setCustomHeader(true);
-		cData.setHeader(strTrim.substring(1, strTrim.length() - 1));
+	public void createHeader(final String[] header) {
+		final var csvHeader = cData.csvHeader;
+		final var map = getHashMap();
 
-		clearTable();
-		createColumns(header);
-	}
+		if (header == null) {
+			cData.setHeader(arrayToString(cData, csvHeader));
 
-	/**
-	 * Creates the default table columns.
-	 */
-	public void createDefaultHeader() {
-		cData.setCustomHeader(false);
-		cData.setHeader(cData.csvHeader);
+			for (var i = 0; i < csvHeader.length; i++)
+				map.put(csvHeader[i], Integer.valueOf(i));
 
-		clearTable();
-		createColumns(cData.tableHeader);
+			cData.setColumnMap(map);
+			cData.setCustomHeader(false);
+			createColumns(cData.tableHeader);
+			hideColumns();
+			return;
+		}
 
-		final var uuid = table.getColumn(0);
-		final var group = table.getColumn(1);
-		uuid.setResizable(false);
-		uuid.setWidth(0);
-		group.setResizable(false);
-		group.setWidth(0);
+		final var length = header.length;
+		final var newHeader = new String[length];
+		System.arraycopy(header, 0, newHeader, 0, length);
+		cData.setHeader(arrayToString(cData, header));
 
-		hidePasswordColumn();
+		for (var j = 0; j < header.length; j++)
+			if (header[j].equalsIgnoreCase(csvHeader[0])) {
+				map.put(csvHeader[0], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[0];
+			} else if (header[j].equalsIgnoreCase(csvHeader[1])) {
+				map.put(csvHeader[1], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[1];
+			} else if (header[j].equalsIgnoreCase(csvHeader[2])) {
+				map.put(csvHeader[2], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[2];
+			} else if (header[j].equalsIgnoreCase(csvHeader[3])) {
+				map.put(csvHeader[3], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[3];
+			} else if (header[j].equalsIgnoreCase(csvHeader[4])) {
+				map.put(csvHeader[4], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[4];
+			} else if (header[j].equalsIgnoreCase(csvHeader[5])) {
+				map.put(csvHeader[5], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[5];
+			} else if (header[j].equalsIgnoreCase(csvHeader[6])) {
+				map.put(csvHeader[6], Integer.valueOf(j));
+				newHeader[j] = cData.tableHeader[6];
+			}
+
+		cData.setColumnMap(map);
+
+		if (map.containsKey(csvHeader[0]) && map.containsKey(csvHeader[1]) && map.containsKey(csvHeader[2]) && map.containsKey(csvHeader[3])
+				&& map.containsKey(csvHeader[4]) && map.containsKey(csvHeader[5]) && map.containsKey(csvHeader[6])) {
+			cData.setCustomHeader(false);
+			createColumns(newHeader);
+			hideColumns();
+		} else {
+			cData.setCustomHeader(true);
+			createColumns(header);
+		}
 	}
 
 	/**
@@ -165,18 +204,15 @@ public abstract class Action {
 
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();
-		final var max = Double.SIZE;
 		cData.setArgon2id(false);
-		cData.setPBKDFIter(max * max);
+		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
 
 		byte[] b = null;
 
 		try {
 			if (encrypt) {
-				final var min = Integer.SIZE;
 				final var random = getSecureRandom();
-				final var length = random.nextInt(max - min) + min;
-				final var pwd = new byte[length];
+				final var pwd = new byte[random.nextInt(Integer.SIZE) + Integer.SIZE];
 				random.nextBytes(pwd);
 				b = new Crypto(cData).encrypt(data, pwd);
 				cData.setKey(pwd);
@@ -222,7 +258,7 @@ public abstract class Action {
 		edit.getItem(7).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(8).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(9).setEnabled(selectionCount == 1 && isDefaultHeader);
-		edit.getItem(11).setEnabled(selectionCount == 1 && isUrl(table) && isDefaultHeader);
+		edit.getItem(11).setEnabled(selectionCount == 1 && isDefaultHeader && isUrl(cData, table));
 		find.getItem(0).setEnabled(itemCount > 1);
 		view.getItem(0).setEnabled(isFileOpen && isUnlocked && !isModified && isDefaultHeader);
 		view.getItem(0).setSelection(cData.isReadOnly());
@@ -251,15 +287,15 @@ public abstract class Action {
 	public void fillGroupList() {
 		final var list = getList();
 
-		if (list.isVisible()) {
-			list.setRedraw(false);
-			list.removeAll();
-
+		if (list.isVisible() && !cData.isCustomHeader()) {
 			final var set = getHashSet();
+			final var index = cData.getColumnMap().get(cData.csvHeader[1]).intValue();
 
 			for (final var item : table.getItems())
-				set.add(item.getText(1));
+				set.add(item.getText(index));
 
+			list.setRedraw(false);
+			list.removeAll();
 			list.add(cData.listFirs);
 
 			for (final var text : set)
@@ -316,10 +352,27 @@ public abstract class Action {
 	}
 
 	/**
+	 * Hide uuid, group and password column.
+	 */
+	private void hideColumns() {
+		final var map = cData.getColumnMap();
+		final var uuid = table.getColumn(map.get(cData.csvHeader[0]).intValue());
+		final var group = table.getColumn(map.get(cData.csvHeader[1]).intValue());
+		uuid.setResizable(false);
+		uuid.setWidth(0);
+		group.setResizable(false);
+		group.setWidth(0);
+
+		hidePasswordColumn();
+	}
+
+	/**
 	 * Hide password column.
 	 */
 	void hidePasswordColumn() {
-		final var pwdCol = table.getColumn(5);
+		final var map = cData.getColumnMap();
+		final var pwdIndex = map.get(cData.csvHeader[5]).intValue();
+		final var pwdCol = table.getColumn(pwdIndex);
 
 		if (pwdCol.getResizable()) {
 			pwdCol.setWidth(0);
@@ -327,7 +380,8 @@ public abstract class Action {
 			final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
 			viewMenu.getItem(6).setSelection(false);
 			viewMenu.getItem(7).setSelection(true);
-			table.getColumn(2).setText(cData.tableHeader[2]);
+			final var titleIndex = map.get(cData.csvHeader[2]).intValue();
+			table.getColumn(titleIndex).setText(cData.tableHeader[2]);
 		}
 	}
 

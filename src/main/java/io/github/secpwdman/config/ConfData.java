@@ -22,6 +22,8 @@ package io.github.secpwdman.config;
 
 import static io.github.secpwdman.Messages.getString;
 
+import java.util.HashMap;
+
 import org.eclipse.swt.graphics.Color;
 
 /**
@@ -29,7 +31,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.7"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.8"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -57,6 +59,8 @@ public class ConfData {
 	private Color linkColor;
 	private Color textColor;
 
+	private HashMap<String, Integer> columnMap;
+
 	private String file = null;
 	private String header = null;
 
@@ -75,9 +79,6 @@ public class ConfData {
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 
-	public final String csvHeader = "uuid,group,title,url,user,password,notes"; //$NON-NLS-1$
-
-	public final String systemThem = "org.eclipse.swt.display.useSystemTheme"; //$NON-NLS-1$
 	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
 	public final String shellTitle = "org.eclipse.swt.internal.win32.useShellTitleColoring"; //$NON-NLS-1$
 	public final String menuBackgr = "org.eclipse.swt.internal.win32.menuBarBackgroundColor"; //$NON-NLS-1$
@@ -210,6 +211,7 @@ public class ConfData {
 	public final String headerOp = getString("Header.Title.open"); //$NON-NLS-1$
 	public final String listFirs = getString("List.All"); //$NON-NLS-1$
 
+	public final String[] csvHeader = { "uuid", "group", "title", "url", "user", "password", "notes" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 	public final String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			getString("Header.URL"), getString("Header.User"), getString("Header.Pass"), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			getString("Header.Notes") }; //$NON-NLS-1$
@@ -246,6 +248,13 @@ public class ConfData {
 	 */
 	public int getClearPassword() {
 		return clearPassword;
+	}
+
+	/**
+	 * @return the columnMap
+	 */
+	public HashMap<String, Integer> getColumnMap() {
+		return columnMap;
 	}
 
 	/**
@@ -400,6 +409,13 @@ public class ConfData {
 	 */
 	public void setClearPassword(final int clearPassword) {
 		this.clearPassword = clearPassword;
+	}
+
+	/**
+	 * @param columnMap the columnMap to set
+	 */
+	public void setColumnMap(final HashMap<String, Integer> columnMap) {
+		this.columnMap = columnMap;
 	}
 
 	/**
