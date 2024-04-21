@@ -94,7 +94,7 @@ public class EntryDialog {
 	private void editEntry(final Shell dialog, final TableItem tableItem) {
 		final var child = dialog.getChildren();
 		final var index = getColumnIndexNumbers(action.getCData());
-		final var textFields = new String[7];
+		final var textFields = new String[index.length];
 		textFields[index[0]] = ((Text) child[0]).getText();
 		textFields[index[1]] = ((Text) child[2]).getText();
 		textFields[index[2]] = ((Text) child[4]).getText();
