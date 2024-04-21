@@ -96,7 +96,7 @@ public class EntryDialog {
 		final var index = getColumnIndexNumbers(action.getCData());
 		final var textFields = new String[index.length];
 
-		for (int i = 0; i < textFields.length; i++)
+		for (var i = 0; i < textFields.length; i++)
 			textFields[index[i]] = ((Text) child[i * 2]).getText();
 
 		if (tableItem != null) {
