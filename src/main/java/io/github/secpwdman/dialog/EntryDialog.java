@@ -95,19 +95,15 @@ public class EntryDialog {
 		final var child = dialog.getChildren();
 		final var index = getColumnIndexNumbers(action.getCData());
 		final var textFields = new String[index.length];
-		textFields[index[0]] = ((Text) child[0]).getText();
-		textFields[index[1]] = ((Text) child[2]).getText();
-		textFields[index[2]] = ((Text) child[4]).getText();
-		textFields[index[3]] = ((Text) child[6]).getText();
-		textFields[index[4]] = ((Text) child[8]).getText();
-		textFields[index[5]] = ((Text) child[10]).getText();
-		textFields[index[6]] = ((Text) child[12]).getText();
+
+		for (int i = 0; i < textFields.length; i++)
+			textFields[index[i]] = ((Text) child[i * 2]).getText();
 
 		if (tableItem != null) {
 			final var items = new String[textFields.length];
 
-			for (var i = 0; i < items.length; i++)
-				items[i] = tableItem.getText(i);
+			for (var j = 0; j < items.length; j++)
+				items[j] = tableItem.getText(j);
 
 			if (isEqual(items, textFields)) {
 				dialog.close();
