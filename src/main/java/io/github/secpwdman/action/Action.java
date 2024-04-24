@@ -84,16 +84,6 @@ public abstract class Action {
 	}
 
 	/**
-	 * Clear the table and remove all columns.
-	 */
-	private void clearTable() {
-		table.removeAll();
-
-		while (table.getColumnCount() > 0)
-			table.getColumns()[0].dispose();
-	}
-
-	/**
 	 * Color URL.
 	 */
 	public void colorURL() {
@@ -116,7 +106,10 @@ public abstract class Action {
 	 * @param header the header
 	 */
 	private void createColumns(final String[] header) {
-		clearTable();
+		table.removeAll();
+
+		while (table.getColumnCount() > 0)
+			table.getColumns()[0].dispose();
 
 		for (final var head : header) {
 			final var col = new TableColumn(table, SWT.NONE);
@@ -128,7 +121,7 @@ public abstract class Action {
 	}
 
 	/**
-	 * Creates the column header.
+	 * Creates the header.
 	 *
 	 * @param header the header
 	 */
@@ -151,7 +144,6 @@ public abstract class Action {
 
 		final var length = header.length;
 		final var newHeader = new String[length];
-		System.arraycopy(header, 0, newHeader, 0, length);
 		cData.setHeader(arrayToString(cData, header));
 
 		for (var j = 0; j < header.length; j++)
