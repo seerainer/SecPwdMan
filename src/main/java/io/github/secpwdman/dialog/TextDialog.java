@@ -29,8 +29,6 @@ import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
 
-import java.io.IOException;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -92,7 +90,7 @@ public class TextDialog {
 					action.resizeColumns();
 					action.enableItems();
 					action.setText();
-				} catch (final IOException ex) {
+				} catch (final Exception ex) {
 					msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 				}
 		}));

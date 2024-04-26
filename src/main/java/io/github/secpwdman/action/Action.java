@@ -33,8 +33,6 @@ import static io.github.secpwdman.util.Util.isUrl;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.io.IOException;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.Clipboard;
@@ -130,21 +128,18 @@ public abstract class Action {
 		final var map = getHashMap();
 
 		if (header == null) {
-			cData.setHeader(arrayToString(cData, csvHeader));
-
 			for (var i = 0; i < csvHeader.length; i++)
 				map.put(csvHeader[i], Integer.valueOf(i));
 
 			cData.setColumnMap(map);
 			cData.setCustomHeader(false);
+			cData.setHeader(arrayToString(cData, csvHeader));
 			createColumns(cData.tableHeader);
 			hideColumns();
 			return;
 		}
 
-		final var length = header.length;
-		final var newHeader = new String[length];
-		cData.setHeader(arrayToString(cData, header));
+		final var newHeader = new String[header.length];
 
 		for (var j = 0; j < header.length; j++)
 			if (header[j].equalsIgnoreCase(csvHeader[0])) {
@@ -171,16 +166,18 @@ public abstract class Action {
 			}
 
 		cData.setColumnMap(map);
+		cData.setHeader(arrayToString(cData, header));
 
-		if (map.containsKey(csvHeader[0]) && map.containsKey(csvHeader[1]) && map.containsKey(csvHeader[2]) && map.containsKey(csvHeader[3])
-				&& map.containsKey(csvHeader[4]) && map.containsKey(csvHeader[5]) && map.containsKey(csvHeader[6])) {
-			cData.setCustomHeader(false);
-			createColumns(newHeader);
-			hideColumns();
-		} else {
-			cData.setCustomHeader(true);
-			createColumns(header);
-		}
+		for (final var key : csvHeader)
+			if (!map.containsKey(key)) {
+				cData.setCustomHeader(true);
+				createColumns(header);
+				return;
+			}
+
+		cData.setCustomHeader(false);
+		createColumns(newHeader);
+		hideColumns();
 	}
 
 	/**
@@ -417,7 +414,7 @@ public abstract class Action {
 
 		try {
 			new IO(this).fillTable(false, data);
-		} catch (final IOException ex) {
+		} catch (final Exception ex) {
 			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
 		} finally {
 			data = null;

@@ -31,7 +31,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.8"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.9"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -51,7 +51,8 @@ public class ConfData {
 	private int pbkdfIter = 420000;
 	private int clearPassword = 20;
 	private int columnWidth = 167;
-	private int passwordMinLength = 8;
+	private int passwordMinLength = 12;
+	private int bufferLength = 0x100000;
 
 	public final char echoChr = '\u25CF';
 	public final char nullChr = '\0';
@@ -68,8 +69,8 @@ public class ConfData {
 	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
 	public final String valLink = "<a>commons.apache.org/validator</a>"; //$NON-NLS-1$
 	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
-	public final String csvLink = "<a>github.com/arnaudroger/SimpleFlatMapper</a>"; //$NON-NLS-1$
-	public final String csvAddress = "https://github.com/arnaudroger/SimpleFlatMapper"; //$NON-NLS-1$
+	public final String csvLink = "<a>github.com/skjolber/sesseltjonna-csv</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://github.com/skjolber/sesseltjonna-csv"; //$NON-NLS-1$
 	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
@@ -152,6 +153,7 @@ public class ConfData {
 	public final String cfgTitle = getString("Dialog.Config.Title"); //$NON-NLS-1$
 	public final String cfgKeyDF = getString("Dialog.Config.KeyDF"); //$NON-NLS-1$
 	public final String cfgArgon = getString("Dialog.Config.Argon"); //$NON-NLS-1$
+	public final String cfgBuffL = getString("Dialog.Config.BufferLength"); //$NON-NLS-1$
 	public final String cfgColWh = getString("Dialog.Config.ColW"); //$NON-NLS-1$
 	public final String cfgClPwd = getString("Dialog.Config.ClearPwd"); //$NON-NLS-1$
 	public final String cfgPIter = getString("Dialog.Config.Iter"); //$NON-NLS-1$
@@ -198,11 +200,9 @@ public class ConfData {
 	public final String titleErr = getString("MessageBox.Title.Error"); //$NON-NLS-1$
 	public final String titleInf = getString("MessageBox.Title.Info"); //$NON-NLS-1$
 	public final String titleWar = getString("MessageBox.Title.Warning"); //$NON-NLS-1$
-	public final String errorHea = getString("MessageBox.Error.Header"); //$NON-NLS-1$
 	public final String errorImp = getString("MessageBox.Error.Import"); //$NON-NLS-1$
 	public final String errorFil = getString("MessageBox.Error.IO"); //$NON-NLS-1$
 	public final String errorLen = getString("MessageBox.Error.Length"); //$NON-NLS-1$
-	public final String errorNul = getString("MessageBox.Error.Null"); //$NON-NLS-1$
 	public final String errorPwd = getString("MessageBox.Error.Password"); //$NON-NLS-1$
 	public final String warnNewF = getString("MessageBox.Warning.Changes"); //$NON-NLS-1$
 	public final String warnExit = getString("MessageBox.Warning.Exit"); //$NON-NLS-1$
@@ -241,6 +241,13 @@ public class ConfData {
 	 */
 	public int getArgonPara() {
 		return argonPara;
+	}
+
+	/**
+	 * @return the bufferLength
+	 */
+	public int getBufferLength() {
+		return bufferLength;
 	}
 
 	/**
@@ -395,6 +402,13 @@ public class ConfData {
 	 */
 	public void setArgonPara(final int argonPara) {
 		this.argonPara = argonPara;
+	}
+
+	/**
+	 * @param bufferLength the bufferLength to set
+	 */
+	public void setBufferLength(final int bufferLength) {
+		this.bufferLength = bufferLength;
 	}
 
 	/**

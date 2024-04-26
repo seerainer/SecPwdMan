@@ -163,8 +163,8 @@ public class Widgets {
 	 * @param selection the selection
 	 * @return the menu item
 	 */
-	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener, final int acc, final String text,
-			final String image, final boolean selection) {
+	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener,
+			final int acc, final String text, final String image, final boolean selection) {
 		final var item = new MenuItem(parent, state);
 
 		if (menu != null)
@@ -214,7 +214,8 @@ public class Widgets {
 	 * @param text     the text
 	 * @return the menu item
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc, final String text) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc,
+			final String text) {
 		return menuItem(parent, state, null, listener, acc, text, null, false);
 	}
 
@@ -229,8 +230,8 @@ public class Widgets {
 	 * @param image    the image
 	 * @return the menu item
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc, final String text,
-			final String image) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc,
+			final String text, final String image) {
 		return menuItem(parent, state, null, listener, acc, text, image, false);
 	}
 
@@ -257,7 +258,8 @@ public class Widgets {
 	 * @param selection the selection
 	 * @return the menu item
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text, final boolean selection) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
+			final boolean selection) {
 		return menuItem(parent, state, null, listener, 0, text, null, selection);
 	}
 
@@ -271,7 +273,8 @@ public class Widgets {
 	 * @param image    the image
 	 * @return the menu item
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text, final String image) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
+			final String image) {
 		return menuItem(parent, state, null, listener, 0, text, image, false);
 	}
 
@@ -323,7 +326,8 @@ public class Widgets {
 	 * @param text     the text
 	 * @return the button
 	 */
-	private static Button newButton(final Composite parent, final int style, final boolean select, final SelectionListener listener, final String text) {
+	private static Button newButton(final Composite parent, final int style, final boolean select,
+			final SelectionListener listener, final String text) {
 		final var button = new Button(parent, style);
 		button.setFont(parent.getFont());
 		button.setForeground(parent.getForeground());
@@ -505,7 +509,8 @@ public class Widgets {
 	 * @param pag    the pageIncrement
 	 * @return the spinner
 	 */
-	public static Spinner spinner(final Composite parent, final int sel, final int min, final int max, final int dig, final int inc, final int pag) {
+	public static Spinner spinner(final Composite parent, final int sel, final int min, final int max, final int dig,
+			final int inc, final int pag) {
 		final var spinner = new Spinner(parent, SWT.BORDER);
 		spinner.setFont(parent.getFont());
 		spinner.setForeground(parent.getForeground());
@@ -523,7 +528,8 @@ public class Widgets {
 	 * @param toolTip  the tooltip
 	 * @return the tool item
 	 */
-	public static ToolItem toolItem(final ToolBar toolBar, final String image, final SelectionListener listener, final String toolTip) {
+	public static ToolItem toolItem(final ToolBar toolBar, final String image, final SelectionListener listener,
+			final String toolTip) {
 		final var display = toolBar.getDisplay();
 		final var item = new ToolItem(toolBar, SWT.PUSH);
 		final var img = getImage(display, image);

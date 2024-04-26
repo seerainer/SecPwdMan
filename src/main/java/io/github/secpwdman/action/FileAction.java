@@ -168,6 +168,8 @@ public class FileAction extends Action {
 			case SWT.NO:
 				clearData();
 				break;
+			default:
+				break;
 			}
 		else
 			clearData();

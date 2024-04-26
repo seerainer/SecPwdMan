@@ -86,7 +86,7 @@ public class ConfigDialog {
 		layout.marginLeft = 10;
 		layout.marginRight = 10;
 		layout.marginTop = 10;
-		layout.verticalSpacing = 12;
+		layout.verticalSpacing = 10;
 		return layout;
 	}
 
@@ -99,7 +99,8 @@ public class ConfigDialog {
 	 * @param iter  the iterations
 	 * @param para  the parallelism
 	 */
-	private static void testArgon2(final ConfData cData, final Shell shell, final Spinner memo, final Spinner iter, final Spinner para) {
+	private static void testArgon2(final ConfData cData, final Shell shell, final Spinner memo, final Spinner iter,
+			final Spinner para) {
 		final var oldArgo = cData.isArgon2id();
 		final var oldMemo = cData.getArgonMemo();
 		final var oldIter = cData.getArgonIter();
@@ -191,7 +192,8 @@ public class ConfigDialog {
 		final var argonM = spinner(groupArgon, cData.getArgonMemo(), 0, 256, 0, 1, 16);
 		final var argonT = spinner(groupArgon, cData.getArgonIter(), 0, 128, 0, 1, 8);
 		final var argonP = spinner(groupArgon, cData.getArgonPara(), 1, 64, 0, 1, 4);
-		newButton(groupArgon, SWT.PUSH, widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)), cData.cfgTestB);
+		newButton(groupArgon, SWT.PUSH, widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)),
+				cData.cfgTestB);
 
 		final var groupPBKDF = group(dialog, getLayout(2), cData.cfgPIter);
 		final var pbkdfIter = spinner(groupPBKDF, cData.getPBKDFIter(), 210000, 9999999, 0, 1, 10000);
@@ -200,14 +202,17 @@ public class ConfigDialog {
 
 		horizontalSeparator(dialog);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
-		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
-
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgClPwd);
 		final var clearPwd = spinner(dialog, cData.getClearPassword(), 10, 300, 0, 1, 10);
 
+		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
+		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
+
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
+
+		newLabel(dialog, SWT.HORIZONTAL, cData.cfgBuffL);
+		final var bufferLength = spinner(dialog, cData.getBufferLength(), 0x10000, 0x1000000, 0, 1, 0x10000);
 
 		emptyLabel(dialog);
 		emptyLabel(dialog);
@@ -224,6 +229,7 @@ public class ConfigDialog {
 			cData.setPBKDFIter(pbkdfIter.getSelection());
 			cData.setClearPassword(clearPwd.getSelection());
 			cData.setColumnWidth(columnWidth.getSelection());
+			cData.setBufferLength(bufferLength.getSelection());
 			cData.setPasswordMinLength(minPwdLength.getSelection());
 			dialog.close();
 			action.resizeColumns();

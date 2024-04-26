@@ -54,15 +54,17 @@ public class SearchDialog {
 	 */
 	public SearchDialog(final Action action) {
 		this.action = action;
-
-		if (dialog != null && !dialog.isDisposed())
-			dialog.close();
 	}
 
 	/**
 	 * Open.
 	 */
 	public void open() {
+		if (dialog != null && !dialog.isDisposed()) {
+			dialog.forceActive();
+			return;
+		}
+
 		final var cData = action.getCData();
 		final var layout = new GridLayout(4, false);
 		layout.marginLeft = 5;
@@ -74,7 +76,6 @@ public class SearchDialog {
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.searText);
 		final var text = newText(dialog, SWT.BORDER | SWT.SINGLE);
-		text.selectAll();
 		text.setFocus();
 		text.setTextLimit(50);
 
@@ -88,8 +89,6 @@ public class SearchDialog {
 	 */
 	private void search() {
 		final var text = ((Text) dialog.getChildren()[1]);
-		text.selectAll();
-
 		final var value = text.getText();
 
 		if (isEmpty(value)) {
@@ -99,6 +98,7 @@ public class SearchDialog {
 
 		final var shell = action.getShell();
 		final var table = action.getTable();
+		final var length = value.length();
 		final var itemCount = table.getItemCount();
 		final var columnCount = table.getColumnCount();
 		final var selectionCount = table.getSelectionCount();
@@ -110,13 +110,21 @@ public class SearchDialog {
 			selectionIndex = 0;
 
 		for (var i = selectionIndex; i < itemCount; i++)
-			for (var j = 0; j < columnCount; j++)
-				if (table.getItem(i).getText(j).contains(value)) {
-					table.setSelection(i);
-					shell.forceActive();
-					table.setFocus();
-					return;
+			for (var j = 0; j < columnCount; j++) {
+				final var item = table.getItem(i).getText(j);
+
+				for (var k = 0; k + length <= item.length(); k++) {
+					if (!table.getColumn(j).getResizable())
+						break;
+
+					if (item.substring(k, k + length).equalsIgnoreCase(value)) {
+						table.setSelection(i);
+						shell.forceActive();
+						table.setFocus();
+						return;
+					}
 				}
+			}
 
 		final var cData = action.getCData();
 		msg(shell, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, cData.doubleQ + value + cData.doubleQ + cData.searMess);

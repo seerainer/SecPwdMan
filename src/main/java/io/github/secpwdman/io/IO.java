@@ -21,7 +21,6 @@
 package io.github.secpwdman.io;
 
 import static io.github.secpwdman.util.Util.clear;
-import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
@@ -34,7 +33,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Iterator;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -43,7 +41,9 @@ import javax.crypto.NoSuchPaddingException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
-import org.simpleflatmapper.lightningcsv.CsvParser;
+
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
@@ -62,8 +62,8 @@ public class IO {
 	 * @return the string
 	 */
 	private static String escapeSpecialChar(final ConfData cData, final String s) {
-		if (isEmpty(s))
-			return s;
+		if (s == null)
+			return cData.empty;
 
 		final var newLine = s.contains(cData.newLine);
 		final var doubleQ = s.contains(cData.doubleQ);
@@ -115,10 +115,19 @@ public class IO {
 	 *
 	 * @param iterator the iterator
 	 * @param table    the table
+	 * @throws Exception
 	 */
-	private static void fillTable(final Iterator<String[]> iterator, final Table table) {
-		while (iterator.hasNext())
-			new TableItem(table, SWT.NONE).setText(iterator.next());
+	private static void fillTable(final CsvReader<String[]> iterator, final Table table, final String selection)
+			throws Exception {
+		do {
+			final var txt = iterator.next();
+
+			if (txt == null)
+				break;
+
+			if (selection == null || selection.equals(txt[1]))
+				new TableItem(table, SWT.NONE).setText(txt);
+		} while (true);
 	}
 
 	private final Action action;
@@ -137,49 +146,45 @@ public class IO {
 	 *
 	 * @param newHeader true if new header
 	 * @param data      the data
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws Exception
 	 */
-	public void fillTable(final boolean newHeader, final byte[] data) throws IOException {
-		final var iterator = CsvParser.iterator(new InputStreamReader(new ByteArrayInputStream(data)));
+	public void fillTable(final boolean newHeader, final byte[] data) throws Exception {
 		final var cData = action.getCData();
+		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
+		final var builder = StringArrayCsvReader.builder().bufferLength(cData.getBufferLength());
 
-		if (!iterator.hasNext())
-			throw new IOException(cData.errorNul);
+		try (final var iterator = builder.build(reader)) {
+			final var header = iterator.next();
+			final var table = action.getTable();
+			table.setRedraw(false);
+			table.setSortColumn(null);
+			table.removeAll();
 
-		final var header = iterator.next();
-		final var table = action.getTable();
-		table.setRedraw(false);
-		table.setSortColumn(null);
-		table.removeAll();
+			if (newHeader) {
+				if (isEqual(header, cData.csvHeader))
+					action.createHeader(null);
+				else
+					action.createHeader(header);
 
-		if (newHeader) {
-			if (isEqual(header, cData.csvHeader))
-				action.createHeader(null);
-			else
-				action.createHeader(header);
+				fillTable(iterator, table, null);
+				cData.setData(action.cryptData(data, true));
+			} else {
+				final var list = action.getList();
+				final var listSelection = list.getItem(list.getSelectionIndex());
 
-			fillTable(iterator, table);
-			cData.setData(action.cryptData(data, true));
-		} else {
-			final var list = action.getList();
-			final var listSelection = list.getItem(list.getSelectionIndex());
+				if (listSelection.equals(cData.listFirs))
+					fillTable(iterator, table, null);
+				else
+					fillTable(iterator, table, listSelection);
+			}
 
-			if (listSelection.equals(cData.listFirs))
-				fillTable(iterator, table);
-			else
-				while (iterator.hasNext()) {
-					final var value = iterator.next();
-
-					if (listSelection.equals(value[1]))
-						new TableItem(table, SWT.NONE).setText(value);
-				}
+			clear(data);
+			action.colorURL();
+			action.resizeColumns();
+			table.setRedraw(true);
+			table.redraw();
+			iterator.close();
 		}
-
-		clear(data);
-		action.colorURL();
-		action.resizeColumns();
-		table.setRedraw(true);
-		table.redraw();
 	}
 
 	/**
@@ -206,8 +211,7 @@ public class IO {
 			exMsg = cData.errorPwd;
 		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException e) {
 			exMsg = cData.errorImp + cData.newLine + cData.newLine + e.fillInStackTrace().toString();
-		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException | NoSuchAlgorithmException
-				| NoSuchPaddingException | OutOfMemoryError e) {
+		} catch (final Exception | OutOfMemoryError e) {
 			exMsg = e.fillInStackTrace().toString();
 		} finally {
 			if (pwd != null)
@@ -242,8 +246,8 @@ public class IO {
 
 			Files.write(Path.of(file), b);
 			return true;
-		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException | InvalidKeySpecException
-				| IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
+		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
+				| InvalidKeySpecException | IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		} finally {
 			if (pwd != null)

@@ -75,6 +75,8 @@ public class PasswordStrength {
 		case 4:
 			text = cData.passSecu;
 			break;
+		default:
+			break;
 		}
 
 		if (text == cData.passWeak || text == cData.passFair)

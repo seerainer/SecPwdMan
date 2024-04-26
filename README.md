@@ -23,7 +23,7 @@ git clone https://github.com/seerainer/SecPwdMan.git
 ### Dependencies
 
 - [Apache Commons Validator](https://commons.apache.org/proper/commons-validator/)
-- [SimpleFlatMapper](https://github.com/arnaudroger/SimpleFlatMapper)
+- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv)
 - [zxcvbn4j](https://github.com/nulab/zxcvbn4j)
 - [Password4j](https://github.com/Password4j/password4j)
 - [eclipse.org/swt](https://www.eclipse.org/swt/)

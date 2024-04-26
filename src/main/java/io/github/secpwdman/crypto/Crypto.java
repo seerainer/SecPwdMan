@@ -83,9 +83,9 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] decrypt(final byte[] txt, final byte[] pwd)
-			throws ArrayIndexOutOfBoundsException, BadPaddingException, IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	public byte[] decrypt(final byte[] txt, final byte[] pwd) throws ArrayIndexOutOfBoundsException, BadPaddingException,
+			IllegalArgumentException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
+			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var cipher = Cipher.getInstance(cData.cMode);
 		final var decoded = Base64.getDecoder().decode(txt);
 		final var iv = Arrays.copyOfRange(decoded, 0, GCM_IV_LENGTH);
@@ -111,8 +111,9 @@ public class Crypto {
 	 * @throws NoSuchAlgorithmException           the no such algorithm exception
 	 * @throws NoSuchPaddingException             the no such padding exception
 	 */
-	public byte[] encrypt(final byte[] txt, final byte[] pwd) throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	public byte[] encrypt(final byte[] txt, final byte[] pwd)
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
+			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var cipher = Cipher.getInstance(cData.cMode);
 		final var secureRandom = getSecureRandom();
 		final var iv = new byte[GCM_IV_LENGTH];
@@ -140,7 +141,8 @@ public class Crypto {
 	 * @throws InvalidKeySpecException  the invalid key spec exception
 	 * @throws NoSuchAlgorithmException the no such algorithm exception
 	 */
-	private SecretKey keyDerivation(final byte[] pwd, final byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException {
+	private SecretKey keyDerivation(final byte[] pwd, final byte[] salt)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
 		if (cData.isArgon2id()) {
 			final var m = cData.getArgonMemo();
 			final var t = cData.getArgonIter();
