@@ -57,7 +57,7 @@ graalvmNative {
             imageName = 'SecPwdMan'
             mainClass = application.mainClass
             buildArgs.add('-Ob')
-            buildArgs.add('-march=x86-64-v3')
+            buildArgs.add('-march=compatibility')
             buildArgs.add('--no-fallback')
             buildArgs.add('-R:MinHeapSize=32m')
             buildArgs.add('-R:MaxHeapSize=4g')
