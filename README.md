@@ -22,11 +22,11 @@ git clone https://github.com/seerainer/SecPwdMan.git
 
 ### Dependencies
 
-- [Apache Commons Validator](https://commons.apache.org/proper/commons-validator/)
-- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv)
-- [zxcvbn4j](https://github.com/nulab/zxcvbn4j)
-- [Password4j](https://github.com/Password4j/password4j)
-- [eclipse.org/swt](https://www.eclipse.org/swt/)
+- [Apache Commons Validator](https://commons.apache.org/proper/commons-validator/) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [Password4j](https://github.com/Password4j/password4j) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [zxcvbn4j](https://github.com/nulab/zxcvbn4j) ([MIT license](https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt))
+- [eclipse.org/swt](https://www.eclipse.org/swt/) ([EPL 2 license](https://www.eclipse.org/legal/epl-2.0/))
 
 ### Bugs and Feedback
 
