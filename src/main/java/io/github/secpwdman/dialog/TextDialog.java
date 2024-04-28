@@ -24,7 +24,6 @@ import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.util.Util.setCenter;
-import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
@@ -80,19 +79,17 @@ public class TextDialog {
 		dialog.addShellListener(shellClosedAdapter(e -> {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 
-			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData))
-				try {
-					new IO(action).fillTable(true, textData.getBytes());
-					cData.setModified(true);
+			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData)) {
+				final var io = new IO(action);
+				io.fillTable(true, textData.getBytes());
+				cData.setModified(true);
 
-					action.colorURL();
-					action.fillGroupList();
-					action.resizeColumns();
-					action.enableItems();
-					action.setText();
-				} catch (final Exception ex) {
-					msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
-				}
+				action.colorURL();
+				action.fillGroupList();
+				action.resizeColumns();
+				action.enableItems();
+				action.setText();
+			}
 		}));
 
 		setCenter(dialog);

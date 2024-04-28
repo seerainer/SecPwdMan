@@ -148,14 +148,14 @@ public class IO {
 	 * @param data      the data
 	 * @throws Exception
 	 */
-	public void fillTable(final boolean newHeader, final byte[] data) throws Exception {
+	public void fillTable(final boolean newHeader, final byte[] data) {
 		final var cData = action.getCData();
+		final var table = action.getTable();
 		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
 		final var builder = StringArrayCsvReader.builder().bufferLength(cData.getBufferLength());
 
 		try (final var iterator = builder.build(reader)) {
 			final var header = iterator.next();
-			final var table = action.getTable();
 			table.setRedraw(false);
 			table.setSortColumn(null);
 			table.removeAll();
@@ -177,14 +177,15 @@ public class IO {
 				else
 					fillTable(iterator, table, listSelection);
 			}
-
-			clear(data);
-			action.colorURL();
-			action.resizeColumns();
-			table.setRedraw(true);
-			table.redraw();
-			iterator.close();
+		} catch (final Exception e) {
+			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		}
+
+		clear(data);
+		action.colorURL();
+		action.resizeColumns();
+		table.setRedraw(true);
+		table.redraw();
 	}
 
 	/**
@@ -211,7 +212,8 @@ public class IO {
 			exMsg = cData.errorPwd;
 		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | IOException e) {
 			exMsg = cData.errorImp + cData.newLine + cData.newLine + e.fillInStackTrace().toString();
-		} catch (final Exception | OutOfMemoryError e) {
+		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
+				| InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | OutOfMemoryError e) {
 			exMsg = e.fillInStackTrace().toString();
 		} finally {
 			if (pwd != null)

@@ -412,13 +412,9 @@ public abstract class Action {
 		if (data == null)
 			data = IO.extractData(cData, table);
 
-		try {
-			new IO(this).fillTable(false, data);
-		} catch (final Exception ex) {
-			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, ex.fillInStackTrace().toString());
-		} finally {
-			data = null;
-		}
+		final var io = new IO(this);
+		io.fillTable(false, data);
+		data = null;
 	}
 
 	/**
