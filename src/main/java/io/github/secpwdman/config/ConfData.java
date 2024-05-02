@@ -31,7 +31,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.9"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.10"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -188,9 +188,6 @@ public class ConfData {
 	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
 	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$
 	public final String passWeak = getString("Dialog.Password.Weak"); //$NON-NLS-1$
-	public final String passOfsl = getString("Dialog.Password.OfflineSlow"); //$NON-NLS-1$
-	public final String passOnfa = getString("Dialog.Password.OnlineFast"); //$NON-NLS-1$
-	public final String passOnsl = getString("Dialog.Password.OnlineSlow"); //$NON-NLS-1$
 	public final String searTitl = getString("Dialog.Search.Title"); //$NON-NLS-1$
 	public final String searText = getString("Dialog.Search.Text"); //$NON-NLS-1$
 	public final String searMess = getString("Dialog.Search.Message"); //$NON-NLS-1$

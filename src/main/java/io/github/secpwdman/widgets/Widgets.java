@@ -112,13 +112,8 @@ public class Widgets {
 	}
 
 	/**
-	 * A link.
-	 *
-	 * @param parent the parent
-	 * @param url    the url
-	 * @param color  the color
-	 * @param text   the text
-	 * @return the link
+	 * @see io.github.secpwdman.widgets.Widgets#link(Composite, String, Color,
+	 *      String, String)
 	 */
 	public static Link link(final Composite parent, final String url, final Color color, final String text) {
 		return link(parent, url, color, text, null);
@@ -192,27 +187,16 @@ public class Widgets {
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent the parent
-	 * @param state  the state
-	 * @param menu   the menu
-	 * @param text   the text
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final String text) {
 		return menuItem(parent, state, menu, null, 0, text, null, false);
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent   the parent
-	 * @param state    the state
-	 * @param listener the listener
-	 * @param acc      the accelerator
-	 * @param text     the text
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc,
 			final String text) {
@@ -220,15 +204,8 @@ public class Widgets {
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent   the parent
-	 * @param state    the state
-	 * @param listener the listener
-	 * @param acc      the accelerator
-	 * @param text     the text
-	 * @param image    the image
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final int acc,
 			final String text, final String image) {
@@ -236,27 +213,16 @@ public class Widgets {
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent   the parent
-	 * @param state    the state
-	 * @param listener the listener
-	 * @param text     the text
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text) {
 		return menuItem(parent, state, null, listener, 0, text, null, false);
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent    the parent
-	 * @param state     the state
-	 * @param listener  the listener
-	 * @param text      the text
-	 * @param selection the selection
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
 			final boolean selection) {
@@ -264,14 +230,8 @@ public class Widgets {
 	}
 
 	/**
-	 * Menu item.
-	 *
-	 * @param parent   the parent
-	 * @param state    the state
-	 * @param listener the listener
-	 * @param text     the text
-	 * @param image    the image
-	 * @return the menu item
+	 * @see io.github.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
+	 *      SelectionListener, int, String, String, boolean)
 	 */
 	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
 			final String image) {
@@ -305,12 +265,8 @@ public class Widgets {
 	}
 
 	/**
-	 * New button.
-	 *
-	 * @param parent the parent
-	 * @param select the select
-	 * @param text   the text
-	 * @return the button
+	 * @see io.github.secpwdman.widgets.Widgets#newButton(Composite, int, boolean,
+	 *      SelectionListener, String)
 	 */
 	public static Button newButton(final Composite parent, final boolean select, final String text) {
 		return newButton(parent, SWT.CHECK, select, null, text);
@@ -356,13 +312,8 @@ public class Widgets {
 	}
 
 	/**
-	 * New button.
-	 *
-	 * @param parent   the parent
-	 * @param style    the style
-	 * @param listener the listener
-	 * @param text     the text
-	 * @return the button
+	 * @see io.github.secpwdman.widgets.Widgets#newButton(Composite, int, boolean,
+	 *      SelectionListener, String)
 	 */
 	public static Button newButton(final Composite parent, final int style, final SelectionListener listener, final String text) {
 		return newButton(parent, style, false, listener, text);
@@ -485,13 +436,8 @@ public class Widgets {
 	}
 
 	/**
-	 * Shell.
-	 *
-	 * @param parent the parent
-	 * @param style  the style
-	 * @param layout the layout
-	 * @param text   the text
-	 * @return the shell
+	 * @see io.github.secpwdman.widgets.Widgets#shell(Shell, int, Image, Layout,
+	 *      String)
 	 */
 	public static Shell shell(final Shell parent, final int style, final Layout layout, final String text) {
 		return shell(parent, style, null, layout, text);

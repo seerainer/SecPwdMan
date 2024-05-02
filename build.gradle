@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.8.9'
+version = '0.8.10'
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ dependencies {
     }
     implementation 'com.github.skjolber.sesseltjonna-csv:parser:1.0.25'
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
-    implementation 'com.password4j:password4j:1.8.1'
+    implementation 'com.password4j:password4j:1.8.2'
     implementation("org.eclipse.platform:${swtArtifact}:3.125.0") {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }

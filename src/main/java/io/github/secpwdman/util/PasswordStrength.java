@@ -54,10 +54,6 @@ public class PasswordStrength {
 		final var strength = new Zxcvbn().measure(pwdChar);
 		pwdChar = null;
 
-		final var crackTimes = strength.getCrackTimesDisplay();
-		final var offlineSlow = crackTimes.getOfflineSlowHashing1e4perSecond();
-		final var onlineFast = crackTimes.getOnlineNoThrottling10perSecond();
-		final var onlineSlow = crackTimes.getOnlineThrottling100perHour();
 		var text = cData.passWeak;
 
 		switch (strength.getScore()) {
@@ -89,6 +85,14 @@ public class PasswordStrength {
 			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
 
 		label.setText(text);
-		label.setToolTipText(cData.passOfsl + offlineSlow + cData.passOnfa + onlineFast + cData.passOnsl + onlineSlow);
+
+		final var feedback = strength.getFeedback();
+		final var suggestions = feedback.getSuggestions();
+		final var str = new StringBuilder();
+
+		for (final var s : suggestions)
+			str.append(s).append(cData.newLine);
+
+		label.setToolTipText(str.toString() + feedback.getWarning());
 	}
 }

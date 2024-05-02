@@ -192,6 +192,9 @@ public class ConfigDialog {
 		final var argonM = spinner(groupArgon, cData.getArgonMemo(), 0, 256, 0, 1, 16);
 		final var argonT = spinner(groupArgon, cData.getArgonIter(), 0, 128, 0, 1, 8);
 		final var argonP = spinner(groupArgon, cData.getArgonPara(), 1, 64, 0, 1, 4);
+		argonM.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
+		argonT.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
+		argonP.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		newButton(groupArgon, SWT.PUSH, widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)),
 				cData.cfgTestB);
 

@@ -33,6 +33,10 @@
   }, {
     "pattern":"\\Qcom/nulabinc/zxcvbn/matchers/keyboards/qwerty.txt\\E"
   }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/messages.properties\\E"
+  }, {
+    "pattern":"\\Qcom/nulabinc/zxcvbn/messages_de.properties\\E"
+  }, {
     "pattern":"\\Qmessages.properties\\E"
   }, {
     "pattern":"\\Qmessages_de.properties\\E"
@@ -42,6 +46,9 @@
     "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt74b/nfc.nrm\\E"
   }]},
   "bundles":[{
+    "name":"com/nulabinc/zxcvbn/messages",
+    "locales":["de"]
+  }, {
     "name":"messages",
     "locales":["de", "und"]
   }, {

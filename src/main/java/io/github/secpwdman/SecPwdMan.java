@@ -80,7 +80,7 @@ import io.github.secpwdman.io.IO;
  *
  * @author <a href="mailto:philipp@seerainer.com">Philipp Seerainer</a>
  */
-public class SecPwdMan {
+public final class SecPwdMan {
 
 	/**
 	 * The main method.
