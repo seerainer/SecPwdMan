@@ -152,19 +152,19 @@ public final class SecPwdMan {
 	});
 
 	private final SelectionListener copyURL = widgetSelectedAdapter(e -> {
-		editAction.copyToClipboard(3);
+		editAction.copyToClipboard(cData.getColumnMap().get(cData.csvHeader[3]).intValue());
 	});
 
 	private final SelectionListener copyName = widgetSelectedAdapter(e -> {
-		editAction.copyToClipboard(4);
+		editAction.copyToClipboard(cData.getColumnMap().get(cData.csvHeader[4]).intValue());
 	});
 
 	private final SelectionListener copyPass = widgetSelectedAdapter(e -> {
-		editAction.copyToClipboard(5);
+		editAction.copyToClipboard(cData.getColumnMap().get(cData.csvHeader[5]).intValue());
 	});
 
 	private final SelectionListener copyNotes = widgetSelectedAdapter(e -> {
-		editAction.copyToClipboard(6);
+		editAction.copyToClipboard(cData.getColumnMap().get(cData.csvHeader[6]).intValue());
 	});
 
 	private final SelectionListener openURL = widgetSelectedAdapter(e -> {
@@ -320,7 +320,7 @@ public final class SecPwdMan {
 		editAction = new EditAction(cData, shell, table);
 		fileAction = new FileAction(cData, shell, table);
 		viewAction = new ViewAction(cData, shell, table);
-		viewAction.createHeader(null);
+		viewAction.defaultHeader();
 
 		shell.setSize(shell.computeSize(SWT.DEFAULT, SWT.DEFAULT).x, height);
 		shell.open();

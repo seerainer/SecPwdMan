@@ -49,10 +49,12 @@ import io.github.secpwdman.config.ConfData;
  * The Class Crypto.
  */
 public class Crypto {
-	public static final int GCM_IV_LENGTH = 12;
-	public static final int GCM_TAG_LENGTH = 128; // 16 * Byte.SIZE;
-	public static final int KEY_LENGTH = 256;
-	public static final int SALT_LENGTH = 16;
+	private static final int GCM_IV_LENGTH = 12;
+	private static final int GCM_TAG_LENGTH = 128;
+	private static final int KEY_LENGTH = 256;
+	private static final int MEM_SIZE = 1024;
+	private static final int SALT_LENGTH = 16;
+	private static final int OUT_LENGTH = 32;
 
 	private final ConfData cData;
 
@@ -147,7 +149,7 @@ public class Crypto {
 			final var m = cData.getArgonMemo();
 			final var t = cData.getArgonIter();
 			final var p = cData.getArgonPara();
-			final var argon = Argon2Function.getInstance(m * 1024, t, p, 32, Argon2.ID);
+			final var argon = Argon2Function.getInstance(m * MEM_SIZE, t, p, OUT_LENGTH, Argon2.ID);
 			final var hash = Password.hash(pwd).addSalt(salt).with(argon).getBytes();
 			return new SecretKeySpec(hash, cData.cCiph);
 		}

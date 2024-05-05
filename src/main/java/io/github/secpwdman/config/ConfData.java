@@ -31,7 +31,7 @@ import org.eclipse.swt.graphics.Color;
  */
 public class ConfData {
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.10"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.8.11"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private boolean isArgon2id = true;
@@ -52,7 +52,7 @@ public class ConfData {
 	private int clearPassword = 20;
 	private int columnWidth = 167;
 	private int passwordMinLength = 12;
-	private int bufferLength = 0x100000;
+	private int bufferLength = 1024;
 
 	public final char echoChr = '\u25CF';
 	public final char nullChr = '\0';

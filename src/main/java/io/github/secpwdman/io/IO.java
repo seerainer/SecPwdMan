@@ -152,7 +152,8 @@ public class IO {
 		final var cData = action.getCData();
 		final var table = action.getTable();
 		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
-		final var builder = StringArrayCsvReader.builder().bufferLength(cData.getBufferLength());
+		final var length = (Integer.SIZE * Integer.SIZE) * cData.getBufferLength();
+		final var builder = StringArrayCsvReader.builder().bufferLength(length);
 
 		try (final var iterator = builder.build(reader)) {
 			final var header = iterator.next();
@@ -162,9 +163,9 @@ public class IO {
 
 			if (newHeader) {
 				if (isEqual(header, cData.csvHeader))
-					action.createHeader(null);
+					action.defaultHeader();
 				else
-					action.createHeader(header);
+					action.customHeader(header);
 
 				fillTable(iterator, table, null);
 				cData.setData(action.cryptData(data, true));

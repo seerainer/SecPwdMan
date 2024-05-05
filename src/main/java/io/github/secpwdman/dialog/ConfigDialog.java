@@ -215,7 +215,7 @@ public class ConfigDialog {
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgBuffL);
-		final var bufferLength = spinner(dialog, cData.getBufferLength(), 0x10000, 0x1000000, 0, 1, 0x10000);
+		final var bufferLength = spinner(dialog, cData.getBufferLength(), 64, 8096, 0, 1, 64);
 
 		emptyLabel(dialog);
 		emptyLabel(dialog);

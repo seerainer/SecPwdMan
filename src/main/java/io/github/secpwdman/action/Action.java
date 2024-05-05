@@ -119,27 +119,52 @@ public abstract class Action {
 	}
 
 	/**
-	 * Creates the header.
+	 * Decrypt/Encrypt data for the group list.
+	 *
+	 * @param data    the data
+	 * @param encrypt true if encrypt
+	 * @return byte[]
+	 */
+	public byte[] cryptData(final byte[] data, final boolean encrypt) {
+		if (data == null)
+			return null;
+
+		final var oldArgo = cData.isArgon2id();
+		final var oldIter = cData.getPBKDFIter();
+		cData.setArgon2id(false);
+		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
+
+		byte[] b = null;
+
+		try {
+			if (encrypt) {
+				final var random = getSecureRandom();
+				final var pwd = new byte[random.nextInt(Integer.SIZE) + Integer.SIZE];
+				random.nextBytes(pwd);
+				b = new Crypto(cData).encrypt(data, pwd);
+				cData.setKey(pwd);
+				clear(data);
+			} else
+				b = new Crypto(cData).decrypt(data, cData.getKey());
+		} catch (final Exception e) {
+			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		}
+
+		cData.setArgon2id(oldArgo);
+		cData.setPBKDFIter(oldIter);
+
+		return b;
+	}
+
+	/**
+	 * Creates a custom header.
 	 *
 	 * @param header the header
 	 */
-	public void createHeader(final String[] header) {
+	public void customHeader(final String[] header) {
 		final var csvHeader = cData.csvHeader;
-		final var map = getHashMap();
-
-		if (header == null) {
-			for (var i = 0; i < csvHeader.length; i++)
-				map.put(csvHeader[i], Integer.valueOf(i));
-
-			cData.setColumnMap(map);
-			cData.setCustomHeader(false);
-			cData.setHeader(arrayToString(cData, csvHeader));
-			createColumns(cData.tableHeader);
-			hideColumns();
-			return;
-		}
-
 		final var newHeader = new String[header.length];
+		final var map = getHashMap();
 
 		for (var j = 0; j < header.length; j++)
 			if (header[j].equalsIgnoreCase(csvHeader[0])) {
@@ -181,41 +206,20 @@ public abstract class Action {
 	}
 
 	/**
-	 * Decrypt/Encrypt data for the group list.
-	 *
-	 * @param data    the data
-	 * @param encrypt true if encrypt
-	 * @return byte[]
+	 * Creates the default header.
 	 */
-	public byte[] cryptData(final byte[] data, final boolean encrypt) {
-		if (data == null)
-			return null;
+	public void defaultHeader() {
+		final var csvHeader = cData.csvHeader;
+		final var map = getHashMap();
 
-		final var oldArgo = cData.isArgon2id();
-		final var oldIter = cData.getPBKDFIter();
-		cData.setArgon2id(false);
-		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
+		for (var i = 0; i < csvHeader.length; i++)
+			map.put(csvHeader[i], Integer.valueOf(i));
 
-		byte[] b = null;
-
-		try {
-			if (encrypt) {
-				final var random = getSecureRandom();
-				final var pwd = new byte[random.nextInt(Integer.SIZE) + Integer.SIZE];
-				random.nextBytes(pwd);
-				b = new Crypto(cData).encrypt(data, pwd);
-				cData.setKey(pwd);
-				clear(data);
-			} else
-				b = new Crypto(cData).decrypt(data, cData.getKey());
-		} catch (final Exception e) {
-			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
-		}
-
-		cData.setArgon2id(oldArgo);
-		cData.setPBKDFIter(oldIter);
-
-		return b;
+		cData.setColumnMap(map);
+		cData.setCustomHeader(false);
+		cData.setHeader(arrayToString(cData, csvHeader));
+		createColumns(cData.tableHeader);
+		hideColumns();
 	}
 
 	/**

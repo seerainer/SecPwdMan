@@ -77,7 +77,7 @@ public class SearchDialog {
 		newLabel(dialog, SWT.HORIZONTAL, cData.searText);
 		final var text = newText(dialog, SWT.BORDER | SWT.SINGLE);
 		text.setFocus();
-		text.setTextLimit(50);
+		text.setTextLimit(128);
 
 		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> search()), cData.entrOkay));
 		dialog.setSize(500, 100);
