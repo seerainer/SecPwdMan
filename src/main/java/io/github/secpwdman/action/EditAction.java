@@ -64,7 +64,7 @@ public class EditAction extends Action {
 		cb.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
 		cb.dispose();
 
-		if (index == 5)
+		if (index == cData.getColumnMap().get(cData.csvHeader[5]).intValue())
 			display.timerExec(cData.getClearPassword() * 1000, this::clearClipboard);
 	}
 
