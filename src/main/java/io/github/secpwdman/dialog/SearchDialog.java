@@ -39,10 +39,12 @@ import io.github.secpwdman.action.Action;
  * The Class SearchDialog.
  */
 public class SearchDialog {
+
 	private static Shell dialog;
 
-	public static final Shell getDialog() {
-		return dialog;
+	public static final void close() {
+		if (dialog != null && !dialog.isDisposed())
+			dialog.close();
 	}
 
 	private final Action action;
@@ -80,7 +82,7 @@ public class SearchDialog {
 		text.setTextLimit(128);
 
 		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> search()), cData.entrOkay));
-		dialog.setSize(500, 100);
+		dialog.setSize(480, 100);
 		dialog.open();
 	}
 

@@ -20,6 +20,8 @@
  */
 package io.github.secpwdman.util;
 
+import java.nio.CharBuffer;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Label;
 
@@ -46,24 +48,20 @@ public class PasswordStrength {
 		if (pwd.length < minLength) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passShor + minLength);
-			label.setToolTipText(null);
+			label.setToolTipText(cData.empty);
 			return;
 		}
 
-		var pwdChar = Util.toCharSequence(pwd);
-		final var strength = new Zxcvbn().measure(pwdChar);
-		pwdChar = null;
+		final var charBuffer = CharBuffer.wrap(pwd);
+		final var strength = new Zxcvbn().measure(charBuffer);
+		Util.clear(pwd);
+		Util.clear(charBuffer.array());
 
 		var text = cData.passWeak;
 
 		switch (strength.getScore()) {
-		case 0:
-			break;
-		case 1:
-			text = cData.passFair;
-			break;
 		case 2:
-			text = cData.passGood;
+			text = cData.passFair;
 			break;
 		case 3:
 			text = cData.passStro;
@@ -77,9 +75,7 @@ public class PasswordStrength {
 
 		if (text == cData.passWeak || text == cData.passFair)
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		else if (text == cData.passGood)
-			label.setForeground(label.getParent().getForeground());
-		else if (Util.DARK)
+		else if (SWTUtil.DARK)
 			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
 		else
 			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
@@ -87,10 +83,9 @@ public class PasswordStrength {
 		label.setText(text);
 
 		final var feedback = strength.getFeedback();
-		final var suggestions = feedback.getSuggestions();
 		final var str = new StringBuilder();
 
-		for (final var s : suggestions)
+		for (final var s : feedback.getSuggestions())
 			str.append(s).append(cData.newLine);
 
 		label.setToolTipText(str.toString() + feedback.getWarning());

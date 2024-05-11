@@ -20,9 +20,9 @@
  */
 package io.github.secpwdman;
 
-import static io.github.secpwdman.util.Util.DARK;
+import static io.github.secpwdman.util.SWTUtil.DARK;
+import static io.github.secpwdman.util.SWTUtil.getImage;
 import static io.github.secpwdman.util.Util.WIN32;
-import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
@@ -49,7 +49,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.program.Program;
@@ -112,7 +111,7 @@ public final class SecPwdMan {
 	private ViewAction viewAction;
 
 	private final MenuListener enableItems = menuShownAdapter(e -> {
-		fileAction.enableItems();
+		editAction.enableItems();
 	});
 
 	private final SelectionListener openFile = widgetSelectedAdapter(e -> {
@@ -144,7 +143,7 @@ public final class SecPwdMan {
 	private final SelectionListener selectAll = widgetSelectedAdapter(e -> {
 		table.selectAll();
 		table.setFocus();
-		fileAction.enableItems();
+		editAction.enableItems();
 	});
 
 	private final SelectionListener deleteLine = widgetSelectedAdapter(e -> {
@@ -306,13 +305,12 @@ public final class SecPwdMan {
 			layout.marginTop = -2;
 			height = display.getBounds().height - 40;
 			trayItem(display, image);
-			shell.setLocation(-9, 0);
+			shell.setLocation(-7, 0);
 		}
 
 		shell.setImage(image);
 		shell.setLayout(layout);
 		shell.setMenuBar(menuBar());
-		image.dispose();
 
 		shellColor(display, toolBar());
 		shellArea();
@@ -340,8 +338,11 @@ public final class SecPwdMan {
 	private void openFileArg() {
 		final var file = cData.getFile();
 
-		if (!isEmpty(file))
-			if (isReadable(file) && file.endsWith(cData.passExte.substring(1))) {
+		if (!isEmpty(file)) {
+			final var aes = cData.passExte.substring(1, 5);
+			final var jsn = cData.passExte.substring(8);
+
+			if (isReadable(file) && (file.endsWith(aes) || file.endsWith(jsn))) {
 				new PasswordDialog(fileAction).open(false);
 				cData.setLocked(true);
 			} else {
@@ -356,20 +357,26 @@ public final class SecPwdMan {
 
 				cData.setFile(null);
 			}
+		}
 	}
 
 	/**
 	 * SashForm with list & table.
 	 */
 	private void shellArea() {
+		final var layout = new GridLayout();
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+
+		final var foreground = shell.getForeground();
 		final var form = new SashForm(shell, SWT.HORIZONTAL);
-		form.setForeground(shell.getForeground());
+		form.setForeground(foreground);
 		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		form.setLayout(new FillLayout());
+		form.setLayout(layout);
 
 		final var list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
 		list.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
-		list.setForeground(shell.getForeground());
+		list.setForeground(foreground);
 		list.setVisible(false);
 
 		table = newTable(form);
@@ -379,7 +386,7 @@ public final class SecPwdMan {
 		table.setHeaderVisible(true);
 		table.setMenu(tableMenu());
 
-		form.setWeights(15, 85);
+		form.setWeights(16, 84);
 	}
 
 	/**

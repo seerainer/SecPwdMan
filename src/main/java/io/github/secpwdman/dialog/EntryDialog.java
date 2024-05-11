@@ -21,8 +21,7 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
-import static io.github.secpwdman.util.Util.getImage;
-import static io.github.secpwdman.util.Util.getUUID;
+import static io.github.secpwdman.util.SWTUtil.getImage;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
@@ -34,6 +33,8 @@ import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static io.github.secpwdman.widgets.Widgets.spinner;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.util.UUID;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -48,7 +49,6 @@ import org.eclipse.swt.widgets.Text;
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.images.IMG;
-import io.github.secpwdman.io.IO;
 import io.github.secpwdman.util.RandomPassword;
 
 /**
@@ -72,6 +72,15 @@ public class EntryDialog {
 			header[i] = map.get(csvHeader[i]).intValue();
 
 		return header;
+	}
+
+	/**
+	 * Get random UUID.
+	 *
+	 * @return randomUUID
+	 */
+	private static String getUUID() {
+		return UUID.randomUUID().toString().toUpperCase();
 	}
 
 	private final Action action;
@@ -165,7 +174,8 @@ public class EntryDialog {
 		else
 			table.getItem(table.getSelectionIndex()).setText(textFields);
 
-		cData.setData(action.cryptData(IO.extractData(cData, table), true));
+		textFields[5] = null;
+		cData.setData(action.cryptData(action.extractData(), true));
 		cData.setModified(true);
 		action.colorURL();
 		action.enableItems();
@@ -187,10 +197,7 @@ public class EntryDialog {
 		if (cData.isLocked() || cData.isCustomHeader() || (newEntry && cData.isReadOnly()))
 			return;
 
-		final var search = SearchDialog.getDialog();
-
-		if (search != null && !search.isDisposed())
-			search.close();
+		SearchDialog.close();
 
 		final var shell = action.getShell();
 		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);

@@ -20,7 +20,7 @@
  */
 package io.github.secpwdman.dialog;
 
-import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.util.SWTUtil.setCenter;
 import static io.github.secpwdman.widgets.Widgets.group;
 import static io.github.secpwdman.widgets.Widgets.link;
 import static io.github.secpwdman.widgets.Widgets.newButton;
@@ -41,6 +41,7 @@ import io.github.secpwdman.config.ConfData;
  * The Class InfoDialog.
  */
 public class InfoDialog {
+
 	private final Action action;
 
 	/**
@@ -79,11 +80,12 @@ public class InfoDialog {
 		layout.verticalSpacing = 5;
 
 		final var depend = group(dialog, layout, cData.infoDepe);
-		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 
 		final var linkColor = cData.getLinkColor();
 		link(depend, cData.valAddress, linkColor, cData.valLink);
 		link(depend, cData.csvAddress, linkColor, cData.csvLink);
+		link(depend, cData.jsnAddress, linkColor, cData.jsnLink);
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
 		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
 		link(depend, cData.swtAddress, linkColor, cData.swtLink);
@@ -91,7 +93,7 @@ public class InfoDialog {
 		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);
-		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		data.widthHint = 80;
 		okBtn.setFocus();
 		okBtn.setLayoutData(data);

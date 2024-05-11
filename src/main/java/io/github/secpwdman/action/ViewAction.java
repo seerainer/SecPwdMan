@@ -20,7 +20,7 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.util.Util.msgShowPasswords;
+import static io.github.secpwdman.util.SWTUtil.msgShowPasswords;
 
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;

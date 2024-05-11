@@ -30,9 +30,19 @@ import org.eclipse.swt.graphics.Color;
  * The Class ConfData.
  */
 public class ConfData {
+
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.8.12"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.0"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
+
+	public static final int GCM_IV_LENGTH = 12;
+	public static final int GCM_TAG_LENGTH = 128;
+	public static final int ITERATIONS = 4096;
+	public static final int KEY_LENGTH = 256;
+	public static final int MEM_SIZE = 1024;
+	public static final int SALT_LENGTH = 16;
+	public static final int SECONDS = 1000;
+	public static final int OUT_LENGTH = 32;
 
 	private boolean isArgon2id = true;
 	private boolean isClearAfterSave = false;
@@ -71,6 +81,8 @@ public class ConfData {
 	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
 	public final String csvLink = "<a>github.com/skjolber/sesseltjonna-csv</a>"; //$NON-NLS-1$
 	public final String csvAddress = "https://github.com/skjolber/sesseltjonna-csv"; //$NON-NLS-1$
+	public final String jsnLink = "<a>github.com/mmastrac/nanojson</a>"; //$NON-NLS-1$
+	public final String jsnAddress = "https://github.com/mmastrac/nanojson"; //$NON-NLS-1$
 	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
@@ -111,7 +123,7 @@ public class ConfData {
 	public final String rSpecia2 = ";:,.<>/~\\[](){}?!|*"; //$NON-NLS-1$
 
 	public final String imexExte = "*.csv; *.txt"; //$NON-NLS-1$
-	public final String passExte = "*.aes"; //$NON-NLS-1$
+	public final String passExte = "*.aes; *.json"; //$NON-NLS-1$
 
 	public final String imexFile = getString("File.ImpExp.Text"); //$NON-NLS-1$
 	public final String passFile = getString("File.Password.Text"); //$NON-NLS-1$
@@ -159,7 +171,6 @@ public class ConfData {
 	public final String cfgPIter = getString("Dialog.Config.Iter"); //$NON-NLS-1$
 	public final String cfgMinPl = getString("Dialog.Config.MinPwdLength"); //$NON-NLS-1$
 	public final String cfgTestB = getString("Dialog.Config.Test"); //$NON-NLS-1$
-	public final String cfgTestI = getString("Dialog.Config.Testinfo"); //$NON-NLS-1$
 	public final String entrNewe = getString("Dialog.Entry.New"); //$NON-NLS-1$
 	public final String entrEdit = getString("Dialog.Entry.Edit"); //$NON-NLS-1$
 	public final String entrView = getString("Dialog.Entry.View"); //$NON-NLS-1$
@@ -181,26 +192,26 @@ public class ConfData {
 	public final String passTitl = getString("Dialog.Password.Title"); //$NON-NLS-1$
 	public final String passWord = getString("Dialog.Password.Password"); //$NON-NLS-1$
 	public final String passConf = getString("Dialog.Password.Confirm"); //$NON-NLS-1$
-	public final String passFair = getString("Dialog.Password.Fair"); //$NON-NLS-1$
-	public final String passGood = getString("Dialog.Password.Good"); //$NON-NLS-1$
+	public final String passFair = getString("Dialog.Password.Weak"); //$NON-NLS-1$
 	public final String passNoMa = getString("Dialog.Password.NoMatch"); //$NON-NLS-1$
 	public final String passStro = getString("Dialog.Password.Strong"); //$NON-NLS-1$
 	public final String passShor = getString("Dialog.Password.TooShort"); //$NON-NLS-1$
 	public final String passSecu = getString("Dialog.Password.VeryStrong"); //$NON-NLS-1$
-	public final String passWeak = getString("Dialog.Password.Weak"); //$NON-NLS-1$
+	public final String passWeak = getString("Dialog.Password.VeryWeak"); //$NON-NLS-1$
 	public final String searTitl = getString("Dialog.Search.Title"); //$NON-NLS-1$
 	public final String searText = getString("Dialog.Search.Text"); //$NON-NLS-1$
-	public final String searMess = getString("Dialog.Search.Message"); //$NON-NLS-1$
 	public final String textView = getString("Dialog.TextView"); //$NON-NLS-1$
 	public final String textWarn = getString("Dialog.TextWarning"); //$NON-NLS-1$
 	public final String systInfo = getString("Dialog.SystemInfo"); //$NON-NLS-1$
 	public final String titleErr = getString("MessageBox.Title.Error"); //$NON-NLS-1$
 	public final String titleInf = getString("MessageBox.Title.Info"); //$NON-NLS-1$
 	public final String titleWar = getString("MessageBox.Title.Warning"); //$NON-NLS-1$
+	public final String cfgTestI = getString("MessageBox.Config.Testinfo"); //$NON-NLS-1$
 	public final String errorImp = getString("MessageBox.Error.Import"); //$NON-NLS-1$
 	public final String errorFil = getString("MessageBox.Error.IO"); //$NON-NLS-1$
 	public final String errorLen = getString("MessageBox.Error.Length"); //$NON-NLS-1$
 	public final String errorPwd = getString("MessageBox.Error.Password"); //$NON-NLS-1$
+	public final String searMess = getString("MessageBox.Search.NotFound"); //$NON-NLS-1$
 	public final String warnNewF = getString("MessageBox.Warning.Changes"); //$NON-NLS-1$
 	public final String warnExit = getString("MessageBox.Warning.Exit"); //$NON-NLS-1$
 	public final String warnPass = getString("MessageBox.Warning.ShowPass"); //$NON-NLS-1$

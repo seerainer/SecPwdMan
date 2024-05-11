@@ -21,9 +21,10 @@
 package io.github.secpwdman.dialog;
 
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
+import static io.github.secpwdman.util.SWTUtil.setCenter;
+import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.isEqual;
-import static io.github.secpwdman.util.Util.setCenter;
-import static io.github.secpwdman.util.Util.toBytes;
+import static io.github.secpwdman.util.Util.valueOf;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static io.github.secpwdman.widgets.Widgets.newButton;
@@ -31,6 +32,9 @@ import static io.github.secpwdman.widgets.Widgets.newLabel;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -58,21 +62,39 @@ public class PasswordDialog {
 	 */
 	private static void testPassword(final ModifyEvent e, final ConfData cData, final Text text2) {
 		final var text1 = (Text) e.widget;
-		final var label = (Label) text1.getParent().getChildren()[7];
-		var pwd1 = text1.getTextChars();
-		var pwd2 = text2.getTextChars();
+		final var label = (Label) text1.getParent().getChildren()[5];
+		final var pwd1 = text1.getTextChars();
+		final var pwd2 = text2.getTextChars();
 
 		if (isEqual(pwd1, pwd2))
 			evalPasswordStrength(cData, label, pwd1);
 		else {
 			label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
 			label.setText(cData.passNoMa);
-			label.setToolTipText(null);
+			label.setToolTipText(cData.empty);
 		}
 
-		pwd1 = null;
-		pwd2 = null;
+		clear(pwd1);
+		clear(pwd2);
 	}
+
+	/**
+	 * Convert char[] to byte[].
+	 *
+	 * @param c the char[]
+	 * @return the byte[]
+	 */
+	private static byte[] toBytes(final char[] c) {
+		final var charBuffer = CharBuffer.wrap(c);
+		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+		final var bytes = new byte[byteBuffer.remaining()];
+		byteBuffer.get(bytes);
+		clear(charBuffer.array());
+		clear(byteBuffer.array());
+		return bytes;
+	}
+
+	private final int saveHeight = 210;
 
 	private final FileAction action;
 
@@ -96,21 +118,20 @@ public class PasswordDialog {
 		final var file = cData.getFile();
 		final var io = new IO(action);
 		final var pwd = ((Text) dialog.getChildren()[1]);
-		var pwdChar = pwd.getTextChars();
-		final var length = pwdChar.length;
+		final var pwdCharsA = pwd.getTextChars();
+		final var length = pwdCharsA.length;
 		pwd.selectAll();
 
-		if (dialog.getBounds().height == 150) {
-			final var minPwdLength = cData.getPasswordMinLength();
-			final var shortMsg = String.format(cData.errorLen, Integer.valueOf(minPwdLength));
-			final var pwdConfirm = ((Text) dialog.getChildren()[4]);
-			var pwdChar2 = pwdConfirm.getTextChars();
+		if (dialog.getBounds().height == saveHeight) {
+			final var pwdMinLength = cData.getPasswordMinLength();
+			final var pwdConfirm = ((Text) dialog.getChildren()[3]);
+			final var pwdCharsB = pwdConfirm.getTextChars();
 			pwdConfirm.selectAll();
 
-			if ((length > 0 && isEqual(pwdChar, pwdChar2)))
-				if (length < minPwdLength)
-					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, shortMsg);
-				else if (io.saveFile(toBytes(pwdChar), file)) {
+			if ((length > 0 && isEqual(pwdCharsA, pwdCharsB)))
+				if (length < pwdMinLength)
+					msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, String.format(cData.errorLen, valueOf(pwdMinLength)));
+				else if (io.saveFile(toBytes(pwdCharsA), file)) {
 					cData.setModified(false);
 					dialog.close();
 
@@ -120,8 +141,8 @@ public class PasswordDialog {
 						action.clearData();
 				}
 
-			pwdChar2 = null;
-		} else if (length > 0 && io.openFile(toBytes(pwdChar), file)) {
+			clear(pwdCharsB);
+		} else if (length > 0 && io.openFile(toBytes(pwdCharsA), file)) {
 			cData.setLocked(false);
 			cData.setModified(false);
 			cData.setReadOnly(true);
@@ -135,7 +156,7 @@ public class PasswordDialog {
 			action.enableItems();
 			action.fillGroupList();
 			action.setText();
-			pwdChar = null;
+			clear(pwdCharsA);
 		}
 	}
 
@@ -145,13 +166,10 @@ public class PasswordDialog {
 	 * @param save if true save file
 	 */
 	public void open(final boolean save) {
-		final var search = SearchDialog.getDialog();
-
-		if (search != null && !search.isDisposed())
-			search.close();
+		SearchDialog.close();
 
 		final var cData = action.getCData();
-		final var layout = new GridLayout(4, false);
+		final var layout = new GridLayout(3, false);
 		layout.marginLeft = 5;
 		layout.marginRight = 5;
 		layout.marginTop = 10;
@@ -164,8 +182,6 @@ public class PasswordDialog {
 		pwd.setFocus();
 		pwd.setTextLimit(64);
 
-		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> confirmPassword(dialog)), cData.entrOkay));
-
 		if (save) {
 			newLabel(dialog, SWT.HORIZONTAL, cData.passConf);
 			final var pwdConfirm = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
@@ -174,14 +190,29 @@ public class PasswordDialog {
 			pwdConfirm.setTextLimit(64);
 
 			emptyLabel(dialog);
-			emptyLabel(dialog);
 
 			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-			dialog.setSize(500, 150);
+			dialog.setSize(480, saveHeight);
 		} else
-			dialog.setSize(500, 100);
+			dialog.setSize(480, 150);
+
+		emptyLabel(dialog);
+		emptyLabel(dialog);
+		emptyLabel(dialog);
+		emptyLabel(dialog);
+
+		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> confirmPassword(dialog)), cData.entrOkay);
+		var data = new GridData(SWT.LEAD, SWT.TOP, false, false);
+		data.widthHint = 80;
+		okBtn.setLayoutData(data);
+		dialog.setDefaultButton(okBtn);
+
+		final var clBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
+		data = new GridData(SWT.LEAD, SWT.TOP, false, false);
+		data.widthHint = 80;
+		clBtn.setLayoutData(data);
 
 		setCenter(dialog);
 

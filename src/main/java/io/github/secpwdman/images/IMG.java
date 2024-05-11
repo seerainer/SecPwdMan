@@ -24,6 +24,7 @@ package io.github.secpwdman.images;
  * The Class IMG.
  */
 public class IMG {
+
 	public static final String APP_ICON = """
 			iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAwElEQVR42u3WQQqDMBAF0Eyhm9JV
 			L9kzeci6Kt0ITlMqqCRx/jdVKkwgCDr+eQaVSFgzGtXs+bsIG8XdUGpcAcEBaHMSgQHY5iE847wi

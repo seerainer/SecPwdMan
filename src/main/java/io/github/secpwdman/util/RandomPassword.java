@@ -20,6 +20,8 @@
  */
 package io.github.secpwdman.util;
 
+import java.util.Arrays;
+
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Spinner;
@@ -57,7 +59,7 @@ public class RandomPassword {
 		}
 
 		if (Util.isEmpty(sign.toString()))
-			return cData.nullStr;
+			return cData.empty;
 
 		final var randomPwd = new StringBuilder();
 		final var random = Util.getSecureRandom();
@@ -100,7 +102,7 @@ public class RandomPassword {
 			else if (Character.isSpaceChar(c))
 				b[5] = true;
 
-		if (Util.isEqual(selection, b))
+		if (Arrays.equals(selection, b))
 			return false;
 
 		return true;

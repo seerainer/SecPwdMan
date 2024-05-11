@@ -146,15 +146,16 @@ public class ConfigDialog {
 	private static void timeTest(final ConfData cData, final Shell shell) {
 		try {
 			final var rand = getSecureRandom();
-			final var txt = new byte[1024];
-			final var pwd = new byte[64];
+			final var txt = new byte[ConfData.MEM_SIZE];
+			final var pwd = new byte[ConfData.OUT_LENGTH];
 			rand.nextBytes(txt);
 			rand.nextBytes(pwd);
 
+			final var crypt = new Crypto(cData);
 			final var start = System.currentTimeMillis();
-			final var enc = new Crypto(cData).encrypt(txt, pwd);
+			final var enc = crypt.encrypt(txt, pwd);
 			final var end = System.currentTimeMillis();
-			new Crypto(cData).decrypt(enc, pwd);
+			crypt.decrypt(enc, pwd);
 			final var t0 = Long.valueOf(end - start);
 			final var t1 = Long.valueOf(System.currentTimeMillis() - end);
 			final var str = String.format(cData.cfgTestI, t0, t1);
@@ -212,10 +213,10 @@ public class ConfigDialog {
 		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
-		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 4000, 0, 1, 10);
+		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 5000, 0, 1, 10);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgBuffL);
-		final var bufferLength = spinner(dialog, cData.getBufferLength(), 64, 8096, 0, 1, 64);
+		final var bufferLength = spinner(dialog, cData.getBufferLength(), 64, 8192, 0, 1, 64);
 
 		emptyLabel(dialog);
 		emptyLabel(dialog);
@@ -234,8 +235,11 @@ public class ConfigDialog {
 			cData.setColumnWidth(columnWidth.getSelection());
 			cData.setBufferLength(bufferLength.getSelection());
 			cData.setPasswordMinLength(minPwdLength.getSelection());
+			cData.setModified(true);
 			dialog.close();
+			action.enableItems();
 			action.resizeColumns();
+			action.setText();
 		}), cData.entrOkay);
 
 		final var data = new GridData(SWT.CENTER, SWT.END, false, false, 2, 1);

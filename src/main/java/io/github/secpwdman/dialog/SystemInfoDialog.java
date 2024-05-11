@@ -20,8 +20,8 @@
  */
 package io.github.secpwdman.dialog;
 
-import static io.github.secpwdman.util.Util.getImage;
-import static io.github.secpwdman.util.Util.setCenter;
+import static io.github.secpwdman.util.SWTUtil.getImage;
+import static io.github.secpwdman.util.SWTUtil.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newTable;
 import static io.github.secpwdman.widgets.Widgets.shell;
 
@@ -39,6 +39,7 @@ import io.github.secpwdman.images.IMG;
  * The Class SystemInfoDialog.
  */
 public class SystemInfoDialog {
+
 	private final Action action;
 
 	/**

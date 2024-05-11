@@ -20,10 +20,10 @@
  */
 package io.github.secpwdman.dialog;
 
-import static io.github.secpwdman.util.Util.getImage;
+import static io.github.secpwdman.util.SWTUtil.getImage;
+import static io.github.secpwdman.util.SWTUtil.msgShowPasswords;
+import static io.github.secpwdman.util.SWTUtil.setCenter;
 import static io.github.secpwdman.util.Util.isEmpty;
-import static io.github.secpwdman.util.Util.msgShowPasswords;
-import static io.github.secpwdman.util.Util.setCenter;
 import static io.github.secpwdman.widgets.Widgets.newText;
 import static io.github.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
@@ -34,12 +34,12 @@ import org.eclipse.swt.layout.GridLayout;
 
 import io.github.secpwdman.action.Action;
 import io.github.secpwdman.images.IMG;
-import io.github.secpwdman.io.IO;
 
 /**
  * The Class TextDialog.
  */
 public class TextDialog {
+
 	private final Action action;
 
 	/**
@@ -70,7 +70,7 @@ public class TextDialog {
 
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.textView);
 		final var isWriteable = !cData.isReadOnly();
-		final var tableData = new String(IO.extractData(cData, table));
+		final var tableData = new String(action.extractData());
 		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
@@ -80,8 +80,7 @@ public class TextDialog {
 			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
 
 			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData)) {
-				final var io = new IO(action);
-				io.fillTable(true, textData.getBytes());
+				action.fillTable(true, textData.getBytes());
 				cData.setModified(true);
 
 				action.colorURL();

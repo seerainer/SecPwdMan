@@ -20,8 +20,9 @@
  */
 package io.github.secpwdman.action;
 
-import static io.github.secpwdman.util.Util.getArrayList;
 import static io.github.secpwdman.util.Util.isEmpty;
+
+import java.util.ArrayList;
 
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -30,7 +31,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
 import io.github.secpwdman.config.ConfData;
-import io.github.secpwdman.io.IO;
 
 /**
  * The Class EditAction.
@@ -65,7 +65,7 @@ public class EditAction extends Action {
 		cb.dispose();
 
 		if (index == cData.getColumnMap().get(cData.csvHeader[5]).intValue())
-			display.timerExec(cData.getClearPassword() * 1000, this::clearClipboard);
+			display.timerExec(cData.getClearPassword() * ConfData.SECONDS, this::clearClipboard);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class EditAction extends Action {
 
 		if (getList().isVisible()) {
 			var items = table.getSelection();
-			final var arrayList = getArrayList(items.length);
+			final var arrayList = new ArrayList<String>(items.length);
 
 			for (final var item : items)
 				arrayList.add(item.getText(0));
@@ -97,7 +97,7 @@ public class EditAction extends Action {
 			table.remove(table.getSelectionIndices());
 
 		table.setRedraw(true);
-		cData.setData(cryptData(IO.extractData(cData, table), true));
+		cData.setData(cryptData(extractData(), true));
 
 		enableItems();
 		fillGroupList();

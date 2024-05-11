@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.8.12'
+version = '0.9.0'
 
 repositories {
     mavenCentral()
@@ -30,6 +30,7 @@ dependencies {
         exclude group: 'commons-logging', module: 'commons-logging'
     }
     implementation 'com.github.skjolber.sesseltjonna-csv:parser:1.0.25'
+    implementation 'com.grack:nanojson:1.9'
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
     implementation 'com.password4j:password4j:1.8.2'
     implementation("org.eclipse.platform:${swtArtifact}:3.125.0") {
@@ -40,7 +41,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(22)
     }
 }
 
@@ -60,7 +61,7 @@ graalvmNative {
             buildArgs.add('-march=compatibility')
             buildArgs.add('--no-fallback')
             buildArgs.add('-R:MinHeapSize=32m')
-            buildArgs.add('-R:MaxHeapSize=4g')
+            buildArgs.add('-R:MaxHeapSize=2g')
             buildArgs.add('-R:MaxNewSize=32m')
             useFatJar = true
         }

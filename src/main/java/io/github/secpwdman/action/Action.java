@@ -20,18 +20,23 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.URLUtil.isUrl;
 import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.clear;
-import static io.github.secpwdman.util.Util.getCollator;
 import static io.github.secpwdman.util.Util.getFilePath;
 import static io.github.secpwdman.util.Util.getHashMap;
-import static io.github.secpwdman.util.Util.getHashSet;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmpty;
+import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.isFileOpen;
-import static io.github.secpwdman.util.Util.isUrl;
+import static io.github.secpwdman.util.Util.valueOf;
 import static io.github.secpwdman.widgets.Widgets.msg;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.text.Collator;
+import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -46,14 +51,18 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
 
+import com.github.skjolber.stcsv.CsvReader;
+import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
+import com.password4j.SecureString;
+
 import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
-import io.github.secpwdman.io.IO;
 
 /**
  * The abstract class Action.
  */
 public abstract class Action {
+
 	final ConfData cData;
 	final Shell shell;
 	final Table table;
@@ -119,7 +128,7 @@ public abstract class Action {
 	}
 
 	/**
-	 * Decrypt/Encrypt data for the group list.
+	 * Internal de/encryption for the group list.
 	 *
 	 * @param data    the data
 	 * @param encrypt true if encrypt
@@ -132,20 +141,20 @@ public abstract class Action {
 		final var oldArgo = cData.isArgon2id();
 		final var oldIter = cData.getPBKDFIter();
 		cData.setArgon2id(false);
-		cData.setPBKDFIter(Double.SIZE * Double.SIZE);
+		cData.setPBKDFIter(ConfData.ITERATIONS);
 
-		byte[] b = null;
+		byte[] bytes = null;
 
 		try {
 			if (encrypt) {
 				final var random = getSecureRandom();
-				final var pwd = new byte[random.nextInt(Integer.SIZE) + Integer.SIZE];
+				final var pwd = new byte[random.nextInt(ConfData.OUT_LENGTH) + ConfData.OUT_LENGTH];
 				random.nextBytes(pwd);
-				b = new Crypto(cData).encrypt(data, pwd);
+				bytes = new Crypto(cData).encrypt(data, pwd);
 				cData.setKey(pwd);
 				clear(data);
 			} else
-				b = new Crypto(cData).decrypt(data, cData.getKey());
+				bytes = new Crypto(cData).decrypt(data, cData.getKey());
 		} catch (final Exception e) {
 			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		}
@@ -153,7 +162,7 @@ public abstract class Action {
 		cData.setArgon2id(oldArgo);
 		cData.setPBKDFIter(oldIter);
 
-		return b;
+		return bytes;
 	}
 
 	/**
@@ -161,33 +170,33 @@ public abstract class Action {
 	 *
 	 * @param header the header
 	 */
-	public void customHeader(final String[] header) {
+	private void customHeader(final String[] header) {
 		final var csvHeader = cData.csvHeader;
 		final var newHeader = new String[header.length];
 		final var map = getHashMap();
 
-		for (var j = 0; j < header.length; j++)
-			if (header[j].equalsIgnoreCase(csvHeader[0])) {
-				map.put(csvHeader[0], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[0];
-			} else if (header[j].equalsIgnoreCase(csvHeader[1])) {
-				map.put(csvHeader[1], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[1];
-			} else if (header[j].equalsIgnoreCase(csvHeader[2])) {
-				map.put(csvHeader[2], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[2];
-			} else if (header[j].equalsIgnoreCase(csvHeader[3])) {
-				map.put(csvHeader[3], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[3];
-			} else if (header[j].equalsIgnoreCase(csvHeader[4])) {
-				map.put(csvHeader[4], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[4];
-			} else if (header[j].equalsIgnoreCase(csvHeader[5])) {
-				map.put(csvHeader[5], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[5];
-			} else if (header[j].equalsIgnoreCase(csvHeader[6])) {
-				map.put(csvHeader[6], Integer.valueOf(j));
-				newHeader[j] = cData.tableHeader[6];
+		for (var i = 0; i < header.length; i++)
+			if (header[i].equalsIgnoreCase(csvHeader[0])) {
+				map.put(csvHeader[0], valueOf(i));
+				newHeader[i] = cData.tableHeader[0];
+			} else if (header[i].equalsIgnoreCase(csvHeader[1])) {
+				map.put(csvHeader[1], valueOf(i));
+				newHeader[i] = cData.tableHeader[1];
+			} else if (header[i].equalsIgnoreCase(csvHeader[2])) {
+				map.put(csvHeader[2], valueOf(i));
+				newHeader[i] = cData.tableHeader[2];
+			} else if (header[i].equalsIgnoreCase(csvHeader[3])) {
+				map.put(csvHeader[3], valueOf(i));
+				newHeader[i] = cData.tableHeader[3];
+			} else if (header[i].equalsIgnoreCase(csvHeader[4])) {
+				map.put(csvHeader[4], valueOf(i));
+				newHeader[i] = cData.tableHeader[4];
+			} else if (header[i].equalsIgnoreCase(csvHeader[5])) {
+				map.put(csvHeader[5], valueOf(i));
+				newHeader[i] = cData.tableHeader[5];
+			} else if (header[i].equalsIgnoreCase(csvHeader[6])) {
+				map.put(csvHeader[6], valueOf(i));
+				newHeader[i] = cData.tableHeader[6];
 			}
 
 		cData.setColumnMap(map);
@@ -213,7 +222,7 @@ public abstract class Action {
 		final var map = getHashMap();
 
 		for (var i = 0; i < csvHeader.length; i++)
-			map.put(csvHeader[i], Integer.valueOf(i));
+			map.put(csvHeader[i], valueOf(i));
 
 		cData.setColumnMap(map);
 		cData.setCustomHeader(false);
@@ -275,13 +284,70 @@ public abstract class Action {
 	}
 
 	/**
+	 * Escape special character.
+	 *
+	 * @param cData the ConfData
+	 * @param s     the string
+	 * @return the string
+	 */
+	private SecureString escapeSpecialChar(final String s) {
+		if (s == null)
+			return new SecureString(new char[0]);
+
+		final var ascii = s.codePoints().allMatch(c -> c < ConfData.GCM_TAG_LENGTH);
+		final var newLine = s.contains(cData.newLine);
+		final var doubleQ = s.contains(cData.doubleQ);
+		final var space = s.contains(cData.space);
+		final var apost = s.contains(cData.apost);
+		final var comma = s.contains(cData.comma);
+		final var grave = s.contains(cData.grave);
+		var escapedData = new SecureString(s.replaceAll(cData.lineBrk, cData.space).toCharArray());
+
+		if (newLine || doubleQ || space || apost || comma || grave || !ascii) {
+			final var str = s.replace(cData.doubleQ, cData.doubleQ + cData.doubleQ);
+			escapedData = new SecureString((cData.doubleQ + str + cData.doubleQ).toCharArray());
+		}
+
+		return escapedData;
+	}
+
+	/**
+	 * Extract data from table.
+	 *
+	 * @param cData the ConfData
+	 * @param table the table
+	 * @return the byte[]
+	 */
+	public byte[] extractData() {
+		final var sb = new StringBuilder();
+		sb.append(cData.getHeader() + cData.newLine);
+
+		for (final var item : table.getItems()) {
+			final var itemText = new SecureString[table.getColumnCount()];
+
+			for (var i = 0; i < itemText.length; i++)
+				itemText[i] = escapeSpecialChar(item.getText(i));
+
+			final var line = new StringBuilder();
+
+			for (var j = 0; j < itemText.length - 1; j++)
+				line.append(itemText[j]).append(cData.comma);
+
+			line.append(itemText[itemText.length - 1]).append(cData.newLine);
+			sb.append(line.toString());
+		}
+
+		return sb.toString().getBytes();
+	}
+
+	/**
 	 * Fill group list.
 	 */
 	public void fillGroupList() {
 		final var list = getList();
 
 		if (list.isVisible() && !cData.isCustomHeader()) {
-			final var set = getHashSet();
+			final var set = new HashSet<String>();
 			final var index = cData.getColumnMap().get(cData.csvHeader[1]).intValue();
 
 			for (final var item : table.getItems())
@@ -297,6 +363,71 @@ public abstract class Action {
 
 			list.setRedraw(true);
 		}
+	}
+
+	/**
+	 * Fill table.
+	 *
+	 * @param newHeader true if new header
+	 * @param data      the data
+	 * @throws Exception
+	 */
+	public void fillTable(final boolean newHeader, final byte[] data) {
+		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
+		final var length = cData.getBufferLength() * ConfData.MEM_SIZE;
+		final var builder = StringArrayCsvReader.builder().bufferLength(length);
+
+		try (final var iterator = builder.build(reader)) {
+			final var header = iterator.next();
+			table.setRedraw(false);
+			table.setSortColumn(null);
+			table.removeAll();
+
+			if (newHeader) {
+				if (isEqual(header, cData.csvHeader))
+					defaultHeader();
+				else
+					customHeader(header);
+
+				fillTable(iterator, null);
+				cData.setData(cryptData(data, true));
+			} else {
+				final var list = getList();
+				final var listSelection = list.getItem(list.getSelectionIndex());
+
+				if (listSelection.equals(cData.listFirs))
+					fillTable(iterator, null);
+				else
+					fillTable(iterator, listSelection);
+			}
+		} catch (final Exception e) {
+			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+		}
+
+		clear(data);
+		colorURL();
+		resizeColumns();
+		table.setRedraw(true);
+		table.redraw();
+	}
+
+	/**
+	 * Fill table.
+	 *
+	 * @param iterator the iterator
+	 * @param table    the table
+	 * @throws Exception
+	 */
+	private void fillTable(final CsvReader<String[]> iterator, final String selection) throws Exception {
+		do {
+			final var txt = iterator.next();
+
+			if (txt == null)
+				break;
+
+			if (selection == null || selection.equals(txt[1]))
+				new TableItem(table, SWT.NONE).setText(txt);
+		} while (true);
 	}
 
 	/**
@@ -414,10 +545,9 @@ public abstract class Action {
 		var data = cryptData(cData.getData(), false);
 
 		if (data == null)
-			data = IO.extractData(cData, table);
+			data = extractData();
 
-		final var io = new IO(this);
-		io.fillTable(false, data);
+		fillTable(false, data);
 		data = null;
 	}
 
@@ -492,7 +622,7 @@ public abstract class Action {
 			if (selectedColumn.equals(table.getColumn(index)))
 				break;
 
-		final var collator = getCollator();
+		final var collator = Collator.getInstance();
 		var items = table.getItems();
 
 		for (var i = 1; i < items.length; i++)

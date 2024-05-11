@@ -20,29 +20,11 @@
  */
 package io.github.secpwdman.util;
 
-import static io.github.secpwdman.widgets.Widgets.msg;
-
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
-
-import org.apache.commons.validator.routines.UrlValidator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
 
 import io.github.secpwdman.config.ConfData;
 
@@ -50,14 +32,14 @@ import io.github.secpwdman.config.ConfData;
  * The Class Util.
  */
 public class Util {
-	public static final boolean DARK = Display.isSystemDarkTheme();
+
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * Convert string array to string.
 	 *
 	 * @param cData the cData
-	 * @param s     the string s
+	 * @param s     the string
 	 * @return absolutePath
 	 */
 	public static String arrayToString(final ConfData cData, final String[] s) {
@@ -75,22 +57,12 @@ public class Util {
 	}
 
 	/**
-	 * Get a new array list.
+	 * Clear char[].
 	 *
-	 * @param initialCapacity the initial capacity
-	 * @return ArrayList
+	 * @param b the byte[]
 	 */
-	public static ArrayList<String> getArrayList(final int initialCapacity) {
-		return new ArrayList<>(initialCapacity);
-	}
-
-	/**
-	 * Get a new collator instance.
-	 *
-	 * @return collator
-	 */
-	public static Collator getCollator() {
-		return Collator.getInstance();
+	public static void clear(final char[] c) {
+		Arrays.fill(c, Character.MIN_VALUE);
 	}
 
 	/**
@@ -104,34 +76,12 @@ public class Util {
 	}
 
 	/**
-	 * Get a new hash map.
+	 * Get a new HashMap<String, Integer>.
 	 *
 	 * @return HashMap
 	 */
 	public static HashMap<String, Integer> getHashMap() {
 		return new HashMap<>();
-	}
-
-	/**
-	 * Get a new hash set.
-	 *
-	 * @return HashSet
-	 */
-	public static HashSet<String> getHashSet() {
-		return new HashSet<>();
-	}
-
-	/**
-	 * Gets the image.
-	 *
-	 * @param display the display
-	 * @param image   the image
-	 * @return the image
-	 */
-	public static Image getImage(final Display display, final String image) {
-		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image)));
-		img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
-		return img;
 	}
 
 	/**
@@ -149,15 +99,6 @@ public class Util {
 	}
 
 	/**
-	 * Get random UUID.
-	 *
-	 * @return randomUUID
-	 */
-	public static String getUUID() {
-		return UUID.randomUUID().toString().toUpperCase();
-	}
-
-	/**
 	 * Checks if is empty string.
 	 *
 	 * @param s the string s
@@ -165,17 +106,6 @@ public class Util {
 	 */
 	public static boolean isEmpty(final String s) {
 		return s == null || s.isBlank();
-	}
-
-	/**
-	 * Checks if array is equal.
-	 *
-	 * @param a the first boolean[] a
-	 * @param b the second boolean[] b
-	 * @return true, if equal
-	 */
-	public static boolean isEqual(final boolean[] a, final boolean[] b) {
-		return Arrays.equals(a, b);
 	}
 
 	/**
@@ -201,7 +131,7 @@ public class Util {
 	}
 
 	/**
-	 * Checks if is file open.
+	 * Checks if file is open.
 	 *
 	 * @param f the string f
 	 * @return true, if is file open
@@ -211,7 +141,7 @@ public class Util {
 	}
 
 	/**
-	 * Checks if is readable.
+	 * Checks if file is readable.
 	 *
 	 * @param f the string f
 	 * @return true, if is readable
@@ -222,72 +152,13 @@ public class Util {
 	}
 
 	/**
-	 * Checks if is url.
+	 * Get Integer value of int.
 	 *
-	 * @param cData the cData
-	 * @param table the table
-	 * @return true, if is url
+	 * @param i the int i
+	 * @return Integer
 	 */
-	public static boolean isUrl(final ConfData cData, final Table table) {
-		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
-		return isUrl(table.getSelection()[0].getText(index));
-	}
-
-	/**
-	 * Checks if is url.
-	 *
-	 * @param url the string url
-	 * @return true, if is url
-	 */
-	public static boolean isUrl(final String url) {
-		return UrlValidator.getInstance().isValid(url);
-	}
-
-	/**
-	 * Asks to show passwords in cleartext.
-	 *
-	 * @param cData the cData
-	 * @param shell the shell
-	 * @return true, if is yes
-	 */
-	public static boolean msgShowPasswords(final ConfData cData, final Shell shell) {
-		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES;
-	}
-
-	/**
-	 * Center the shell.
-	 *
-	 * @param shell the shell
-	 */
-	public static void setCenter(final Shell shell) {
-		final var r = shell.getDisplay().getBounds();
-		final var s = shell.getBounds();
-		shell.setLocation(new Point((r.width - s.width) / 2, ((r.height - s.height) * 2) / 5));
-	}
-
-	/**
-	 * Character array to byte array.
-	 *
-	 * @param c the char[]
-	 * @return the byte[]
-	 */
-	public static byte[] toBytes(final char[] c) {
-		final var charBuffer = CharBuffer.wrap(c);
-		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-		final var bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-		Arrays.fill(charBuffer.array(), '\u0000');
-		clear(byteBuffer.array());
-		return bytes;
-	}
-
-	/**
-	 * Character array to CharSequence.
-	 *
-	 * @param c the char[]
-	 * @return the CharSequence
-	 */
-	public static CharSequence toCharSequence(final char[] c) {
-		return CharBuffer.wrap(c);
+	public static Integer valueOf(final int i) {
+		return Integer.valueOf(i);
 	}
 
 	private Util() {

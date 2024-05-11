@@ -20,12 +20,12 @@
  */
 package io.github.secpwdman.action;
 
+import static io.github.secpwdman.util.SWTUtil.msgShowPasswords;
 import static io.github.secpwdman.util.Util.WIN32;
 import static io.github.secpwdman.util.Util.getFilePath;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isFileOpen;
 import static io.github.secpwdman.util.Util.isReadable;
-import static io.github.secpwdman.util.Util.msgShowPasswords;
 import static io.github.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
@@ -78,7 +78,8 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Unminimize the app, ask to save before exit, dispose resources and exit.
+	 * Unminimize the app, ask to save before exit, dispose resources, clear
+	 * clipboard and exit.
 	 *
 	 * @return true, if successful
 	 */
@@ -105,10 +106,16 @@ public class FileAction extends Action {
 				image.dispose();
 		}
 
+		final var tray = shell.getDisplay().getSystemTray();
+
+		if (tray != null && WIN32)
+			tray.getItem(0).getImage().dispose();
+
 		cData.setData(null);
+		getList().getFont().dispose();
 		table.getFont().dispose();
 		shell.getFont().dispose();
-		getList().getFont().dispose();
+		shell.getImage().dispose();
 		clearClipboard();
 
 		return true;
@@ -121,14 +128,12 @@ public class FileAction extends Action {
 	 */
 	public void importExport(final int style) {
 		final var io = new IO(this);
-		final var dialog = fileDialog(shell, style);
-		dialog.setFilterNames(new String[] { cData.imexFile });
-		dialog.setFilterExtensions(new String[] { cData.imexExte });
+		final var dialog = fileDialog(shell, style, cData.imexFile, cData.imexExte);
 
 		if (style == SWT.OPEN) {
-			final var f = dialog.open();
+			final var file = dialog.open();
 
-			if (isFileOpen(f) && io.openFile(null, f)) {
+			if (isFileOpen(file) && io.openFile(null, file)) {
 				cData.setModified(true);
 				enableItems();
 				fillGroupList();
@@ -138,10 +143,10 @@ public class FileAction extends Action {
 			if (!cData.isCustomHeader() && !msgShowPasswords(cData, shell))
 				return;
 
-			final var f = dialog.open();
+			final var file = dialog.open();
 
-			if (!isEmpty(f))
-				io.saveFile(null, f);
+			if (!isEmpty(file))
+				io.saveFile(null, file);
 		}
 	}
 
@@ -159,6 +164,8 @@ public class FileAction extends Action {
 	 * Create a new database (clear data).
 	 */
 	public void newDatabase() {
+		SearchDialog.close();
+
 		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0)
 			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, cData.titleWar, cData.warnNewF)) {
 			case SWT.YES:
@@ -184,15 +191,13 @@ public class FileAction extends Action {
 		if (style == SWT.SAVE && isFileOpen(cData.getFile()))
 			new PasswordDialog(this).open(true);
 		else {
-			final var dialog = fileDialog(shell, style);
-			dialog.setFilterNames(new String[] { cData.passFile });
-			dialog.setFilterExtensions(new String[] { cData.passExte });
-			final var f = dialog.open();
+			final var dialog = fileDialog(shell, style, cData.passFile, cData.passExte);
+			final var file = dialog.open();
 
-			if (!isEmpty(f) && f.endsWith(cData.passExte.substring(1))) {
-				cData.setFile(f);
+			if (!isEmpty(file)) {
+				cData.setFile(file);
 
-				if (style == SWT.OPEN && isReadable(f)) {
+				if (style == SWT.OPEN && isReadable(file)) {
 					table.removeAll();
 					cData.setLocked(true);
 					cData.setModified(false);
@@ -207,17 +212,14 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Sets the app locked.
+	 * Lock the app.
 	 */
 	public void setLocked() {
 		if (isFileOpen(cData.getFile()) && !cData.isModified()) {
 			cData.setLocked(true);
 			table.removeAll();
 
-			final var search = SearchDialog.getDialog();
-
-			if (search != null && !search.isDisposed())
-				search.close();
+			SearchDialog.close();
 
 			clearClipboard();
 			enableItems();

@@ -18,33 +18,40 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.secpwdman;
+package io.github.secpwdman.util;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.eclipse.swt.widgets.Table;
+
+import io.github.secpwdman.config.ConfData;
 
 /**
- * The Class Messages.
+ * The Class URLUtil.
  */
-public class Messages {
-
-	private static final String BUNDLE_NAME = "messages"; //$NON-NLS-1$
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+public class URLUtil {
 
 	/**
-	 * Gets the string.
+	 * Checks if is url.
 	 *
-	 * @param key the key
-	 * @return the string
+	 * @param cData the cData
+	 * @param table the table
+	 * @return true, if is url
 	 */
-	public static String getString(final String key) {
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (final MissingResourceException e) {
-			return '!' + key + '!';
-		}
+	public static boolean isUrl(final ConfData cData, final Table table) {
+		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
+		return isUrl(table.getSelection()[0].getText(index));
 	}
 
-	private Messages() {
+	/**
+	 * Checks if is url.
+	 *
+	 * @param url the string url
+	 * @return true, if is url
+	 */
+	public static boolean isUrl(final String url) {
+		return UrlValidator.getInstance().isValid(url);
+	}
+
+	private URLUtil() {
 	}
 }

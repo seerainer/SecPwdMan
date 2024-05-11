@@ -20,13 +20,12 @@
  */
 package io.github.secpwdman.io;
 
+import static io.github.secpwdman.util.JsonUtil.readConfig;
+import static io.github.secpwdman.util.JsonUtil.saveConfig;
 import static io.github.secpwdman.util.Util.clear;
-import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.widgets.Widgets.msg;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.InvalidAlgorithmParameterException;
@@ -39,96 +38,16 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableItem;
 
-import com.github.skjolber.stcsv.CsvReader;
-import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
+import com.grack.nanojson.JsonParserException;
 
 import io.github.secpwdman.action.Action;
-import io.github.secpwdman.config.ConfData;
 import io.github.secpwdman.crypto.Crypto;
 
 /**
  * The Class IO.
  */
 public class IO {
-
-	/**
-	 * Escape special character.
-	 *
-	 * @param cData the ConfData
-	 * @param s     the string
-	 * @return the string
-	 */
-	private static String escapeSpecialChar(final ConfData cData, final String s) {
-		if (s == null)
-			return cData.empty;
-
-		final var newLine = s.contains(cData.newLine);
-		final var doubleQ = s.contains(cData.doubleQ);
-		final var space = s.contains(cData.space);
-		final var apost = s.contains(cData.apost);
-		final var comma = s.contains(cData.comma);
-		final var grave = s.contains(cData.grave);
-		var escapedData = s.replaceAll(cData.lineBrk, cData.space);
-
-		if (newLine || doubleQ || space || apost || comma || grave) {
-			final var str = s.replace(cData.doubleQ, cData.doubleQ + cData.doubleQ);
-			escapedData = cData.doubleQ + str + cData.doubleQ;
-		}
-
-		return escapedData;
-	}
-
-	/**
-	 * Extract data from table.
-	 *
-	 * @param cData the ConfData
-	 * @param table the table
-	 * @return the byte[]
-	 */
-	public static byte[] extractData(final ConfData cData, final Table table) {
-		final var sb = new StringBuilder();
-		sb.append(cData.getHeader() + cData.newLine);
-
-		for (final var item : table.getItems()) {
-			final var itemText = new String[table.getColumnCount()];
-
-			for (var i = 0; i < itemText.length; i++)
-				itemText[i] = escapeSpecialChar(cData, item.getText(i));
-
-			final var line = new StringBuilder();
-
-			for (var j = 0; j < itemText.length - 1; j++)
-				line.append(itemText[j]).append(cData.comma);
-
-			line.append(itemText[itemText.length - 1]).append(cData.newLine);
-			sb.append(line.toString());
-		}
-
-		return sb.toString().getBytes();
-	}
-
-	/**
-	 * Fill table.
-	 *
-	 * @param iterator the iterator
-	 * @param table    the table
-	 * @throws Exception
-	 */
-	private static void fillTable(final CsvReader<String[]> iterator, final Table table, final String selection)
-			throws Exception {
-		do {
-			final var txt = iterator.next();
-
-			if (txt == null)
-				break;
-
-			if (selection == null || selection.equals(txt[1]))
-				new TableItem(table, SWT.NONE).setText(txt);
-		} while (true);
-	}
 
 	private final Action action;
 
@@ -142,54 +61,6 @@ public class IO {
 	}
 
 	/**
-	 * Fill table.
-	 *
-	 * @param newHeader true if new header
-	 * @param data      the data
-	 * @throws Exception
-	 */
-	public void fillTable(final boolean newHeader, final byte[] data) {
-		final var cData = action.getCData();
-		final var table = action.getTable();
-		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
-		final var length = (Integer.SIZE * Integer.SIZE) * cData.getBufferLength();
-		final var builder = StringArrayCsvReader.builder().bufferLength(length);
-
-		try (final var iterator = builder.build(reader)) {
-			final var header = iterator.next();
-			table.setRedraw(false);
-			table.setSortColumn(null);
-			table.removeAll();
-
-			if (newHeader) {
-				if (isEqual(header, cData.csvHeader))
-					action.defaultHeader();
-				else
-					action.customHeader(header);
-
-				fillTable(iterator, table, null);
-				cData.setData(action.cryptData(data, true));
-			} else {
-				final var list = action.getList();
-				final var listSelection = list.getItem(list.getSelectionIndex());
-
-				if (listSelection.equals(cData.listFirs))
-					fillTable(iterator, table, null);
-				else
-					fillTable(iterator, table, listSelection);
-			}
-		} catch (final Exception e) {
-			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
-		}
-
-		clear(data);
-		action.colorURL();
-		action.resizeColumns();
-		table.setRedraw(true);
-		table.redraw();
-	}
-
-	/**
 	 * Open file.
 	 *
 	 * @param pwd  the password
@@ -200,13 +71,19 @@ public class IO {
 		final var cData = action.getCData();
 		var exMsg = cData.empty;
 
-		try {
-			final var fileBytes = Files.readAllBytes(Path.of(file));
+		byte[] data;
 
-			if (pwd != null && pwd.length > 0)
-				fillTable(true, new Crypto(cData).decrypt(fileBytes, pwd));
-			else
-				fillTable(true, fileBytes);
+		try (final var is = Files.newInputStream(Path.of(file))) {
+			if (pwd != null) {
+				try {
+					data = readConfig(cData, is);
+				} catch (final JsonParserException e) {
+					data = Files.readAllBytes(Path.of(file));
+				}
+
+				action.fillTable(true, new Crypto(cData).decrypt(data, pwd));
+			} else
+				action.fillTable(true, is.readAllBytes());
 
 			return true;
 		} catch (final BadPaddingException e) {
@@ -238,16 +115,14 @@ public class IO {
 
 		action.resetGroupList();
 
-		final var table = action.getTable();
-		byte[] b;
+		var fileBytes = action.extractData();
 
 		try {
-			if (pwd != null && pwd.length > 0)
-				b = new Crypto(cData).encrypt(extractData(cData, table), pwd);
-			else
-				b = extractData(cData, table);
+			if (pwd != null)
+				fileBytes = saveConfig(cData, new Crypto(cData).encrypt(fileBytes, pwd));
 
-			Files.write(Path.of(file), b);
+			Files.write(Path.of(file), fileBytes);
+
 			return true;
 		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
 				| InvalidKeySpecException | IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -256,7 +131,7 @@ public class IO {
 			if (pwd != null)
 				clear(pwd);
 
-			b = null;
+			fileBytes = null;
 		}
 
 		return false;

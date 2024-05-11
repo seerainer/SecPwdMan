@@ -20,6 +20,7 @@
  */
 package io.github.secpwdman.crypto;
 
+import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -49,12 +50,13 @@ import io.github.secpwdman.config.ConfData;
  * The Class Crypto.
  */
 public class Crypto {
-	private static final int GCM_IV_LENGTH = 12;
-	private static final int GCM_TAG_LENGTH = 128;
-	private static final int KEY_LENGTH = 256;
-	private static final int MEM_SIZE = 1024;
-	private static final int SALT_LENGTH = 16;
-	private static final int OUT_LENGTH = 32;
+
+	private static final int GCM_IV_LENGTH = ConfData.GCM_IV_LENGTH;
+	private static final int GCM_TAG_LENGTH = ConfData.GCM_TAG_LENGTH;
+	private static final int KEY_LENGTH = ConfData.KEY_LENGTH;
+	private static final int MEM_SIZE = ConfData.MEM_SIZE;
+	private static final int SALT_LENGTH = ConfData.SALT_LENGTH;
+	private static final int OUT_LENGTH = ConfData.OUT_LENGTH;
 
 	private final ConfData cData;
 
@@ -131,7 +133,7 @@ public class Crypto {
 		System.arraycopy(salt, 0, encrypted, iv.length, salt.length);
 		System.arraycopy(ciphertext, 0, encrypted, iv.length + salt.length, ciphertext.length);
 
-		return Base64.getEncoder().encodeToString(encrypted).getBytes();
+		return Base64.getEncoder().encode(encrypted);
 	}
 
 	/**
@@ -154,8 +156,13 @@ public class Crypto {
 			return new SecretKeySpec(hash, cData.cCiph);
 		}
 
-		final var spec = new PBEKeySpec(new String(pwd).toCharArray(), salt, cData.getPBKDFIter(), KEY_LENGTH);
+		final var password = new String(pwd).toCharArray();
+		final var spec = new PBEKeySpec(password, salt, cData.getPBKDFIter(), KEY_LENGTH);
 		final var factory = SecretKeyFactory.getInstance(cData.pbkdf);
-		return new SecretKeySpec(factory.generateSecret(spec).getEncoded(), cData.cCiph);
+		final var key = factory.generateSecret(spec).getEncoded();
+
+		clear(password);
+
+		return new SecretKeySpec(key, cData.cCiph);
 	}
 }

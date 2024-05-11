@@ -20,9 +20,9 @@
  */
 package io.github.secpwdman.widgets;
 
-import static io.github.secpwdman.util.Util.DARK;
+import static io.github.secpwdman.util.SWTUtil.DARK;
+import static io.github.secpwdman.util.SWTUtil.getImage;
 import static io.github.secpwdman.util.Util.WIN32;
-import static io.github.secpwdman.util.Util.getImage;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -74,8 +74,10 @@ public class Widgets {
 	 * @param style  the style
 	 * @return the dialog
 	 */
-	public static FileDialog fileDialog(final Shell parent, final int style) {
+	public static FileDialog fileDialog(final Shell parent, final int style, final String filterName, final String filterExte) {
 		final var dialog = new FileDialog(parent, style);
+		dialog.setFilterNames(new String[] { filterName });
+		dialog.setFilterExtensions(new String[] { filterExte });
 		dialog.setOverwrite(true);
 		return dialog;
 	}
