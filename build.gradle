@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.secpwdman'
-version = '0.9.0'
+version = '0.9.1'
 
 repositories {
     mavenCentral()
@@ -41,7 +41,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(22)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 

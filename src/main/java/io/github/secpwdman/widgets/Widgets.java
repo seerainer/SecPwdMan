@@ -297,11 +297,11 @@ public class Widgets {
 		GridData data;
 
 		if (style == SWT.CHECK)
-			data = new GridData(SWT.BEGINNING, SWT.CENTER, true, false, 2, 1);
+			data = new GridData(SWT.LEAD, SWT.CENTER, true, false, 2, 1);
 		else if (style == SWT.RADIO)
-			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
 		else {
-			data = new GridData(SWT.BEGINNING, SWT.CENTER, false, false);
+			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
 			data.widthHint = 80;
 		}
 
@@ -335,7 +335,7 @@ public class Widgets {
 		label.setForeground(parent.getForeground());
 
 		if (style == SWT.HORIZONTAL + SWT.SEPARATOR)
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
+			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 		else
 			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 

@@ -270,12 +270,17 @@ public class EntryDialog {
 		emptyLabel(dialog);
 		emptyLabel(dialog);
 		emptyLabel(dialog);
-		emptyLabel(dialog);
 
 		final var okBtn = newButton(dialog, SWT.PUSH, null, cData.entrOkay);
+		var data = new GridData(SWT.END, SWT.TOP, true, false, 2, 1);
+		data.widthHint = 80;
+		okBtn.setLayoutData(data);
 		dialog.setDefaultButton(okBtn);
 
-		newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
+		final var clBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
+		data = new GridData(SWT.LEAD, SWT.TOP, true, false);
+		data.widthHint = 80;
+		clBtn.setLayoutData(data);
 
 		if (newEntry) {
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, null)));
