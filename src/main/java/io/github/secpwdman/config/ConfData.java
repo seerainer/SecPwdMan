@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.9.1"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.2"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final int GCM_IV_LENGTH = 12;
@@ -75,10 +75,10 @@ public class ConfData {
 	private String file = null;
 	private String header = null;
 
-	public final String appLink = "<a>www.seerainer.com</a>"; //$NON-NLS-1$
-	public final String appAddress = "https://www.seerainer.com/"; //$NON-NLS-1$
-	public final String valLink = "<a>commons.apache.org/validator</a>"; //$NON-NLS-1$
-	public final String valAddress = "https://commons.apache.org/proper/commons-validator/"; //$NON-NLS-1$
+	public final String appLink = "<a>github.com/seerainer/SecPwdMan</a>"; //$NON-NLS-1$
+	public final String appAddress = "https://github.com/seerainer/SecPwdMan"; //$NON-NLS-1$
+	public final String valLink = "<a>github.com/apache/commons-validator</a>"; //$NON-NLS-1$
+	public final String valAddress = "https://github.com/apache/commons-validator"; //$NON-NLS-1$
 	public final String csvLink = "<a>github.com/skjolber/sesseltjonna-csv</a>"; //$NON-NLS-1$
 	public final String csvAddress = "https://github.com/skjolber/sesseltjonna-csv"; //$NON-NLS-1$
 	public final String jsnLink = "<a>github.com/mmastrac/nanojson</a>"; //$NON-NLS-1$
@@ -87,8 +87,8 @@ public class ConfData {
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
 	public final String p4jAddress = "https://github.com/Password4j/password4j"; //$NON-NLS-1$
-	public final String swtLink = "<a>www.eclipse.org/swt</a>"; //$NON-NLS-1$
-	public final String swtAddress = "https://www.eclipse.org/swt/"; //$NON-NLS-1$
+	public final String swtLink = "<a>github.com/eclipse-platform/eclipse.platform.swt</a>"; //$NON-NLS-1$
+	public final String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt"; //$NON-NLS-1$
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 

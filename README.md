@@ -22,12 +22,12 @@ git clone https://github.com/seerainer/SecPwdMan.git
 
 ### Dependencies
 
-- [Apache Commons Validator](https://commons.apache.org/proper/commons-validator/) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [Password4j](https://github.com/Password4j/password4j) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [nanojson](https://github.com/mmastrac/nanojson) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
 - [zxcvbn4j](https://github.com/nulab/zxcvbn4j) ([MIT license](https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt))
-- [eclipse.org/swt](https://www.eclipse.org/swt/) ([EPL 2 license](https://www.eclipse.org/legal/epl-2.0/))
+- [eclipse/swt](https://github.com/eclipse-platform/eclipse.platform.swt) ([EPL 2 license](https://www.eclipse.org/legal/epl-2.0/))
+- [nanojson](https://github.com/mmastrac/nanojson) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [password4j](https://github.com/Password4j/password4j) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+- [commons-validator](https://github.com/apache/commons-validator) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
 
 ### Bugs and Feedback
 

@@ -317,7 +317,7 @@ public class EntryDialog {
 		}
 
 		image.dispose();
-		dialog.setSize(600, 580);
+		dialog.setSize(564, 546);
 		dialog.open();
 		group.selectAll();
 		title.selectAll();

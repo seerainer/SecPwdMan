@@ -173,6 +173,7 @@ public abstract class Action {
 	private void customHeader(final String[] header) {
 		final var csvHeader = cData.csvHeader;
 		final var newHeader = new String[header.length];
+		System.arraycopy(header, 0, newHeader, 0, header.length);
 		final var map = getHashMap();
 
 		for (var i = 0; i < header.length; i++)
@@ -248,7 +249,7 @@ public abstract class Action {
 		final var itemCount = table.getItemCount();
 		final var selectionCount = table.getSelectionCount();
 		file.getItem(1).setEnabled(!isFileOpen);
-		file.getItem(2).setEnabled(itemCount > 0 && isModified);
+		file.getItem(2).setEnabled(itemCount > 0);
 		file.getItem(4).setEnabled(isFileOpen && !isModified && isDefaultHeader);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);
@@ -525,12 +526,16 @@ public abstract class Action {
 	 * Resize columns.
 	 */
 	public void resizeColumns() {
+		table.setRedraw(false);
+
 		for (final var col : table.getColumns())
 			if (col.getResizable())
 				if (shell.getMenuBar().getItem(3).getMenu().getItem(4).getSelection())
 					col.pack();
 				else
 					col.setWidth(cData.getColumnWidth());
+
+		table.setRedraw(true);
 	}
 
 	/**

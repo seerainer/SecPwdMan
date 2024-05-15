@@ -83,13 +83,12 @@ public class InfoDialog {
 		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 
 		final var linkColor = cData.getLinkColor();
-		link(depend, cData.valAddress, linkColor, cData.valLink);
-		link(depend, cData.csvAddress, linkColor, cData.csvLink);
-		link(depend, cData.jsnAddress, linkColor, cData.jsnLink);
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
+		link(depend, cData.jsnAddress, linkColor, cData.jsnLink);
 		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
+		link(depend, cData.csvAddress, linkColor, cData.csvLink);
+		link(depend, cData.valAddress, linkColor, cData.valLink);
 		link(depend, cData.swtAddress, linkColor, cData.swtLink);
-
 		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);

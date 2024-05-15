@@ -230,7 +230,7 @@ public final class SecPwdMan {
 		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importExport(SWT.OPEN)), cData.menuImpo);
 		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importExport(SWT.SAVE)), cData.menuExpo, IMG.WARN);
 		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> shell.close()), SWT.ESC, cData.menuExit);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> shell.close()), SWT.ESC, cData.menuExit, IMG.EXIT);
 
 		final var edit = newMenu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, edit, cData.menuEdit);
@@ -272,9 +272,9 @@ public final class SecPwdMan {
 
 		final var info = newMenu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, info, cData.menuInfo);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new SystemInfoDialog(fileAction)), cData.menuSysI);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new SystemInfoDialog(fileAction)), cData.menuSysI, IMG.SYSTEM);
 		menuItemSeparator(info);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new InfoDialog(fileAction)), cData.menuAbou);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> new InfoDialog(fileAction)), cData.menuAbou, IMG.INFO);
 
 		return menuBar;
 	}
