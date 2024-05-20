@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.9.2"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.3"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final int GCM_IV_LENGTH = 12;
@@ -91,12 +91,6 @@ public class ConfData {
 	public final String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt"; //$NON-NLS-1$
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
-
-	public final String darkModeTh = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme"; //$NON-NLS-1$
-	public final String shellTitle = "org.eclipse.swt.internal.win32.useShellTitleColoring"; //$NON-NLS-1$
-	public final String menuBackgr = "org.eclipse.swt.internal.win32.menuBarBackgroundColor"; //$NON-NLS-1$
-	public final String menuForegr = "org.eclipse.swt.internal.win32.menuBarForegroundColor"; //$NON-NLS-1$
-	public final String shellBordr = "org.eclipse.swt.internal.win32.all.use_WS_BORDER"; //$NON-NLS-1$
 
 	public final String argon = "Argon2id"; //$NON-NLS-1$
 	public final String cCiph = "AES"; //$NON-NLS-1$

@@ -24,9 +24,6 @@ import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.HashMap;
-
-import io.github.secpwdman.config.ConfData;
 
 /**
  * The Class Util.
@@ -34,18 +31,6 @@ import io.github.secpwdman.config.ConfData;
 public class Util {
 
 	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
-
-	/**
-	 * Convert string array to string.
-	 *
-	 * @param cData the cData
-	 * @param s     the string
-	 * @return absolutePath
-	 */
-	public static String arrayToString(final ConfData cData, final String[] s) {
-		final var str = Arrays.toString(s).replace(cData.comma + cData.space, cData.comma);
-		return str.substring(1, str.length() - 1);
-	}
 
 	/**
 	 * Clear byte[].
@@ -76,15 +61,6 @@ public class Util {
 	}
 
 	/**
-	 * Get a new HashMap<String, Integer>.
-	 *
-	 * @return HashMap
-	 */
-	public static HashMap<String, Integer> getHashMap() {
-		return new HashMap<>();
-	}
-
-	/**
 	 * Get a new secure random instance strong.
 	 *
 	 * @return InstanceStrong
@@ -106,17 +82,6 @@ public class Util {
 	 */
 	public static boolean isEmpty(final String s) {
 		return s == null || s.isBlank();
-	}
-
-	/**
-	 * Checks if array is equal.
-	 *
-	 * @param a the first char[] a
-	 * @param b the second char[] b
-	 * @return true, if equal
-	 */
-	public static boolean isEqual(final char[] a, final char[] b) {
-		return Arrays.equals(a, b);
 	}
 
 	/**

@@ -82,17 +82,34 @@ import io.github.secpwdman.io.IO;
 public final class SecPwdMan {
 
 	/**
-	 * The main method.
-	 *
-	 * @param args the arguments
+	 * Create the display.
 	 */
-	public static void main(final String[] args) {
+	private static Display getDisplay() {
 		Display.setAppName(ConfData.APP_NAME);
 		Display.setAppVersion(ConfData.APP_VERS);
 
 		System.setProperty("org.eclipse.swt.display.useSystemTheme", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		final var display = Display.getDefault();
+
+		if (DARK && WIN32) {
+			display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE); //$NON-NLS-1$
+			display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", Boolean.TRUE); //$NON-NLS-1$
+			display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor", new Color(0x32, 0x32, 0x32)); //$NON-NLS-1$
+			display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor", new Color(0xF8, 0xF8, 0xF8)); //$NON-NLS-1$
+			display.setData("org.eclipse.swt.internal.win32.all.use_WS_BORDER", Boolean.TRUE); //$NON-NLS-1$
+		}
+
+		return display;
+	}
+
+	/**
+	 * The main method.
+	 *
+	 * @param args the arguments
+	 */
+	public static void main(final String[] args) {
+		final var display = getDisplay();
 		final var shell = new SecPwdMan(args).open(display);
 
 		while (!shell.isDisposed())
@@ -105,7 +122,6 @@ public final class SecPwdMan {
 
 	private Shell shell;
 	private Table table;
-
 	private EditAction editAction;
 	private FileAction fileAction;
 	private ViewAction viewAction;
@@ -198,21 +214,6 @@ public final class SecPwdMan {
 	}
 
 	/**
-	 * Config display.
-	 *
-	 * @param display the display
-	 */
-	private void configDisplay(final Display display) {
-		if (DARK && WIN32) {
-			display.setData(cData.darkModeTh, Boolean.TRUE);
-			display.setData(cData.shellTitle, Boolean.TRUE);
-			display.setData(cData.menuBackgr, new Color(0x32, 0x32, 0x32));
-			display.setData(cData.menuForegr, new Color(0xF8, 0xF8, 0xF8));
-			display.setData(cData.shellBordr, Boolean.TRUE);
-		}
-	}
-
-	/**
 	 * Menu bar.
 	 *
 	 * @return the menu
@@ -286,8 +287,6 @@ public final class SecPwdMan {
 	 * @return the shell
 	 */
 	private Shell open(final Display display) {
-		configDisplay(display);
-
 		shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.addShellListener(shellClosedAdapter(e -> e.doit = fileAction.exit()));
 		shell.addShellListener(deiconified);

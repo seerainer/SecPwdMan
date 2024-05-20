@@ -21,10 +21,8 @@
 package io.github.secpwdman.action;
 
 import static io.github.secpwdman.util.URLUtil.isUrl;
-import static io.github.secpwdman.util.Util.arrayToString;
 import static io.github.secpwdman.util.Util.clear;
 import static io.github.secpwdman.util.Util.getFilePath;
-import static io.github.secpwdman.util.Util.getHashMap;
 import static io.github.secpwdman.util.Util.getSecureRandom;
 import static io.github.secpwdman.util.Util.isEmpty;
 import static io.github.secpwdman.util.Util.isEqual;
@@ -36,6 +34,8 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.text.Collator;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
@@ -78,6 +78,18 @@ public abstract class Action {
 		this.cData = cData;
 		this.shell = shell;
 		this.table = table;
+	}
+
+	/**
+	 * Convert string array to string.
+	 *
+	 * @param cData the cData
+	 * @param s     the string
+	 * @return absolutePath
+	 */
+	private String arrayToString(final String[] s) {
+		final var str = Arrays.toString(s).replace(cData.comma + cData.space, cData.comma);
+		return str.substring(1, str.length() - 1);
 	}
 
 	/**
@@ -172,9 +184,8 @@ public abstract class Action {
 	 */
 	private void customHeader(final String[] header) {
 		final var csvHeader = cData.csvHeader;
-		final var newHeader = new String[header.length];
-		System.arraycopy(header, 0, newHeader, 0, header.length);
-		final var map = getHashMap();
+		final var newHeader = Arrays.copyOfRange(header, 0, header.length);
+		final var map = new HashMap<String, Integer>();
 
 		for (var i = 0; i < header.length; i++)
 			if (header[i].equalsIgnoreCase(csvHeader[0])) {
@@ -201,7 +212,7 @@ public abstract class Action {
 			}
 
 		cData.setColumnMap(map);
-		cData.setHeader(arrayToString(cData, header));
+		cData.setHeader(arrayToString(header));
 
 		for (final var key : csvHeader)
 			if (!map.containsKey(key)) {
@@ -220,14 +231,14 @@ public abstract class Action {
 	 */
 	public void defaultHeader() {
 		final var csvHeader = cData.csvHeader;
-		final var map = getHashMap();
+		final var map = new HashMap<String, Integer>();
 
 		for (var i = 0; i < csvHeader.length; i++)
 			map.put(csvHeader[i], valueOf(i));
 
 		cData.setColumnMap(map);
 		cData.setCustomHeader(false);
-		cData.setHeader(arrayToString(cData, csvHeader));
+		cData.setHeader(arrayToString(csvHeader));
 		createColumns(cData.tableHeader);
 		hideColumns();
 	}
@@ -249,7 +260,7 @@ public abstract class Action {
 		final var itemCount = table.getItemCount();
 		final var selectionCount = table.getSelectionCount();
 		file.getItem(1).setEnabled(!isFileOpen);
-		file.getItem(2).setEnabled(itemCount > 0);
+		file.getItem(2).setEnabled(itemCount > 0 && isModified);
 		file.getItem(4).setEnabled(isFileOpen && !isModified && isDefaultHeader);
 		file.getItem(6).setEnabled(!isFileOpen);
 		file.getItem(7).setEnabled(itemCount > 0);

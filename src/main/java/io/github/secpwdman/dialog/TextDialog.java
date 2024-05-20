@@ -63,6 +63,8 @@ public class TextDialog {
 		if (table.getItemCount() > 0 && !cData.isCustomHeader() && !msgShowPasswords(cData, shell))
 			return;
 
+		SearchDialog.close();
+
 		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
 		final var layout = new GridLayout();
 		layout.marginHeight = 0;

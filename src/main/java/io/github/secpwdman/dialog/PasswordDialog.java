@@ -23,7 +23,6 @@ package io.github.secpwdman.dialog;
 import static io.github.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.secpwdman.util.SWTUtil.setCenter;
 import static io.github.secpwdman.util.Util.clear;
-import static io.github.secpwdman.util.Util.isEqual;
 import static io.github.secpwdman.util.Util.valueOf;
 import static io.github.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.secpwdman.widgets.Widgets.msg;
@@ -35,6 +34,7 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -52,6 +52,17 @@ import io.github.secpwdman.io.IO;
  * The Class PasswordDialog.
  */
 public class PasswordDialog {
+
+	/**
+	 * Checks if array is equal.
+	 *
+	 * @param a the first char[] a
+	 * @param b the second char[] b
+	 * @return true, if equal
+	 */
+	public static boolean isEqual(final char[] a, final char[] b) {
+		return Arrays.equals(a, b);
+	}
 
 	/**
 	 * Tests the password strength.
