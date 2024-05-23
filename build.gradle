@@ -5,8 +5,8 @@ plugins {
     id 'org.graalvm.buildtools.native' version '0.10.1'
 }
 
-group = 'io.github.secpwdman'
-version = '0.9.3'
+group = 'io.github.seerainer.secpwdman'
+version = '0.9.4'
 
 repositories {
     mavenCentral()
@@ -46,7 +46,7 @@ java {
 }
 
 application {
-    mainClass = 'io.github.secpwdman.SecPwdMan'
+    mainClass = 'io.github.seerainer.secpwdman.SecPwdMan'
 }
 
 graalvmNative {
