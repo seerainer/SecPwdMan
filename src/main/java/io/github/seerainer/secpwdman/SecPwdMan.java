@@ -83,6 +83,8 @@ public final class SecPwdMan {
 
 	/**
 	 * Create the display.
+	 *
+	 * @return the display
 	 */
 	private static Display getDisplay() {
 		Display.setAppName(ConfData.APP_NAME);
@@ -131,13 +133,13 @@ public final class SecPwdMan {
 	});
 
 	private final SelectionListener openFile = widgetSelectedAdapter(e -> {
-		fileAction.openSave(SWT.OPEN);
+		fileAction.openDialog();
 	});
 
 	private final SelectionListener saveFile = widgetSelectedAdapter(e -> {
 		cData.setClearAfterSave(false);
 		cData.setExitAfterSave(false);
-		fileAction.openSave(SWT.SAVE);
+		fileAction.saveDialog();
 	});
 
 	private final SelectionListener lockFile = widgetSelectedAdapter(e -> {
@@ -228,8 +230,8 @@ public final class SecPwdMan {
 		menuItemSeparator(file);
 		menuItem(file, SWT.PUSH, lockFile, SWT.CTRL + 'L', cData.menuLock, IMG.LOCK);
 		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importExport(SWT.OPEN)), cData.menuImpo);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importExport(SWT.SAVE)), cData.menuExpo, IMG.WARN);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importDialog()), cData.menuImpo);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.exportDialog()), cData.menuExpo, IMG.WARN);
 		menuItemSeparator(file);
 		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> shell.close()), SWT.ESC, cData.menuExit, IMG.EXIT);
 
@@ -448,6 +450,8 @@ public final class SecPwdMan {
 
 	/**
 	 * Tool bar.
+	 *
+	 * @return the toolbar
 	 */
 	private ToolBar toolBar() {
 		final var toolBar = new ToolBar(shell, SWT.FLAT | SWT.SHADOW_OUT);

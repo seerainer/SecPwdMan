@@ -43,11 +43,10 @@ public class PasswordStrength {
 	 */
 	public static void evalPasswordStrength(final ConfData cData, final Label label, final char[] pwd) {
 		final var display = label.getDisplay();
-		final var minLength = cData.getPasswordMinLength();
 
-		if (pwd.length < minLength) {
+		if (pwd.length < ConfData.PASSWORD_MIN_LENGTH) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			label.setText(cData.passShor + minLength);
+			label.setText(cData.passShor);
 			label.setToolTipText(cData.empty);
 			return;
 		}

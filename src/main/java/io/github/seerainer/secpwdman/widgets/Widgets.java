@@ -70,16 +70,18 @@ public class Widgets {
 	/**
 	 * File dialog.
 	 *
-	 * @param parent the parent
-	 * @param style  the style
-	 * @return the dialog
+	 * @param parent     the parent
+	 * @param style      the style
+	 * @param filterName the filter names
+	 * @param filterExte the filter extensions
+	 * @return path of the first selected file or null
 	 */
-	public static FileDialog fileDialog(final Shell parent, final int style, final String filterName, final String filterExte) {
+	public static String fileDialog(final Shell parent, final int style, final String filterName, final String filterExte) {
 		final var dialog = new FileDialog(parent, style);
 		dialog.setFilterNames(new String[] { filterName });
 		dialog.setFilterExtensions(new String[] { filterExte });
 		dialog.setOverwrite(true);
-		return dialog;
+		return dialog.open();
 	}
 
 	/**
@@ -251,7 +253,7 @@ public class Widgets {
 	}
 
 	/**
-	 * Msg.
+	 * MessageBox.
 	 *
 	 * @param parent the parent
 	 * @param style  the style

@@ -83,8 +83,7 @@ public abstract class Action {
 	/**
 	 * Convert string array to string.
 	 *
-	 * @param cData the cData
-	 * @param s     the string
+	 * @param s the string
 	 * @return absolutePath
 	 */
 	private String arrayToString(final String[] s) {
@@ -298,8 +297,7 @@ public abstract class Action {
 	/**
 	 * Escape special character.
 	 *
-	 * @param cData the ConfData
-	 * @param s     the string
+	 * @param s the string
 	 * @return the string
 	 */
 	private SecureString escapeSpecialChar(final String s) {
@@ -326,8 +324,6 @@ public abstract class Action {
 	/**
 	 * Extract data from table.
 	 *
-	 * @param cData the ConfData
-	 * @param table the table
 	 * @return the byte[]
 	 */
 	public byte[] extractData() {
@@ -426,8 +422,8 @@ public abstract class Action {
 	/**
 	 * Fill table.
 	 *
-	 * @param iterator the iterator
-	 * @param table    the table
+	 * @param iterator  the iterator
+	 * @param selection the list selection
 	 * @throws Exception
 	 */
 	private void fillTable(final CsvReader<String[]> iterator, final String selection) throws Exception {

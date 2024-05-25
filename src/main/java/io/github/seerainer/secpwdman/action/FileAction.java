@@ -80,8 +80,31 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Unminimize the app, ask to save before exit, dispose resources, clear
-	 * clipboard and exit.
+	 * Dispose resources.
+	 */
+	private void disposeResources() {
+		final var tray = shell.getDisplay().getSystemTray();
+
+		if (tray != null && WIN32)
+			tray.getItem(0).getImage().dispose();
+
+		for (final var item : getToolBar().getItems()) {
+			final var image = item.getImage();
+
+			if (image != null)
+				image.dispose();
+		}
+
+		cData.setData(null);
+		getList().getFont().dispose();
+		table.getFont().dispose();
+		shell.getFont().dispose();
+		shell.getImage().dispose();
+	}
+
+	/**
+	 * Unminimize the app, ask to save before exit, clear clipboard, dispose
+	 * resources and exit.
 	 *
 	 * @return true, if successful
 	 */
@@ -92,7 +115,7 @@ public class FileAction extends Action {
 		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0)
 			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, cData.titleWar, cData.warnExit)) {
 			case SWT.YES:
-				openSave(SWT.SAVE);
+				saveDialog();
 				cData.setExitAfterSave(true);
 				return false;
 			case SWT.NO:
@@ -101,54 +124,38 @@ public class FileAction extends Action {
 				return false;
 			}
 
-		for (final var item : getToolBar().getItems()) {
-			final var image = item.getImage();
-
-			if (image != null)
-				image.dispose();
-		}
-
-		final var tray = shell.getDisplay().getSystemTray();
-
-		if (tray != null && WIN32)
-			tray.getItem(0).getImage().dispose();
-
-		cData.setData(null);
-		getList().getFont().dispose();
-		table.getFont().dispose();
-		shell.getFont().dispose();
-		shell.getImage().dispose();
 		clearClipboard();
+		disposeResources();
 
 		return true;
 	}
 
 	/**
-	 * Import / export dialog.
-	 *
-	 * @param style the style
+	 * Export dialog.
 	 */
-	public void importExport(final int style) {
+	public void exportDialog() {
+		if (!cData.isCustomHeader() && !msgShowPasswords(cData, shell))
+			return;
+
+		final var file = fileDialog(shell, SWT.SAVE, cData.imexFile, cData.imexExte);
 		final var io = new IO(this);
-		final var dialog = fileDialog(shell, style, cData.imexFile, cData.imexExte);
 
-		if (style == SWT.OPEN) {
-			final var file = dialog.open();
+		if (!isEmpty(file))
+			io.saveFile(null, file);
+	}
 
-			if (isFileOpen(file) && io.openFile(null, file)) {
-				cData.setModified(true);
-				enableItems();
-				fillGroupList();
-				setText();
-			}
-		} else if (style == SWT.SAVE) {
-			if (!cData.isCustomHeader() && !msgShowPasswords(cData, shell))
-				return;
+	/**
+	 * Import dialog.
+	 */
+	public void importDialog() {
+		final var file = fileDialog(shell, SWT.OPEN, cData.imexFile, cData.imexExte);
+		final var io = new IO(this);
 
-			final var file = dialog.open();
-
-			if (!isEmpty(file))
-				io.saveFile(null, file);
+		if (isFileOpen(file) && io.openFile(null, file)) {
+			cData.setModified(true);
+			enableItems();
+			fillGroupList();
+			setText();
 		}
 	}
 
@@ -171,7 +178,7 @@ public class FileAction extends Action {
 		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0)
 			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, cData.titleWar, cData.warnNewF)) {
 			case SWT.YES:
-				openSave(SWT.SAVE);
+				saveDialog();
 				cData.setClearAfterSave(true);
 				break;
 			case SWT.NO:
@@ -185,27 +192,39 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Open / save dialog.
-	 *
-	 * @param style the style
+	 * Open dialog.
 	 */
-	public void openSave(final int style) {
-		if (style == SWT.SAVE && isFileOpen(cData.getFile()))
+	public void openDialog() {
+		final var file = fileDialog(shell, SWT.OPEN, cData.passFile, cData.passExte);
+
+		if (!isEmpty(file)) {
+			cData.setFile(file);
+
+			if (isReadable(file)) {
+				table.removeAll();
+				fillGroupList();
+				cData.setLocked(true);
+				cData.setModified(false);
+				new PasswordDialog(this).open(false);
+			}
+		}
+
+		enableItems();
+		setText();
+	}
+
+	/**
+	 * Save dialog.
+	 */
+	public void saveDialog() {
+		if (isFileOpen(cData.getFile()))
 			new PasswordDialog(this).open(true);
 		else {
-			final var dialog = fileDialog(shell, style, cData.passFile, cData.passExte);
-			final var file = dialog.open();
+			final var file = fileDialog(shell, SWT.SAVE, cData.passFile, cData.passExte);
 
 			if (!isEmpty(file)) {
 				cData.setFile(file);
-
-				if (style == SWT.OPEN && isReadable(file)) {
-					table.removeAll();
-					cData.setLocked(true);
-					cData.setModified(false);
-					new PasswordDialog(this).open(false);
-				} else if (style == SWT.SAVE)
-					new PasswordDialog(this).open(true);
+				new PasswordDialog(this).open(true);
 			}
 		}
 

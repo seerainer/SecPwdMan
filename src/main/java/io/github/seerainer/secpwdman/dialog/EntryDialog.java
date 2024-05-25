@@ -231,7 +231,7 @@ public class EntryDialog {
 		emptyLabel(dialog);
 
 		final var pwdStrength = group(dialog, new GridLayout(), cData.entrPInd);
-		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
+		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor);
 		pwdStrengthLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 		pwdStrengthLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		pwd.addModifyListener(e -> evalPasswordStrength(cData, pwdStrengthLabel, pwd.getTextChars()));
@@ -252,7 +252,7 @@ public class EntryDialog {
 		emptyLabel(random);
 
 		newLabel(random, SWT.HORIZONTAL, cData.entrLgth);
-		spinner(random, 20, cData.getPasswordMinLength(), 64, 0, 1, 4);
+		spinner(random, 20, ConfData.PASSWORD_MIN_LENGTH, 64, 0, 1, 4);
 
 		final var genBtn = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> {
 			pwd.setText(RandomPassword.generate(action, random.getChildren()));

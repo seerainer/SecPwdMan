@@ -37,6 +37,7 @@ public class RandomPassword {
 	/**
 	 * Generate a random password.
 	 *
+	 * @param action   the action
 	 * @param children the children
 	 * @return the string
 	 */
@@ -81,8 +82,9 @@ public class RandomPassword {
 	/**
 	 * Checks if it is a weak password.
 	 *
-	 * @param cData the cdata
-	 * @param pwd   the pwd
+	 * @param cData     the cdata
+	 * @param selection the selection
+	 * @param pwd       the pwd
 	 * @return true, if it is a weak password
 	 */
 	private static boolean isWeakPassword(final ConfData cData, final boolean[] selection, final char[] pwd) {

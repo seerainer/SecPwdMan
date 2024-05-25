@@ -210,7 +210,7 @@ public class ConfigDialog {
 		final var clearPwd = spinner(dialog, cData.getClearPassword(), 10, 300, 0, 1, 10);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgMinPl);
-		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), 6, 64, 0, 1, 4);
+		final var minPwdLength = spinner(dialog, cData.getPasswordMinLength(), ConfData.PASSWORD_MIN_LENGTH, 64, 0, 1, 4);
 
 		newLabel(dialog, SWT.HORIZONTAL, cData.cfgColWh);
 		final var columnWidth = spinner(dialog, cData.getColumnWidth(), 10, 5000, 0, 1, 10);
