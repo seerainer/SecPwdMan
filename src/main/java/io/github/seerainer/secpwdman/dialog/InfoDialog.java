@@ -72,7 +72,7 @@ public class InfoDialog {
 		info.setAlignment(SWT.CENTER);
 		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
 
-		layout = new GridLayout();
+		layout = new GridLayout(2, true);
 		layout.marginBottom = 10;
 		layout.marginLeft = 10;
 		layout.marginRight = 10;
@@ -84,11 +84,17 @@ public class InfoDialog {
 
 		final var linkColor = cData.getLinkColor();
 		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
+		link(depend, cData.mitAddress, linkColor, cData.mitLink);
 		link(depend, cData.jsnAddress, linkColor, cData.jsnLink);
+		link(depend, cData.apaAddress, linkColor, cData.apaLink);
 		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
+		link(depend, cData.apaAddress, linkColor, cData.apaLink);
 		link(depend, cData.csvAddress, linkColor, cData.csvLink);
+		link(depend, cData.apaAddress, linkColor, cData.apaLink);
 		link(depend, cData.valAddress, linkColor, cData.valLink);
+		link(depend, cData.apaAddress, linkColor, cData.apaLink);
 		link(depend, cData.swtAddress, linkColor, cData.swtLink);
+		link(depend, cData.eplAddress, linkColor, cData.eplLink);
 		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
 
 		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);

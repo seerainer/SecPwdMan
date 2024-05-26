@@ -202,7 +202,7 @@ public class PasswordDialog {
 
 			emptyLabel(dialog);
 
-			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor + cData.getPasswordMinLength());
+			final var label = newLabel(dialog, SWT.HORIZONTAL, cData.passShor);
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
 			dialog.setSize(480, saveHeight);

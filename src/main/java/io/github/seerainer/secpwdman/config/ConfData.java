@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.9.5"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.6"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final int GCM_IV_LENGTH = 12;
@@ -76,20 +76,26 @@ public class ConfData {
 	private String file = null;
 	private String header = null;
 
-	public final String appLink = "<a>github.com/seerainer/SecPwdMan</a>"; //$NON-NLS-1$
-	public final String appAddress = "https://github.com/seerainer/SecPwdMan"; //$NON-NLS-1$
-	public final String valLink = "<a>github.com/apache/commons-validator</a>"; //$NON-NLS-1$
-	public final String valAddress = "https://github.com/apache/commons-validator"; //$NON-NLS-1$
-	public final String csvLink = "<a>github.com/skjolber/sesseltjonna-csv</a>"; //$NON-NLS-1$
-	public final String csvAddress = "https://github.com/skjolber/sesseltjonna-csv"; //$NON-NLS-1$
-	public final String jsnLink = "<a>github.com/mmastrac/nanojson</a>"; //$NON-NLS-1$
-	public final String jsnAddress = "https://github.com/mmastrac/nanojson"; //$NON-NLS-1$
-	public final String zxcLink = "<a>github.com/nulab/zxcvbn4j</a>"; //$NON-NLS-1$
+	public final String appLink = "<a>www.seerainer.com/SecPwdMan</a>"; //$NON-NLS-1$
+	public final String appAddress = "https://www.seerainer.com/SecPwdMan"; //$NON-NLS-1$
+	public final String zxcLink = "<a>zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
-	public final String p4jLink = "<a>github.com/Password4j/password4j</a>"; //$NON-NLS-1$
+	public final String mitLink = "(<a>MIT license</a>)"; //$NON-NLS-1$
+	public final String mitAddress = "https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt"; //$NON-NLS-1$
+	public final String apaLink = "(<a>Apache 2 license</a>)"; //$NON-NLS-1$
+	public final String apaAddress = "https://www.apache.org/licenses/LICENSE-2.0"; //$NON-NLS-1$
+	public final String valLink = "<a>commons-validator</a>"; //$NON-NLS-1$
+	public final String valAddress = "https://github.com/apache/commons-validator"; //$NON-NLS-1$
+	public final String csvLink = "<a>sesseltjonna-csv</a>"; //$NON-NLS-1$
+	public final String csvAddress = "https://github.com/skjolber/sesseltjonna-csv"; //$NON-NLS-1$
+	public final String jsnLink = "<a>nanojson</a>"; //$NON-NLS-1$
+	public final String jsnAddress = "https://github.com/mmastrac/nanojson"; //$NON-NLS-1$
+	public final String p4jLink = "<a>password4j</a>"; //$NON-NLS-1$
 	public final String p4jAddress = "https://github.com/Password4j/password4j"; //$NON-NLS-1$
-	public final String swtLink = "<a>github.com/eclipse-platform/eclipse.platform.swt</a>"; //$NON-NLS-1$
+	public final String swtLink = "<a>eclipse.platform.swt</a>"; //$NON-NLS-1$
 	public final String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt"; //$NON-NLS-1$
+	public final String eplLink = "(<a>EPL 2 license</a>)"; //$NON-NLS-1$
+	public final String eplAddress = "https://www.eclipse.org/legal/epl-2.0/"; //$NON-NLS-1$
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 
