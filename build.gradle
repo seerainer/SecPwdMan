@@ -23,7 +23,7 @@ if (arch == "amd64" || arch == "x86_64") { swtArtifact += 'x86_64' }
 else if (arch == "aarch64") { swtArtifact += 'aarch64' }
 
 dependencies {
-    implementation('commons-validator:commons-validator:1.8.0') {
+    implementation('commons-validator:commons-validator:1.9.0') {
         exclude group: 'commons-beanutils', module: 'commons-beanutils'
         exclude group: 'commons-collections', module: 'commons-collections'
         exclude group: 'commons-digester', module: 'commons-digester'
