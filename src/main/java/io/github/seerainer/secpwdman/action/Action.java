@@ -385,11 +385,12 @@ public abstract class Action {
 		final var length = cData.getBufferLength() * ConfData.MEM_SIZE;
 		final var builder = StringArrayCsvReader.builder().bufferLength(length);
 
+		table.setRedraw(false);
+		table.setSortColumn(null);
+		table.removeAll();
+
 		try (final var iterator = builder.build(reader)) {
 			final var header = iterator.next();
-			table.setRedraw(false);
-			table.setSortColumn(null);
-			table.removeAll();
 
 			if (newHeader) {
 				if (isEqual(header, cData.csvHeader))

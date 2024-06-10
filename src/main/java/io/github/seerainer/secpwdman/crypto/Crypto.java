@@ -23,6 +23,8 @@ package io.github.seerainer.secpwdman.crypto;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.getSecureRandom;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -156,12 +158,16 @@ public class Crypto {
 			return new SecretKeySpec(hash, cData.cCiph);
 		}
 
-		final var password = new String(pwd).toCharArray();
-		final var spec = new PBEKeySpec(password, salt, cData.getPBKDFIter(), KEY_LENGTH);
+		final var charBuffer = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(pwd));
+		final var charArray = new char[charBuffer.remaining()];
+		charBuffer.get(charArray);
+
+		final var spec = new PBEKeySpec(charArray, salt, cData.getPBKDFIter(), KEY_LENGTH);
 		final var factory = SecretKeyFactory.getInstance(cData.pbkdf);
 		final var key = factory.generateSecret(spec).getEncoded();
 
-		clear(password);
+		clear(charBuffer.array());
+		clear(charArray);
 
 		return new SecretKeySpec(key, cData.cCiph);
 	}

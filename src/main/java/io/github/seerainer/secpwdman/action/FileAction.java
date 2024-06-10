@@ -64,7 +64,6 @@ public class FileAction extends Action {
 
 		cData.setKey(null);
 		cData.setData(null);
-		cData.setArgon2id(true);
 		cData.setClearAfterSave(false);
 		cData.setCustomHeader(false);
 		cData.setExitAfterSave(false);

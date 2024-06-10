@@ -196,13 +196,14 @@ public class ConfigDialog {
 		argonM.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		argonT.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
 		argonP.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, true, false));
-		newButton(groupArgon, SWT.PUSH, widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)),
-				cData.cfgTestB);
+		final var testBtnA = newButton(groupArgon, SWT.PUSH,
+				widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonM, argonT, argonP)), cData.cfgTestB);
 
 		final var groupPBKDF = group(dialog, getLayout(2), cData.cfgPIter);
 		final var pbkdfIter = spinner(groupPBKDF, cData.getPBKDFIter(), 210000, 9999999, 0, 1, 10000);
 		pbkdfIter.setLayoutData(new GridData(SWT.CENTER, SWT.FILL, true, false));
-		newButton(groupPBKDF, SWT.PUSH, widgetSelectedAdapter(e -> testPBKDF2(cData, dialog, pbkdfIter)), cData.cfgTestB);
+		final var testBtnB = newButton(groupPBKDF, SWT.PUSH, widgetSelectedAdapter(e -> testPBKDF2(cData, dialog, pbkdfIter)),
+				cData.cfgTestB);
 
 		horizontalSeparator(dialog);
 
@@ -227,6 +228,9 @@ public class ConfigDialog {
 			else
 				cData.setArgon2id(false);
 
+			if (!cData.isLocked())
+				cData.setModified(true);
+
 			cData.setArgonMemo(argonM.getSelection());
 			cData.setArgonIter(argonT.getSelection());
 			cData.setArgonPara(argonP.getSelection());
@@ -235,7 +239,7 @@ public class ConfigDialog {
 			cData.setColumnWidth(columnWidth.getSelection());
 			cData.setBufferLength(bufferLength.getSelection());
 			cData.setPasswordMinLength(minPwdLength.getSelection());
-			cData.setModified(true);
+
 			dialog.close();
 			action.enableItems();
 			action.resizeColumns();
@@ -254,6 +258,17 @@ public class ConfigDialog {
 			pbkdf2.setSelection(true);
 
 		enableSelectedKDF(dialog);
+
+		if (cData.isLocked()) {
+			argon2.setEnabled(false);
+			pbkdf2.setEnabled(false);
+			argonM.setEnabled(false);
+			argonT.setEnabled(false);
+			argonP.setEnabled(false);
+			pbkdfIter.setEnabled(false);
+			testBtnA.setEnabled(false);
+			testBtnB.setEnabled(false);
+		}
 
 		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		dialog.setSize(point.x, point.y);

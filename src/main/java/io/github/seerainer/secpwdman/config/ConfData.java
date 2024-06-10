@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.9.6"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.7"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final int GCM_IV_LENGTH = 12;
@@ -76,8 +76,8 @@ public class ConfData {
 	private String file = null;
 	private String header = null;
 
-	public final String appLink = "<a>www.seerainer.com/SecPwdMan</a>"; //$NON-NLS-1$
-	public final String appAddress = "https://www.seerainer.com/SecPwdMan"; //$NON-NLS-1$
+	public final String appLink = "<a>SecPwdMan</a>"; //$NON-NLS-1$
+	public final String appAddress = "https://github.com/seerainer/SecPwdMan"; //$NON-NLS-1$
 	public final String zxcLink = "<a>zxcvbn4j</a>"; //$NON-NLS-1$
 	public final String zxcAddress = "https://github.com/nulab/zxcvbn4j"; //$NON-NLS-1$
 	public final String mitLink = "(<a>MIT license</a>)"; //$NON-NLS-1$
@@ -95,7 +95,7 @@ public class ConfData {
 	public final String swtLink = "<a>eclipse.platform.swt</a>"; //$NON-NLS-1$
 	public final String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt"; //$NON-NLS-1$
 	public final String eplLink = "(<a>EPL 2 license</a>)"; //$NON-NLS-1$
-	public final String eplAddress = "https://www.eclipse.org/legal/epl-2.0/"; //$NON-NLS-1$
+	public final String eplAddress = "https://www.eclipse.org/legal/epl-2.0"; //$NON-NLS-1$
 	public final String owaLink = "<a>Info</a>"; //$NON-NLS-1$
 	public final String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet"; //$NON-NLS-1$
 
