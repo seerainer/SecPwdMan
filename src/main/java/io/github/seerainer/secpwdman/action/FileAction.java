@@ -216,14 +216,16 @@ public class FileAction extends Action {
 	 * Save dialog.
 	 */
 	public void saveDialog() {
+		final var passwordDialog = new PasswordDialog(this);
+
 		if (isFileOpen(cData.getFile()))
-			new PasswordDialog(this).open(true);
+			passwordDialog.open(true);
 		else {
 			final var file = fileDialog(shell, SWT.SAVE, cData.passFile, cData.passExte);
 
 			if (!isEmpty(file)) {
 				cData.setFile(file);
-				new PasswordDialog(this).open(true);
+				passwordDialog.open(true);
 			}
 		}
 

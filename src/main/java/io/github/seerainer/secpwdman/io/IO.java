@@ -22,7 +22,6 @@ package io.github.seerainer.secpwdman.io;
 
 import static io.github.seerainer.secpwdman.util.JsonUtil.readConfig;
 import static io.github.seerainer.secpwdman.util.JsonUtil.saveConfig;
-import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 
 import java.io.IOException;
@@ -69,16 +68,17 @@ public class IO {
 	 */
 	public boolean openFile(final byte[] pwd, final String file) {
 		final var cData = action.getCData();
+		final var path = Path.of(file);
 		var exMsg = cData.empty;
 
 		byte[] data;
 
-		try (final var is = Files.newInputStream(Path.of(file))) {
+		try (final var is = Files.newInputStream(path)) {
 			if (pwd != null) {
 				try {
 					data = readConfig(cData, is);
 				} catch (final JsonParserException e) {
-					data = Files.readAllBytes(Path.of(file));
+					data = Files.readAllBytes(path);
 				}
 
 				action.fillTable(true, new Crypto(cData).decrypt(data, pwd));
@@ -93,9 +93,6 @@ public class IO {
 		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
 				| InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | OutOfMemoryError e) {
 			exMsg = e.fillInStackTrace().toString();
-		} finally {
-			if (pwd != null)
-				clear(pwd);
 		}
 
 		msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, exMsg);
@@ -128,9 +125,6 @@ public class IO {
 				| InvalidKeySpecException | IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		} finally {
-			if (pwd != null)
-				clear(pwd);
-
 			fileBytes = null;
 		}
 
