@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgrade: Java from 21 to 22, Gradle from 8.7 to 8.8
+- Upgrade: Gradle from 8.7 to 8.8
 - Upgrade dependencies: Eclipse SWT 4.32 (3.126.0)
 - IO: refactoring of path in openFile
 - FileAction: refactoring of password dialog in saveDialog
