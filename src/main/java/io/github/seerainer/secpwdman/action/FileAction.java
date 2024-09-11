@@ -20,8 +20,8 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static io.github.seerainer.secpwdman.util.SWTUtil.msgShowPasswords;
-import static io.github.seerainer.secpwdman.util.Util.WIN32;
 import static io.github.seerainer.secpwdman.util.Util.getFilePath;
 import static io.github.seerainer.secpwdman.util.Util.isEmpty;
 import static io.github.seerainer.secpwdman.util.Util.isFileOpen;

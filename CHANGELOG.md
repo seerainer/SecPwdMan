@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.9] - 2024-09-11
+
+### Changed
+
+- Upgrade: Gradle from 8.8 to 8.10.1
+- Upgrade dependencies: Eclipse SWT 4.33 (3.127.0)
+- SWTUtil/Util: moved WIN32 variable to SWTUtil and get value from SWT.getPlatform
+
+### Removed
+
+- EntryDialog: removed unnecessary cast from Control to Text
+
 ## [0.9.8] - 2024-06-12
 
 ### Changed

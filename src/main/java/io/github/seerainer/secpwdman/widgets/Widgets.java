@@ -21,8 +21,8 @@
 package io.github.seerainer.secpwdman.widgets;
 
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
+import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
-import static io.github.seerainer.secpwdman.util.Util.WIN32;
 import static io.github.seerainer.secpwdman.util.Util.isEmpty;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 

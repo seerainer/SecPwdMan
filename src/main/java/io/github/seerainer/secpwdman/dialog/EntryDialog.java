@@ -124,7 +124,7 @@ public class EntryDialog {
 			editEntry(tableItem, textFields, ((Group) child[16]).getChildren());
 			dialog.close();
 		} else
-			((Text) child[4]).setFocus();
+			child[4].setFocus();
 	}
 
 	/**

@@ -39,6 +39,7 @@ import io.github.seerainer.secpwdman.config.ConfData;
 public class SWTUtil {
 
 	public static final boolean DARK = Display.isSystemDarkTheme();
+	public static final boolean WIN32 = "win32".equals(SWT.getPlatform()); //$NON-NLS-1$
 
 	/**
 	 * Gets the image.

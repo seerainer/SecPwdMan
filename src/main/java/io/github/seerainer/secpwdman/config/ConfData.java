@@ -32,7 +32,7 @@ import org.eclipse.swt.graphics.Color;
 public class ConfData {
 
 	public static final String APP_NAME = "SecPwdMan"; //$NON-NLS-1$
-	public static final String APP_VERS = "0.9.8"; //$NON-NLS-1$
+	public static final String APP_VERS = "0.9.9"; //$NON-NLS-1$
 	public static final String APP_INFO = APP_NAME + "\s" + APP_VERS + getString("APP.Info"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public static final int GCM_IV_LENGTH = 12;

@@ -30,7 +30,7 @@ import java.util.Arrays;
  */
 public class Util {
 
-	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
+//	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
 
 	/**
 	 * Clear byte[].
