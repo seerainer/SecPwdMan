@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -20,11 +20,12 @@
  */
 package io.github.seerainer.secpwdman.dialog;
 
+import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
+import static io.github.seerainer.secpwdman.widgets.Widgets.button;
 import static io.github.seerainer.secpwdman.widgets.Widgets.group;
+import static io.github.seerainer.secpwdman.widgets.Widgets.label;
 import static io.github.seerainer.secpwdman.widgets.Widgets.link;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newButton;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newLabel;
 import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
@@ -32,15 +33,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.ConfData;
+import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The Class InfoDialog.
+ * The class InfoDialog.
  */
-public class InfoDialog {
+final class InfoDialog implements StringConstants {
 
 	private final Action action;
 
@@ -49,66 +49,49 @@ public class InfoDialog {
 	 *
 	 * @param action the action
 	 */
-	public InfoDialog(final Action action) {
+	InfoDialog(final Action action) {
 		this.action = action;
-		open();
 	}
 
-	/**
-	 * Open.
-	 */
-	private void open() {
+	void open() {
 		final var cData = action.getCData();
-		var layout = new GridLayout();
-		layout.marginBottom = 10;
-		layout.marginLeft = 30;
-		layout.marginRight = 30;
-		layout.marginTop = 20;
-		layout.verticalSpacing = 30;
+		var layout = getLayout(1, 20, 30, 10, 50, 50, 20);
+		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, titleInf);
 
-		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, cData.titleInf);
-
-		final var info = newLabel(dialog, SWT.HORIZONTAL, ConfData.APP_INFO);
+		final var info = label(dialog, SWT.HORIZONTAL, APP_NAME + space + APP_VERS + APP_INFO);
 		info.setAlignment(SWT.CENTER);
-		info.setFont(new Font(dialog.getDisplay(), new FontData("Courier New", 10, SWT.BOLD))); //$NON-NLS-1$
-
-		layout = new GridLayout(2, true);
-		layout.marginBottom = 10;
-		layout.marginLeft = 10;
-		layout.marginRight = 10;
-		layout.marginTop = 10;
-		layout.verticalSpacing = 5;
-
-		final var depend = group(dialog, layout, cData.infoDepe);
-		depend.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		info.setFont(new Font(dialog.getDisplay(), new FontData(consFont, 10, SWT.BOLD)));
+		layout = getLayout(2, 5, 5, 10, 10, 10, 10);
+		layout.makeColumnsEqualWidth = true;
+		final var depencies = group(dialog, layout, infoDepe);
+		depencies.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
 
 		final var linkColor = cData.getLinkColor();
-		link(depend, cData.zxcAddress, linkColor, cData.zxcLink);
-		link(depend, cData.mitAddress, linkColor, cData.mitLink);
-		link(depend, cData.jsnAddress, linkColor, cData.jsnLink);
-		link(depend, cData.apaAddress, linkColor, cData.apaLink);
-		link(depend, cData.p4jAddress, linkColor, cData.p4jLink);
-		link(depend, cData.apaAddress, linkColor, cData.apaLink);
-		link(depend, cData.csvAddress, linkColor, cData.csvLink);
-		link(depend, cData.apaAddress, linkColor, cData.apaLink);
-		link(depend, cData.valAddress, linkColor, cData.valLink);
-		link(depend, cData.apaAddress, linkColor, cData.apaLink);
-		link(depend, cData.swtAddress, linkColor, cData.swtLink);
-		link(depend, cData.eplAddress, linkColor, cData.eplLink);
-		link(dialog, cData.appAddress, linkColor, cData.appLink, "Arial"); //$NON-NLS-1$
+		link(depencies, slfAddress, linkColor, slfLink);
+		link(depencies, slfLicense, linkColor, mitLink);
+		link(depencies, zxcAddress, linkColor, zxcLink);
+		link(depencies, zxcLicense, linkColor, mitLink);
+		link(depencies, jsnAddress, linkColor, jsnLink);
+		link(depencies, apaAddress, linkColor, apaLink);
+		link(depencies, p4jAddress, linkColor, p4jLink);
+		link(depencies, apaAddress, linkColor, apaLink);
+		link(depencies, csvAddress, linkColor, csvLink);
+		link(depencies, apaAddress, linkColor, apaLink);
+		link(depencies, valAddress, linkColor, valLink);
+		link(depencies, apaAddress, linkColor, apaLink);
+		link(depencies, swtAddress, linkColor, swtLink);
+		link(depencies, eplAddress, linkColor, eplLink);
+		link(dialog, appAddress, linkColor, appLink, safeFont);
 
-		final var okBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrOkay);
-		final var data = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		data.widthHint = 80;
+		final var okBtn = button(dialog, SWT.PUSH, entrOkay, widgetSelectedAdapter(e -> dialog.close()));
+		final var gridData = new GridData(SWT.CENTER, SWT.CENTER, false, false);
+		gridData.widthHint = 80;
 		okBtn.setFocus();
-		okBtn.setLayoutData(data);
+		okBtn.setLayoutData(gridData);
 
-		final var point = dialog.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		dialog.setSize(point.x, point.y);
+		dialog.pack();
 		dialog.setDefaultButton(okBtn);
-
 		setCenter(dialog);
-
 		dialog.open();
 	}
 }

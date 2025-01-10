@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -22,19 +22,22 @@ package io.github.seerainer.secpwdman.dialog;
 
 import static io.github.seerainer.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getPrefSize;
+import static io.github.seerainer.secpwdman.util.Util.getUUID;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static io.github.seerainer.secpwdman.util.Util.isEqual;
+import static io.github.seerainer.secpwdman.widgets.Widgets.button;
 import static io.github.seerainer.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.seerainer.secpwdman.widgets.Widgets.group;
+import static io.github.seerainer.secpwdman.widgets.Widgets.label;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newButton;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newLabel;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newText;
 import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
 import static io.github.seerainer.secpwdman.widgets.Widgets.spinner;
+import static io.github.seerainer.secpwdman.widgets.Widgets.text;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
-import java.util.UUID;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -47,40 +50,25 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.ConfData;
-import io.github.seerainer.secpwdman.images.IMG;
+import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.Icons;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
+import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.RandomPassword;
 
 /**
- * The Class EntryDialog.
+ * The class EntryDialog.
  */
-public class EntryDialog {
+final class EntryDialog implements Icons, PrimitiveConstants, StringConstants {
 
-	/**
-	 * Get column index numbers.
-	 *
-	 * @param cData the cData
-	 * @return int[]
-	 */
-	private static int[] getColumnIndexNumbers(final ConfData cData) {
-		final var csvHeader = cData.csvHeader;
+	private static int[] getColumnIndexNumbers(final ConfigData cData) {
 		final var length = csvHeader.length;
 		final var header = new int[length];
 		final var map = cData.getColumnMap();
-
-		for (var i = 0; i < length; i++)
+		for (var i = 0; i < length; i++) {
 			header[i] = map.get(csvHeader[i]).intValue();
-
+		}
 		return header;
-	}
-
-	/**
-	 * Get random UUID.
-	 *
-	 * @return randomUUID
-	 */
-	private static String getUUID() {
-		return UUID.randomUUID().toString().toUpperCase();
 	}
 
 	private final Action action;
@@ -90,71 +78,54 @@ public class EntryDialog {
 	 *
 	 * @param action the action
 	 */
-	public EntryDialog(final Action action) {
+	EntryDialog(final Action action) {
 		this.action = action;
 	}
 
-	/**
-	 * Edits the entry.
-	 *
-	 * @param dialog    the dialog
-	 * @param tableItem the table item
-	 */
 	private void editEntry(final Shell dialog, final TableItem tableItem) {
 		final var child = dialog.getChildren();
 		final var index = getColumnIndexNumbers(action.getCData());
 		final var textFields = new String[index.length];
-
-		for (var i = 0; i < textFields.length; i++)
+		for (var i = 0; i < textFields.length; i++) {
 			textFields[index[i]] = ((Text) child[i * 2]).getText();
-
+		}
 		if (tableItem != null) {
 			final var items = new String[textFields.length];
-
-			for (var j = 0; j < items.length; j++)
+			for (var j = 0; j < items.length; j++) {
 				items[j] = tableItem.getText(j);
-
+			}
 			if (isEqual(items, textFields)) {
 				dialog.close();
 				return;
 			}
 		}
-
-		if (!isEmpty(textFields[2]) || !isEmpty(textFields[4])) {
+		if (!isBlank(textFields[2]) || !isBlank(textFields[4])) {
 			editEntry(tableItem, textFields, ((Group) child[16]).getChildren());
 			dialog.close();
-		} else
+		} else {
 			child[4].setFocus();
+		}
 	}
 
-	/**
-	 * Edits the entry.
-	 *
-	 * @param tableItem     the table item
-	 * @param textFields    the textFields
-	 * @param groupChildren the children of the group
-	 */
 	private void editEntry(final TableItem tableItem, final String[] textFields, final Control[] groupChildren) {
 		final var cData = action.getCData();
 		final var table = action.getTable();
-
-		final boolean[] selection = { false, false, false, false, false };
-
-		for (var j = 0; j < selection.length; j++)
-			selection[j] = !((Button) groupChildren[j]).getSelection();
-
-		if (selection[0] && selection[1] && selection[2] && selection[3] && selection[4])
-			for (var k = 0; k < selection.length - 1; k++)
-				((Button) groupChildren[k]).setSelection(true);
-
-		if (isEmpty(textFields[5]))
-			textFields[5] = RandomPassword.generate(action, groupChildren);
-		else if (textFields[4].equals(textFields[5]))
-			msg(action.getShell(), SWT.ICON_WARNING | SWT.OK, cData.titleWar, cData.warnUPeq);
-
-		if (!isEmpty(textFields[6]))
-			textFields[6] = textFields[6].replaceAll(System.lineSeparator(), cData.newLine);
-
+		final var selection = Arrays.stream(groupChildren)
+				.map(control -> Boolean.valueOf(control instanceof Button && !((Button) control).getSelection()))
+				.toArray(Boolean[]::new);
+		if (Arrays.stream(selection).allMatch(Boolean::booleanValue)) {
+			for (var i = 0; i < selection.length - 1; i++) {
+				((Button) groupChildren[i]).setSelection(true);
+			}
+		}
+		if (isBlank(textFields[5])) {
+			textFields[5] = RandomPassword.generate(action, groupChildren, null);
+		} else if (textFields[4].equals(textFields[5])) {
+			msg(action.getShell(), SWT.ICON_WARNING | SWT.OK, titleWar, warnUPeq);
+		}
+		if (!isBlank(textFields[6])) {
+			textFields[6] = textFields[6].replaceAll(System.lineSeparator(), newLine);
+		}
 		if (action.getList().isVisible()) {
 			if (tableItem == null) {
 				action.resetGroupList();
@@ -162,129 +133,114 @@ public class EntryDialog {
 			} else {
 				final var uuid = tableItem.getText(0);
 				action.resetGroupList();
-
-				for (final var item : table.getItems())
+				for (final var item : table.getItems()) {
 					if (uuid.equals(item.getText(0))) {
 						item.setText(textFields);
 						break;
 					}
+				}
 			}
-		} else if (tableItem == null)
+		} else if (tableItem == null) {
 			new TableItem(table, SWT.NONE).setText(textFields);
-		else
+		} else {
 			table.getItem(table.getSelectionIndex()).setText(textFields);
-
+		}
 		textFields[5] = null;
-		cData.setData(action.cryptData(action.extractData(), true));
+		cData.setSealedData(action.cryptData(action.extractData()));
 		cData.setModified(true);
 		action.colorURL();
-		action.enableItems();
 		action.fillGroupList();
 		action.resizeColumns();
-		action.setText();
+		action.updateUI();
 		table.redraw();
 	}
 
 	/**
-	 * Open.
+	 * Opens the dialog.
 	 *
 	 * @param editLine the edit line
 	 */
-	public void open(final int editLine) {
+	void open(final int editLine) {
 		final var cData = action.getCData();
 		final var newEntry = editLine < 0;
 
-		if (cData.isLocked() || cData.isCustomHeader() || (newEntry && cData.isReadOnly()))
+		if (cData.isLocked() || cData.isCustomHeader() || (newEntry && cData.isReadOnly())) {
 			return;
+		}
 
 		SearchDialog.close();
 
 		final var shell = action.getShell();
-		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
-		final var layout = new GridLayout(3, false);
-		layout.marginBottom = 20;
-		layout.marginLeft = 5;
-		layout.marginRight = 5;
-		layout.marginTop = 8;
+		final var image = getImage(shell.getDisplay(), APP_ICON);
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image,
+				getLayout(3, 6, 6, 20, 5, 5, 8), null);
+		final var uuid = text(dialog, SWT.SINGLE);
 
-		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, null);
-		final var uuid = newText(dialog, SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrGrou);
+		final var group = text(dialog, SWT.BORDER | SWT.SINGLE);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrGrou);
-		final var group = newText(dialog, SWT.BORDER | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrTitl);
+		final var title = text(dialog, SWT.BORDER | SWT.SINGLE);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrTitl);
-		final var title = newText(dialog, SWT.BORDER | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrLink);
+		final var url = text(dialog, SWT.BORDER | SWT.SINGLE);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrLink);
-		final var url = newText(dialog, SWT.BORDER | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrUser);
+		final var user = text(dialog, SWT.BORDER | SWT.SINGLE);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrUser);
-		final var user = newText(dialog, SWT.BORDER | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrPass);
+		final var pwd = text(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrPass);
-		final var pwd = newText(dialog, SWT.BORDER | SWT.PASSWORD | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, entrNote);
+		final var notes = text(dialog, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
 
-		newLabel(dialog, SWT.HORIZONTAL, cData.entrNote);
-		final var notes = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.WRAP);
+		emptyLabel(dialog, 1);
 
-		emptyLabel(dialog);
-
-		final var pwdStrength = group(dialog, new GridLayout(), cData.entrPInd);
-		final var pwdStrengthLabel = newLabel(pwdStrength, SWT.HORIZONTAL, cData.passShor);
+		final var pwdStrength = group(dialog, new GridLayout(), entrPInd);
+		final var pwdStrengthLabel = label(pwdStrength, SWT.HORIZONTAL, passShor);
 		pwdStrengthLabel.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 		pwdStrengthLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		pwd.addModifyListener(e -> evalPasswordStrength(cData, pwdStrengthLabel, pwd.getTextChars()));
 
-		emptyLabel(dialog);
+		emptyLabel(dialog, 1);
 
-		final var random = group(dialog, new GridLayout(4, false), cData.entrRand);
-		newButton(random, true, cData.rTextLoC);
-		newButton(random, true, cData.rTextUpC);
-		newButton(random, true, cData.rNumbers);
-		newButton(random, true, cData.rSpecia1);
-		newButton(random, false, cData.rSpecia2);
-		newButton(random, false, cData.entrSpac);
+		final var random = group(dialog, new GridLayout(4, false), entrRand);
+		button(random, true, rTextLoC);
+		button(random, true, rTextUpC);
+		button(random, true, rNumbers);
+		button(random, true, rSpecia1);
+		button(random, false, rSpecia2);
+		button(random, false, entrSpac);
 
-		emptyLabel(random);
-		emptyLabel(random);
-		emptyLabel(random);
-		emptyLabel(random);
+		emptyLabel(random, 4);
 
-		newLabel(random, SWT.HORIZONTAL, cData.entrLgth);
-		spinner(random, 20, ConfData.PASSWORD_MIN_LENGTH, 64, 0, 1, 4);
+		label(random, SWT.HORIZONTAL, entrLgth);
+		spinner(random, 20, PASSWORD_ABSOLUTE_MIN_LENGTH, 99, 0, 1, 4);
 
-		final var genBtn = newButton(random, SWT.PUSH, widgetSelectedAdapter(e -> {
-			pwd.setText(RandomPassword.generate(action, random.getChildren()));
-		}), cData.entrGene);
+		final var genBtn = button(random, SWT.PUSH, entrGene,
+				widgetSelectedAdapter(e -> pwd.setText(RandomPassword.generate(action, random.getChildren(), pwd))));
 
-		emptyLabel(dialog);
+		emptyLabel(dialog, 1);
 
-		newButton(dialog, SWT.CHECK, widgetSelectedAdapter(e -> {
-			if (pwd.getEchoChar() == cData.nullChr)
-				pwd.setEchoChar(cData.echoChr);
-			else
-				pwd.setEchoChar(cData.nullChr);
-		}), cData.entrShow);
+		button(dialog, SWT.CHECK, entrShow,
+				widgetSelectedAdapter(e -> pwd.setEchoChar(pwd.getEchoChar() == nullChr ? echoChr : nullChr)));
 
-		emptyLabel(dialog);
-		emptyLabel(dialog);
-		emptyLabel(dialog);
+		emptyLabel(dialog, 3);
 
-		final var okBtn = newButton(dialog, SWT.PUSH, null, cData.entrOkay);
-		var data = new GridData(SWT.END, SWT.TOP, true, false, 2, 1);
-		data.widthHint = 80;
-		okBtn.setLayoutData(data);
+		final var okBtn = button(dialog, SWT.PUSH, entrOkay, null);
+		var gridData = new GridData(SWT.END, SWT.TOP, true, false, 2, 1);
+		gridData.widthHint = 80;
+		okBtn.setLayoutData(gridData);
 		dialog.setDefaultButton(okBtn);
 
-		final var clBtn = newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> dialog.close()), cData.entrCanc);
-		data = new GridData(SWT.LEAD, SWT.TOP, true, false);
-		data.widthHint = 80;
-		clBtn.setLayoutData(data);
+		final var clBtn = button(dialog, SWT.PUSH, entrCanc, widgetSelectedAdapter(e -> dialog.close()));
+		gridData = new GridData(SWT.LEAD, SWT.TOP, true, false);
+		gridData.widthHint = 80;
+		clBtn.setLayoutData(gridData);
 
 		if (newEntry) {
 			okBtn.addSelectionListener(widgetSelectedAdapter(e -> editEntry(dialog, null)));
-			dialog.setText(cData.entrNewe);
+			dialog.setText(entrNewe);
 			uuid.setText(getUUID());
 		} else {
 			final var item = action.getTable().getItem(editLine);
@@ -293,8 +249,9 @@ public class EntryDialog {
 			final var index = getColumnIndexNumbers(cData);
 			uuid.setText(item.getText(index[0]));
 
-			if (isEmpty(uuid.getText()))
+			if (isBlank(uuid.getText())) {
 				uuid.setText(getUUID());
+			}
 
 			group.setText(item.getText(index[1]));
 			title.setText(item.getText(index[2]));
@@ -311,13 +268,16 @@ public class EntryDialog {
 				pwd.setEditable(false);
 				notes.setEditable(false);
 				genBtn.setEnabled(false);
-				dialog.setText(cData.entrView);
-			} else
-				dialog.setText(cData.entrEdit);
+				dialog.setText(entrView);
+			} else {
+				dialog.setText(entrEdit);
+			}
 		}
 
+		final var size = 25;
+		final var point = getPrefSize(dialog);
+		dialog.setSize(point.x + size, point.y + size * 2);
 		image.dispose();
-		dialog.setSize(564, 546);
 		dialog.open();
 		group.selectAll();
 		title.selectAll();

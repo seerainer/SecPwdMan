@@ -6,21 +6,39 @@ plugins {
 }
 
 group = 'io.github.seerainer.secpwdman'
-version = '0.9.9'
+version = '1.0.0-rc.1'
 
 repositories {
     mavenCentral()
 }
 
-def swtArtifact = 'org.eclipse.swt.'
-def os = System.getProperty("os.name")
-if (os.equals("Linux")) { swtArtifact += 'gtk.linux.' }
-else if (os.equals("Mac OS X")) { swtArtifact += 'cocoa.macosx.' }
-else if (os.startsWith("Win")) { swtArtifact += 'win32.win32.' }
+ext {
+    swtArtifact = 'org.eclipse.swt.'
+    os = System.getProperty("os.name")
+    arch = System.getProperty("os.arch")
+}
 
-def arch = System.getProperty("os.arch")
-if (arch == "amd64" || arch == "x86_64") { swtArtifact += 'x86_64' }
-else if (arch == "aarch64") { swtArtifact += 'aarch64' }
+switch (os) {
+    case 'Linux':
+        swtArtifact += 'gtk.linux.'
+        break
+    case 'Mac OS X':
+        swtArtifact += 'cocoa.macosx.'
+        break
+    default:
+        if (os.startsWith("Win")) {
+            swtArtifact += 'win32.win32.'
+        }
+}
+
+switch (arch) {
+    case ['amd64', 'x86_64']:
+        swtArtifact += 'x86_64'
+        break
+    case 'aarch64':
+        swtArtifact += 'aarch64'
+        break
+}
 
 dependencies {
     implementation('commons-validator:commons-validator:1.9.0') {
@@ -33,20 +51,27 @@ dependencies {
     implementation 'com.grack:nanojson:1.9'
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
     implementation 'com.password4j:password4j:1.8.2'
-    implementation("org.eclipse.platform:${swtArtifact}:3.127.0") {
+    implementation("org.eclipse.platform:${swtArtifact}:3.128.0") {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }
-    implementation 'org.slf4j:slf4j-nop:2.0.16'
+    implementation 'org.slf4j:slf4j-jdk14:2.0.16'
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+        vendor = JvmVendorSpec.GRAAL_VM
     }
 }
 
 application {
-    mainClass = 'io.github.seerainer.secpwdman.SecPwdMan'
+    mainClass = 'io.github.seerainer.secpwdman.Main'
+}
+
+run {
+    if (os.equals("Mac OS X")) {
+        jvmArgs += '-XstartOnFirstThread'
+    }
 }
 
 graalvmNative {
@@ -57,20 +82,75 @@ graalvmNative {
         main {
             imageName = 'SecPwdMan'
             mainClass = application.mainClass
+            // buildArgs.add('-Dfile.encoding=UTF-8')
+			// buildArgs.add('-Djava.util.logging.config.file=logging.properties')
+			// buildArgs.add('-Djdk.graal.OptimizeLongJumps=true')
+			// buildArgs.add('-Duser.country=US')
+			// buildArgs.add('-Duser.language=en')
+			// buildArgs.add('-Duser.variant')
             buildArgs.add('-Ob')
             buildArgs.add('-march=compatibility')
+            // buildArgs.add('--emit build-report')
+            // buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            // buildArgs.add('--enable-sbom')
+            // buildArgs.add('--gc=G1')
+            // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil')
+            // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil$AutoScaleMethod')
             buildArgs.add('--no-fallback')
-            buildArgs.add('-R:MinHeapSize=32m')
-            buildArgs.add('-R:MaxHeapSize=2g')
-            buildArgs.add('-R:MaxNewSize=32m')
+            // buildArgs.add('--pgo=default.iprof')
+            // buildArgs.add('--static-nolibc')
+            // buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            // buildArgs.add('-H:+AddVMOptions=-XstartOnFirstThread')
+            // buildArgs.add('-H:+PGOPrintProfileQuality')
+            // buildArgs.add('-H:+GenerateEmbeddedResourcesFile')
+            buildArgs.add('-R:MinHeapSize=256m')
+            buildArgs.add('-R:MaxHeapSize=1g')
+            buildArgs.add('-R:MaxNewSize=512m')
             useFatJar = true
         }
     }
 }
 
 tasks.withType(Jar).configureEach {
-    exclude 'META-INF/ECLIPSE_.RSA'
-    exclude 'META-INF/ECLIPSE_.SF'
+    exclude(
+        'META-INF/ECLIPSE*',
+    	'META-INF/maven/**/**/*',
+    	'META-INF/LICENSE.txt',
+    	'META-INF/NOTICE.txt',
+        'about_files/*',
+        'version.txt',
+        '.api_description',
+        'about.html',
+        'fragment.properties',
+        // Linux
+        'libswt-awt-gtk-*.so',
+        'libswt-glx-gtk-*.so',
+        'libswt-webkit-gtk-*.so',
+        // Mac
+        'libswt-awt-*.jnilib',
+        // Win
+        'swt-awt-*.dll',
+        'swt-gdip-*.dll',
+        'swt-wgl-*.dll',
+        'swt-webkit-*.dll',
+        'WebView2Loader.dll',
+        // SWT
+        'org/eclipse/swt/awt/*',
+        'org/eclipse/swt/browser/*',
+        'org/eclipse/swt/internal/image/GIF*',
+        'org/eclipse/swt/internal/image/JPEG*',
+        'org/eclipse/swt/internal/image/LZW*',
+        'org/eclipse/swt/internal/image/OS2*',
+        'org/eclipse/swt/internal/image/TIFF*',
+        'org/eclipse/swt/internal/image/Win*',
+        'org/eclipse/swt/layout/Border*',
+        'org/eclipse/swt/layout/Fill*',
+        'org/eclipse/swt/layout/Form*',
+        'org/eclipse/swt/layout/Row*',
+        'org/eclipse/swt/layout/Tab*',
+        'org/eclipse/swt/opengl/*',
+        'org/eclipse/swt/printing/*',
+    )
     manifest {
 	    attributes 'Main-Class': application.mainClass
     }

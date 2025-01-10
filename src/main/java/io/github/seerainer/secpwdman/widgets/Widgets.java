@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -23,7 +23,7 @@ package io.github.seerainer.secpwdman.widgets;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
@@ -36,6 +36,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
@@ -53,18 +54,88 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /**
- * The Class Widgets.
+ * The class Widgets.
  */
-public class Widgets {
+public final class Widgets {
+
+	/**
+	 * @see io.github.seerainer.secpwdman.widgets.Widgets#button(Composite, int,
+	 *      boolean, SelectionListener, String)
+	 */
+	public static Button button(final Composite parent, final boolean select, final String text) {
+		return button(parent, SWT.CHECK, select, null, text);
+	}
+
+	/**
+	 * Button.
+	 *
+	 * @param parent   the parent
+	 * @param style    the style
+	 * @param select   the select
+	 * @param listener the listener
+	 * @param text     the text
+	 * @return the button
+	 */
+	private static Button button(final Composite parent, final int style, final boolean select, final SelectionListener listener,
+			final String text) {
+		final var button = new Button(parent, style);
+		button.setFont(parent.getFont());
+		button.setForeground(parent.getForeground());
+		button.setText(text);
+		if (listener != null) {
+			button.addSelectionListener(listener);
+		}
+		final GridData data;
+		if (style == SWT.CHECK) {
+			data = new GridData(SWT.LEAD, SWT.CENTER, true, false, 2, 1);
+		} else if (style == SWT.RADIO) {
+			data = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+		} else {
+			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
+			data.widthHint = 80;
+		}
+		button.setLayoutData(data);
+		if (select) {
+			button.setSelection(select);
+		}
+		return button;
+	}
+
+	/**
+	 * @see io.github.seerainer.secpwdman.widgets.Widgets#button(Composite, int,
+	 *      boolean, SelectionListener, String)
+	 */
+	public static Button button(final Composite parent, final int style, final String text, final SelectionListener listener) {
+		return button(parent, style, false, listener, text);
+	}
+
+	/**
+	 * Combo.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @return the combo
+	 */
+	public static Combo combo(final Composite parent, final int style) {
+		final var combo = new Combo(parent, style);
+		combo.setFont(parent.getFont());
+		if (DARK) {
+			combo.setForeground(parent.getForeground());
+		}
+		return combo;
+	}
 
 	/**
 	 * Empty label.
 	 *
 	 * @param parent the parent
+	 * @param hSpan  the horizontalSpan
 	 * @return the label
 	 */
-	public static Label emptyLabel(final Composite parent) {
-		return new Label(parent, SWT.NONE);
+	public static Label emptyLabel(final Composite parent, final int hSpan) {
+		final var label = new Label(parent, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, hSpan, 1));
+		return label;
 	}
 
 	/**
@@ -85,7 +156,7 @@ public class Widgets {
 	}
 
 	/**
-	 * A group.
+	 * Group.
 	 *
 	 * @param parent the parent
 	 * @param layout the layout
@@ -98,10 +169,9 @@ public class Widgets {
 		group.setLayout(layout);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
 		group.setText(text);
-
-		if (DARK)
+		if (DARK) {
 			group.setForeground(parent.getForeground());
-
+		}
 		return group;
 	}
 
@@ -112,7 +182,27 @@ public class Widgets {
 	 * @return the label
 	 */
 	public static Label horizontalSeparator(final Composite parent) {
-		return newLabel(parent, SWT.HORIZONTAL | SWT.SEPARATOR, null);
+		return label(parent, SWT.HORIZONTAL | SWT.SEPARATOR, null);
+	}
+
+	/**
+	 * Label.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @param text   the text
+	 * @return the label
+	 */
+	public static Label label(final Composite parent, final int style, final String text) {
+		final var label = new Label(parent, style);
+		label.setFont(parent.getFont());
+		label.setForeground(parent.getForeground());
+		label.setLayoutData(style == SWT.HORIZONTAL + SWT.SEPARATOR ? new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1)
+				: new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		if (!isBlank(text)) {
+			label.setText(text);
+		}
+		return label;
 	}
 
 	/**
@@ -124,7 +214,7 @@ public class Widgets {
 	}
 
 	/**
-	 * A link.
+	 * Link.
 	 *
 	 * @param parent the parent
 	 * @param url    the url
@@ -136,17 +226,27 @@ public class Widgets {
 	public static Link link(final Composite parent, final String url, final Color color, final String text, final String font) {
 		final var link = new Link(parent, SWT.NONE);
 		link.addSelectionListener(widgetSelectedAdapter(e -> Program.launch(url)));
-		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		link.setForeground(parent.getForeground());
+		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 		link.setLinkForeground(color);
 		link.setText(text);
 		link.setToolTipText(url);
-
-		if (!isEmpty(font))
-			link.setFont(new Font(parent.getDisplay(), new FontData(font, 12, SWT.NORMAL)));
-		else
-			link.setFont(parent.getFont());
-
+		link.setFont(isBlank(font) ? parent.getFont() : new Font(parent.getDisplay(), new FontData(font, 12, SWT.BOLD)));
 		return link;
+	}
+
+	/**
+	 * Menu.
+	 *
+	 * @param parent   the parent
+	 * @param state    the state
+	 * @param listener the listener
+	 * @return the menu
+	 */
+	public static Menu menu(final Shell parent, final int state, final MenuListener listener) {
+		final var menu = new Menu(parent, state);
+		menu.addMenuListener(listener);
+		return menu;
 	}
 
 	/**
@@ -165,28 +265,26 @@ public class Widgets {
 	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener,
 			final int acc, final String text, final String image, final boolean selection) {
 		final var item = new MenuItem(parent, state);
-
-		if (menu != null)
+		if (menu != null) {
 			item.setMenu(menu);
-
-		if (listener != null)
+		}
+		if (listener != null) {
 			item.addSelectionListener(listener);
-
-		if (acc > 0)
+		}
+		if (acc > 0) {
 			item.setAccelerator(acc);
-
+		}
 		if (image != null && WIN32) {
 			final var img = getImage(parent.getDisplay(), image);
 			item.setImage(img);
 			img.dispose();
 		}
-
-		if (selection)
+		if (selection) {
 			item.setSelection(selection);
-
-		if (!isEmpty(text))
+		}
+		if (!isBlank(text)) {
 			item.setText(text);
-
+		}
 		return item;
 	}
 
@@ -269,147 +367,6 @@ public class Widgets {
 	}
 
 	/**
-	 * @see io.github.seerainer.secpwdman.widgets.Widgets#newButton(Composite, int,
-	 *      boolean, SelectionListener, String)
-	 */
-	public static Button newButton(final Composite parent, final boolean select, final String text) {
-		return newButton(parent, SWT.CHECK, select, null, text);
-	}
-
-	/**
-	 * New button.
-	 *
-	 * @param parent   the parent
-	 * @param style    the style
-	 * @param select   the select
-	 * @param listener the listener
-	 * @param text     the text
-	 * @return the button
-	 */
-	private static Button newButton(final Composite parent, final int style, final boolean select,
-			final SelectionListener listener, final String text) {
-		final var button = new Button(parent, style);
-		button.setFont(parent.getFont());
-		button.setForeground(parent.getForeground());
-		button.setText(text);
-
-		if (listener != null)
-			button.addSelectionListener(listener);
-
-		GridData data;
-
-		if (style == SWT.CHECK)
-			data = new GridData(SWT.LEAD, SWT.CENTER, true, false, 2, 1);
-		else if (style == SWT.RADIO)
-			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
-		else {
-			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
-			data.widthHint = 80;
-		}
-
-		button.setLayoutData(data);
-
-		if (select)
-			button.setSelection(select);
-
-		return button;
-	}
-
-	/**
-	 * @see io.github.seerainer.secpwdman.widgets.Widgets#newButton(Composite, int,
-	 *      boolean, SelectionListener, String)
-	 */
-	public static Button newButton(final Composite parent, final int style, final SelectionListener listener, final String text) {
-		return newButton(parent, style, false, listener, text);
-	}
-
-	/**
-	 * New label.
-	 *
-	 * @param parent the parent
-	 * @param style  the style
-	 * @param text   the text
-	 * @return the label
-	 */
-	public static Label newLabel(final Composite parent, final int style, final String text) {
-		final var label = new Label(parent, style);
-		label.setFont(parent.getFont());
-		label.setForeground(parent.getForeground());
-
-		if (style == SWT.HORIZONTAL + SWT.SEPARATOR)
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-		else
-			label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-
-		if (!isEmpty(text))
-			label.setText(text);
-
-		return label;
-	}
-
-	/**
-	 * New menu.
-	 *
-	 * @param parent   the parent
-	 * @param state    the state
-	 * @param listener the listener
-	 * @return the menu
-	 */
-	public static Menu newMenu(final Shell parent, final int state, final MenuListener listener) {
-		final var menu = new Menu(parent, state);
-		menu.addMenuListener(listener);
-		return menu;
-	}
-
-	/**
-	 * Table.
-	 *
-	 * @param parent the parent
-	 * @return the table
-	 */
-	public static Table newTable(final Composite parent) {
-		final var table = new Table(parent, SWT.FULL_SELECTION | SWT.MULTI);
-		table.setFocus();
-		table.setFont(parent.getFont());
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		table.setLinesVisible(true);
-
-		if (DARK) {
-			table.setBackground(parent.getBackground());
-			table.setForeground(parent.getForeground());
-			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
-			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
-		}
-
-		return table;
-	}
-
-	/**
-	 * New text.
-	 *
-	 * @param parent the parent
-	 * @param style  the style
-	 * @return the text
-	 */
-	public static Text newText(final Composite parent, final int style) {
-		final var text = new Text(parent, style);
-		text.setFont(parent.getFont());
-		text.setForeground(parent.getForeground());
-
-		if (style == SWT.SINGLE) {
-			final var data = new GridData();
-			data.exclude = true;
-			text.setLayoutData(data);
-			text.setVisible(false);
-		} else if (style == SWT.BORDER + SWT.MULTI + SWT.V_SCROLL + SWT.WRAP)
-			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		else
-			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-
-		return text;
-	}
-
-	/**
 	 * Shell.
 	 *
 	 * @param parent the parent
@@ -423,19 +380,17 @@ public class Widgets {
 		final var shell = new Shell(parent, style);
 		shell.setFont(parent.getFont());
 		shell.setLayout(layout);
-
 		if (DARK) {
 			shell.setBackground(parent.getBackground());
 			shell.setForeground(parent.getForeground());
 			shell.setBackgroundMode(SWT.INHERIT_FORCE);
 		}
-
-		if (image != null)
+		if (image != null) {
 			shell.setImage(image);
-
-		if (!isEmpty(text))
+		}
+		if (!isBlank(text)) {
 			shell.setText(text);
-
+		}
 		return shell;
 	}
 
@@ -467,6 +422,51 @@ public class Widgets {
 		spinner.setValues(sel, min, max, dig, inc, pag);
 		spinner.pack();
 		return spinner;
+	}
+
+	/**
+	 * Table.
+	 *
+	 * @param parent the parent
+	 * @return the table
+	 */
+	public static Table table(final Composite parent) {
+		final var table = new Table(parent, SWT.FULL_SELECTION | SWT.MULTI);
+		table.setFocus();
+		table.setFont(parent.getFont());
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setLinesVisible(true);
+		if (DARK) {
+			table.setBackground(parent.getBackground());
+			table.setForeground(parent.getForeground());
+			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
+			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
+		}
+		return table;
+	}
+
+	/**
+	 * Text.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @return the text
+	 */
+	public static Text text(final Composite parent, final int style) {
+		final var text = new Text(parent, style);
+		text.setFont(parent.getFont());
+		text.setForeground(parent.getForeground());
+		if (style == SWT.SINGLE) {
+			final var data = new GridData();
+			data.exclude = true;
+			text.setLayoutData(data);
+			text.setVisible(false);
+		} else if (style == SWT.BORDER + SWT.MULTI + SWT.V_SCROLL + SWT.WRAP) {
+			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		} else {
+			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		}
+		return text;
 	}
 
 	/**

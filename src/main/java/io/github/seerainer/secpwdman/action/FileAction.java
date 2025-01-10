@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -20,28 +20,35 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.crypto.KeyStoreManager.getPasswordFromKeyStore;
+import static io.github.seerainer.secpwdman.dialog.DialogFactory.createPasswordDialog;
 import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
-import static io.github.seerainer.secpwdman.util.SWTUtil.msgShowPasswords;
+import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
+import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.getFilePath;
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
-import static io.github.seerainer.secpwdman.util.Util.isFileOpen;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
+import static io.github.seerainer.secpwdman.util.Util.isFileReady;
 import static io.github.seerainer.secpwdman.util.Util.isReadable;
+import static io.github.seerainer.secpwdman.util.Util.toChars;
 import static io.github.seerainer.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
+import org.slf4j.Logger;
 
-import io.github.seerainer.secpwdman.config.ConfData;
-import io.github.seerainer.secpwdman.dialog.PasswordDialog;
+import io.github.seerainer.secpwdman.config.ConfigData;
 import io.github.seerainer.secpwdman.dialog.SearchDialog;
 import io.github.seerainer.secpwdman.io.IO;
+import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The Class FileAction.
  */
-public class FileAction extends Action {
+public final class FileAction extends Action {
+
+	private static final Logger LOG = LogFactory.getLog();
 
 	/**
 	 * Instantiates a new file action.
@@ -50,51 +57,53 @@ public class FileAction extends Action {
 	 * @param shell the shell
 	 * @param table the table
 	 */
-	public FileAction(final ConfData cData, final Shell shell, final Table table) {
+	public FileAction(final ConfigData cData, final Shell shell, final Table table) {
 		super(cData, shell, table);
 	}
 
+	private void clearConfidentialData() {
+		clear(cData.getDataKey());
+		clear(cData.getKeyStorePassword());
+		clear(cData.getKeyStoreData());
+		cData.setDataKey(null);
+		cData.setKeyStoreData(null);
+		cData.setKeyStorePassword(null);
+		cData.setSealedData(null);
+	}
+
 	/**
-	 * Clear data.
+	 * Clears the data.
 	 */
 	public void clearData() {
 		table.setRedraw(false);
 		defaultHeader();
 		table.setRedraw(true);
 
-		cData.setKey(null);
-		cData.setData(null);
 		cData.setClearAfterSave(false);
 		cData.setCustomHeader(false);
 		cData.setExitAfterSave(false);
-		cData.setFile(null);
 		cData.setLocked(false);
 		cData.setModified(false);
 		cData.setReadOnly(false);
+		cData.setFile(null);
+		clearConfidentialData();
 
-		clearClipboard();
-		enableItems();
 		fillGroupList();
-		setText();
+		updateUI();
 	}
 
-	/**
-	 * Dispose resources.
-	 */
 	private void disposeResources() {
 		final var tray = shell.getDisplay().getSystemTray();
-
-		if (tray != null && WIN32)
+		if (tray != null && WIN32) {
 			tray.getItem(0).getImage().dispose();
-
+		}
 		for (final var item : getToolBar().getItems()) {
 			final var image = item.getImage();
-
-			if (image != null)
+			if (image != null) {
 				image.dispose();
+			}
 		}
-
-		cData.setData(null);
+		clearConfidentialData();
 		getList().getFont().dispose();
 		table.getFont().dispose();
 		shell.getFont().dispose();
@@ -102,163 +111,244 @@ public class FileAction extends Action {
 	}
 
 	/**
-	 * Unminimize the app, ask to save before exit, clear clipboard, dispose
-	 * resources and exit.
+	 * Unminimizes the app, requests to save before exiting, saves the
+	 * configuration, clears the clipboard, discards resources, and exits.
 	 *
 	 * @return true, if successful
 	 */
 	public boolean exit() {
-		if (shell.getMinimized())
+		if (shell.getMinimized()) {
 			shell.setMinimized(false);
-
-		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0)
-			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, cData.titleWar, cData.warnExit)) {
-			case SWT.YES:
-				saveDialog();
+		}
+		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0) {
+			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, titleWar, warnExit)) {
+			case SWT.YES -> {
 				cData.setExitAfterSave(true);
-				return false;
-			case SWT.NO:
-				break;
-			default:
+				saveDialog();
 				return false;
 			}
-
+			case SWT.NO -> {
+				// break;
+			}
+			default -> {
+				return false;
+			}
+			}
+		}
+		IO.saveConfig(this);
 		clearClipboard();
 		disposeResources();
-
 		return true;
 	}
 
 	/**
-	 * Export dialog.
+	 * Opens the export dialog.
 	 */
 	public void exportDialog() {
-		if (!cData.isCustomHeader() && !msgShowPasswords(cData, shell))
+		if (!cData.isCustomHeader() && !msgYesNo(cData, shell, warnExpo)) {
 			return;
-
-		final var file = fileDialog(shell, SWT.SAVE, cData.imexFile, cData.imexExte);
+		}
+		final var file = fileDialog(shell, SWT.SAVE, imexFile, imexExte);
+		if (isBlank(file)) {
+			return;
+		}
 		final var io = new IO(this);
+		io.saveFile(null, file);
+	}
 
-		if (!isEmpty(file))
-			io.saveFile(null, file);
+	private void handleFileError(final String file, final String errorMessage) {
+		LOG.warn("File error: " + quote + file + quote);
+		msg(shell, SWT.ICON_ERROR, titleErr, errorMessage.formatted(file));
+		clearData();
+	}
+
+	private void handleNonPasswordFile(final String file) {
+		final var csv = imexExte.substring(1, 5);
+		final var txt = imexExte.substring(8);
+		if ((file.endsWith(csv) || file.endsWith(txt)) || msgYesNo(cData, shell, infoImpo)) {
+			final var io = new IO(this);
+			if (io.openFile(null, file)) {
+				fillGroupList();
+			}
+		}
+		cData.setFile(null);
 	}
 
 	/**
-	 * Import dialog.
+	 * Opens the import dialog.
 	 */
 	public void importDialog() {
-		final var file = fileDialog(shell, SWT.OPEN, cData.imexFile, cData.imexExte);
+		final var file = fileDialog(shell, SWT.OPEN, imexFile, imexExte);
 		final var io = new IO(this);
-
-		if (isFileOpen(file) && io.openFile(null, file)) {
-			cData.setModified(true);
-			enableItems();
+		if (isFileReady(file) && io.openFile(null, file)) {
 			fillGroupList();
-			setText();
+			updateUI();
 		}
+	}
+
+	/**
+	 * Displays an error if it is not a password file.
+	 *
+	 * @param file the file
+	 * @return true if it is a password file
+	 */
+	public boolean isPasswordFileReady(final String file) {
+		if (!isFileReady(file)) {
+			handleFileError(file, errorFil);
+			return false;
+		}
+		if (IO.isPasswordFile(file)) {
+			return true;
+		}
+		handleFileError(file, errorImp);
+		return false;
 	}
 
 	/**
 	 * Lock switch.
 	 */
 	public void lockSwitch() {
-		if (cData.isLocked())
-			new PasswordDialog(this).open(false);
-		else
+		if (cData.isLocked()) {
+			if (isPasswordFileReady(cData.getFile())) {
+				createPasswordDialog(this, false);
+			}
+		} else {
 			setLocked();
+		}
 	}
 
 	/**
-	 * Create a new database (clear data).
+	 * Creates a new database (clear data).
 	 */
 	public void newDatabase() {
 		SearchDialog.close();
 
-		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0)
-			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, cData.titleWar, cData.warnNewF)) {
-			case SWT.YES:
-				saveDialog();
+		if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0) {
+			switch (msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO | SWT.CANCEL, titleWar, warnNewF)) {
+			case SWT.YES -> {
 				cData.setClearAfterSave(true);
-				break;
-			case SWT.NO:
-				clearData();
-				break;
-			default:
-				break;
+				saveDialog();
 			}
-		else
+			case SWT.NO -> clearData();
+			default -> {
+				// break;
+			}
+			}
+		} else {
 			clearData();
+		}
 	}
 
 	/**
-	 * Open dialog.
+	 * Opens the file open dialog.
 	 */
 	public void openDialog() {
-		final var file = fileDialog(shell, SWT.OPEN, cData.passFile, cData.passExte);
+		SearchDialog.close();
 
-		if (!isEmpty(file)) {
+		final var file = fileDialog(shell, SWT.OPEN, passFile, passExte);
+		if (isFileReady(file) && isPasswordFileReady(file)) {
+			table.setRedraw(false);
+			defaultHeader();
+			fillGroupList();
+			table.setRedraw(true);
+
 			cData.setFile(file);
+			cData.setLocked(true);
+			cData.setModified(false);
 
-			if (isReadable(file)) {
-				table.removeAll();
-				fillGroupList();
-				cData.setLocked(true);
-				cData.setModified(false);
-				new PasswordDialog(this).open(false);
-			}
+			createPasswordDialog(this, false);
 		}
-
-		enableItems();
-		setText();
+		updateUI();
 	}
 
 	/**
-	 * Save dialog.
+	 * Opens the drag-and-drop and file argument.
+	 */
+	public void openFileArg() {
+		final var file = cData.getFile();
+		if (isBlank(file)) {
+			return;
+		}
+		if (!isReadable(file)) {
+			LOG.warn(quote + file + quote + " is not readable.");
+			cData.setFile(null);
+			return;
+		}
+		if (IO.isPasswordFile(file)) {
+			cData.setLocked(true);
+			createPasswordDialog(this, false);
+		} else {
+			handleNonPasswordFile(file);
+		}
+		updateUI();
+	}
+
+	/**
+	 * Closes the app or clears the data after saving if either is true.
+	 */
+	public void postSave() {
+		if (cData.isExitAfterSave()) {
+			shell.close();
+		} else if (cData.isClearAfterSave()) {
+			clearData();
+		}
+	}
+
+	/**
+	 * Opens the file save dialog.
 	 */
 	public void saveDialog() {
-		final var passwordDialog = new PasswordDialog(this);
+		SearchDialog.close();
 
-		if (isFileOpen(cData.getFile()))
-			passwordDialog.open(true);
-		else {
-			final var file = fileDialog(shell, SWT.SAVE, cData.passFile, cData.passExte);
-
-			if (!isEmpty(file)) {
+		final var keyStoreData = cData.getKeyStoreData();
+		final var keyStorePassword = cData.getKeyStorePassword();
+		var file = cData.getFile();
+		if (isFileReady(file) && keyStoreData != null && keyStorePassword != null) {
+			final var io = new IO(this);
+			if (io.saveFile(getPasswordFromKeyStore(toChars(keyStorePassword), keyStoreData), file)) {
+				cData.setModified(false);
+				cData.setReadOnly(true);
+				postSave();
+			}
+		} else {
+			file = fileDialog(shell, SWT.SAVE, passFile, passExte);
+			if (!isBlank(file)) {
 				cData.setFile(file);
-				passwordDialog.open(true);
+				createPasswordDialog(this, true);
 			}
 		}
-
-		enableItems();
-		setText();
+		if (shell == null || shell.isDisposed()) {
+			return;
+		}
+		updateUI();
 	}
 
 	/**
-	 * Lock the app.
+	 * Locks the app.
 	 */
 	public void setLocked() {
-		if (isFileOpen(cData.getFile()) && !cData.isModified()) {
-			cData.setLocked(true);
-			cData.setData(null);
-			table.removeAll();
-
-			SearchDialog.close();
-
-			clearClipboard();
-			enableItems();
-			fillGroupList();
-			hidePasswordColumn();
-			setText();
-
-			final var tray = shell.getDisplay().getSystemTray();
-
-			if (tray != null && WIN32) {
-				shell.setMinimized(true);
-				shell.setVisible(false);
-				final var trayItem = tray.getItem(0);
-				trayItem.setToolTipText(ConfData.APP_NAME + cData.titlePH + getFilePath(cData.getFile()));
-				trayItem.setVisible(true);
-			}
+		if (!isFileReady(cData.getFile()) || cData.isModified()) {
+			return;
 		}
+		cData.setLocked(true);
+		clearConfidentialData();
+		table.removeAll();
+		table.setSortColumn(null);
+
+		SearchDialog.close();
+		clearClipboard();
+		fillGroupList();
+		hidePasswordColumn();
+		updateUI();
+
+		final var tray = shell.getDisplay().getSystemTray();
+		if (tray == null || !WIN32) {
+			return;
+		}
+		shell.setMinimized(true);
+		shell.setVisible(false);
+		final var trayItem = tray.getItem(0);
+		trayItem.setToolTipText(APP_NAME + titlePH + getFilePath(cData.getFile()));
+		trayItem.setVisible(true);
 	}
 }

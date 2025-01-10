@@ -1,0 +1,34 @@
+NOTICE.txt
+-----------
+
+This project makes use of the following third-party software:
+
+1. slf4j
+   - License: MIT License
+   - Project URL: https://github.com/qos-ch/slf4j
+
+2. zxcvbn4j
+   - License: MIT License
+   - Project URL: https://github.com/nulab/zxcvbn4j
+
+3. eclipse/swt
+   - License: Eclipse Public License 2.0 (EPL-2.0)
+   - Project URL: https://github.com/eclipse-platform/eclipse.platform.swt
+
+4. nanojson
+   - License: Apache License 2.0
+   - Project URL: https://github.com/mmastrac/nanojson
+
+5. password4j
+   - License: Apache License 2.0
+   - Project URL: https://github.com/Password4j/password4j
+
+6. sesseltjonna-csv
+   - License: Apache License 2.0
+   - Project URL: https://github.com/skjolber/sesseltjonna-csv
+
+7. commons-validator
+   - License: Apache License 2.0
+   - Project URL: https://github.com/apache/commons-validator
+
+Each of these libraries is used in this project in accordance with their respective licenses.

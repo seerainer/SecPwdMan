@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -18,21 +18,21 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.images;
+package io.github.seerainer.secpwdman.config;
 
 /**
  * The Class IMG.
  */
-public class IMG {
+public interface Icons {
 
-	public static final String APP_ICON = """
+	String APP_ICON = """
 			iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAwElEQVR42u3WQQqDMBAF0Eyhm9JV
 			L9kzeci6Kt0ITlMqqCRx/jdVKkwgCDr+eQaVSFgzGtXs+bsIG8XdUGpcAcEBaHMSgQHY5iE847wi
 			CBuQNn/FeYnzFBvoUPPJ6SfX4JVYAyiHfmt1lvtzgLWsZL0DHOAAgULS0Q7Hm/kABiYFNPqggysQ
 			cwD/z69GOOAYAD2PZdItG6FaBjANtILhWhSQCywFM7UOOM47kAve/SvYZDjgfwF7IBb3A1sjMjui
 			N+62qyFnP/JjAAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String DEL = """
+			""";
+	String DEL = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALsSURBVDhPfZLfaxRXFMfPvfN7du7dnTHiW1tU
 			RGoWTEqxlUCUPjfNEh/8ga8iJQ+CCBpBpD70wT+gRXyRNa34skHfFaENTQop1kKhD6HVINlkd2Z2
@@ -48,8 +48,8 @@ public class IMG {
 			rnNKXm7/VBaFx87sx4QuIdJoIo1CcVGAmdtrudVr4Zjyt5imzCKNVOHc7nXBtUfhEnnlx3VwB7Pg
 			Wi/Ad6rDZUSbTKhyBwdCemSIQ0iCAYC93UWudUpcXhyF3yCuPFhHnj0Ljvl76vYgTBwIhPwQDllw
 			Owmdv7JB9znyrDn+5x/eC7+B/+XhOvLtFvP6T9Kh/XecDr/9F1llXKAeIDOEAAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String EDIT = """
+			""";
+	String EDIT = """
 			iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAYAAAAmlE46AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJLSURBVDhPfVFNTxNRFD1vZjozHSgl1KKTGBUS
 			IwhWVqQxMYatMcrWnbo0MSbu+BNuXLgxYeXChSGuXbgiiBpj2mBNUSsYFGmZUjof7WPmjXemI0gk
@@ -63,8 +63,8 @@ public class IMG {
 			NxGQHFGjfeIfsQ2rgvz3eSipDiAzCC5gnb2Frekb8NV03OBvIovHFbQH30E7UwALfQRcw6+xe6jT
 			XkKSY0JvLUH6EBEhakEgSEMX1fIGfjRPYTsoYu3cfdTNCwiCEIEvyCfwxRoA/AZe65Yyx/C+rQAA
 			AABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String EXIT = """
+			""";
+	String EXIT = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJESURBVDhPjVNLaxRBEP66Z3Z2loCJ+8jV3UQk
 			LJFkw6J48pCL4M9QSUyiAdFD9Cge8wc8iqhkEzdrkjUPDxI8CYJ4EsGsZ9HM7qzGeez0WN2zLySo
@@ -78,8 +78,8 @@ public class IMG {
 			KzTIKmF6pGWMy648ohXQO3A+fkJ982UU+UMkQ4tm4nw+oP90Hx3jQRh+bbQ8fHN/oR54sIWPRss9
 			VmXMJkydbMtz8DPwv7Pl6Qt5nfPHca4VDCbp/ftJSwIxrtVijF/9DRK/XgxJJfY/AAAAAElFTkSu
 			QmCC
-			"""; //$NON-NLS-1$
-	public static final String GEAR = """
+			""";
+	String GEAR = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMOSURBVDhPdVNLbFNHFL1vfs92sJ0ozgsNlI8E
 			Ef+f6IJKVRoKYkEDLApiAwg2bEACBBKfBTs2LNmyAoRgA6UNCAQoUAHFpCKYT1KgBQQJsWQS2yH2
@@ -96,8 +96,8 @@ public class IMG {
 			pUJ1QT2BgMA0Epwz2rg56bHk+pdUqvF6xvOgxZsKU6akX4tIdxriHRFKHfr8elDlr+sJftu+RpWG
 			K4fM4opqOexYt3XpA3PSMylUzW0zXnVsmP/ww8vC5pH82I+FwfLWFT/NGrfcbz7nGxdyi8wbOGfq
 			3YAp3tfRNb/WVJMB8AVxHYQpREEr2gAAAABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String INFO = """
+			""";
+	String INFO = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGjSURBVDhPjVO9TgMxDLZzP+UopWWiEjsDYmkX
 			Rrog8RAgMfAACCZATOU9WNgYunZkQOIRQEBVIcSMQCrttZcEO7mfUIpU6z7Zzud8cXIJ7rZfq6WV
@@ -108,8 +108,8 @@ public class IMG {
 			cBlPMALTB5hPSM3lM5HM2y2kiQtFYHW+xcUls8hFuANWV4k0N82smuKLLk/3OYbuUwzxpBhnOCKI
 			rZPHqyAKDsLKAngh/7DCuI5NTD0mpBxpUI6TO2wdP2zQM74Wvmjwa2RyHhMe9lGIwx+kXr/0Ynjw
 			7AAAAABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String KEY = """
+			""";
+	String KEY = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAInSURBVDhPjVJNaBNREJ55b9PsJpWmUalWrVSD
 			IIqIN8WDB6GJ4F0UivZkT0V68VAE70XqJRe9FDFiUU9eFIs/eBHJTZH4Ew9CiYKmNNnft/vG2U0u
@@ -122,8 +122,8 @@ public class IMG {
 			Nb263E/7BwnBl7tcLLkzcbHgl8baO2540fbVy9Lc61aSmQL5qcoLA1EzA56ZNxOF0PaVrgZBdGdy
 			7tWffl4qsLVUWcwDzicHntn2w3tj88+nk+gAEGRH++M7iU355PuuftoLDQbheuEt148+s+wfnY66
 			PLHwYqUfGwAAfwFmeeyX/q34wgAAAABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String LINK = """
+			""";
+	String LINK = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMLSURBVDhPhVJrSBRRFL4zd2afs2turrVZSAUV
 			BD2gP1n2XCvfbqVoavRA+mGE9Phn/ehHRAhRERtEJPSiIFHUIoyegpWvdW0zksRan7u6r5ndnbkz
@@ -140,8 +140,8 @@ public class IMG {
 			q46d248S139APLzRWpC+ytK0yGIaYkNc1ZTH302rKDOE5CWciwVe7A/6uaKCCussM/0GXLfYOqgx
 			kMkUDffpGV2l3qCr1GhVNRRNb8S/4gj42APzNccB3zialIy1OW2iKH7n2IgJm8MgRNFEJMzXB33s
 			ycLDWe5E7RwA4Be1l3BVNBHJmQAAAABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String LOCK = """
+			""";
+	String LOCK = """
 			iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIlSURBVDhPXVHPaxNBFH4zszPZ3XRtBSu2Gnpo
 			Szz0oN5sMAeR4sFCLx78BwTxUBC8eVPw5kUoithTUap4UxDxVAmCP/AgHlQaL73YEm2yye5mJzvj
@@ -154,8 +154,8 @@ public class IMG {
 			k3FHapYddjEZd5gO8MSyA8fHY2DmKPle1pNPGtlnAJZKEKoNHsW25gDGbDVzzf5OcqQIux5hEu6v
 			xLAwSUCNTMlhJpHE6RrjoJNpQBDTvgZuvpXlch7fiiiQbPX0wl8qxXmICmNZh0MPYXKOCP/HmBOO
 			EzlWOiEL6J1/BaQmzWCLMzoAAAAASUVORK5CYII=
-			"""; //$NON-NLS-1$
-	public static final String NEW = """
+			""";
+	String NEW = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAI1SURBVDhPlZJNaBNBFMffzOxsNsk2UGviNqjr
 			V0AtOaQWPPfgzZsHD+qlXkykevNSFDwoBSlYLCJCLULBS+N6EEQPehC9aC8KglqIiEir2GTrRnd2
@@ -168,8 +168,8 @@ public class IMG {
 			q+QYvHz3QpGKppOIZV1tpZoqt+WAsjAyyn1TD7rKMdg186dFT17JajOlqhSBVD+KYIiJMFHunXw4
 			83e0O5hLsBaNHfArPaAWc/UFEPkRCzktZyYeryvH4JWGn+Megc/N3eDJg0oOmeDaGXP86YZyDMH1
 			7OieXDagYXLB87e+SWnksnmpOtvubwDAH8V14XLEwbzCAAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String NOTE = """
+			""";
+	String NOTE = """
 			iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGPSURBVDhPjVLLTsJAFL3zaA1JSzTwFyw0xp0J
 			v+DKjRu/wI/xD0z8AXeuTdxqogkLMYQENEgBpQUU2umM905bAmoMZ3LamTNz5j5a1u+Mz4SURwCg
@@ -179,8 +179,8 @@ public class IMG {
 			98H3fPCIOC/oe2Vw3a1lJPby/I6NkPVoEkIQ9PMoNn4GnFIDdrYrUK1USeiybpNMoq6Usl0qQDYh
 			OLiOa9esSJlDN+8egzkWOhgOYDjKOQxgMpngYW65rIpq7zxhJIHfCW9aLZZgk8QaVpFFouJwYYwG
 			/YOk0e7awMNZXJpZ5wYEw7jWpqlUin/EZkyVbn0DORoaRJDkYCgAAAAASUVORK5CYII=
-			"""; //$NON-NLS-1$
-	public static final String OPEN = """
+			""";
+	String OPEN = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAYAAAAmL5yKAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFmSURBVDhPlVI9SwNBEH0zd2cSBUtbf0bAzq9K
 			RElhIZb+BFv/g2AtoohlhGgjGkQRUVJqZSFobSGCQrz98G0u0UDuMA73bu5m37ydmV1Jb2trmmBd
@@ -190,8 +190,8 @@ public class IMG {
 			J8eKlH0RkpSpqAQXhoHBGxwu1aeOw2UgCOTtUowW3usvKhSQmL37f5Zv5URm4ZVXBShx8qH8PGI+
 			Psk/D6epnPy9RBXOgX/55EFYeSAeg4D4q5UJfJW3+T3VEfzbeGTYlLn9PQD4BpkN5Z4Cqpj8AAAA
 			AElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String SAVE = """
+			""";
+	String SAVE = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJZSURBVDhPjVM7aBRBGP5m9nF7dyEiEmIgnU8Q
 			vUYLC0URg0FFDwsLFVIELC0stLAQlES5RuzF3srSwkqwiNVFC/FR3CXhjEgg98zd7jz8ZvdO0qj5
@@ -205,8 +205,8 @@ public class IMG {
 			6APT6N+YRRBsT4JDNcTIpCeRX/4M8+I97Bjn8E8buboi7Qx8cA7cPDDGrI02FWB7/gfORMpNZycV
 			GA6Fa5873AH4k2RROwFj9KbVCeMaRZCF+G/QKVOIk/iXZPkedq36mFjTSGJFJMP17+CIN3pWfW/2
 			end/A6zS9N1pdGYnAAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String SEARCH = """
+			""";
+	String SEARCH = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJ7SURBVDhPjZHNSxRxGMe/v5fZedN9BcNW6WLZ
 			CwlSYaYpKKUHpU7RuVu3ukUWpWB0su79AXUoqEtUpFSuuaCiQR2iFKxdddXUtJ2Z3ZmdaXYclpZK
@@ -221,8 +221,8 @@ public class IMG {
 			QkiGS2IilZ3XVEedjvBQZbFBN/LQdcMxLevK3+H/h76LA7djQvhWAByGkUNWN6Dpxhc33d1xrKXp
 			rVqQhAATTrtvMEKLNs3tekByKoGDDUffKETKc0b3Bzifo4Re/Q3Tf+Y0gocfAAAAAABJRU5ErkJg
 			gg==
-			"""; //$NON-NLS-1$
-	public static final String SELA = """
+			""";
+	String SELA = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVDhPldNNK4RRFMDx4y0kymJS7NTslC9A
 			PgOJUuZ7+ATWFpSdlYVsZKXEwsbCQpqGmMbKwmsYMwuT+P818wHOqd/T6em597nn3nN7ImIbUzjH
@@ -230,8 +230,8 @@ public class IMG {
 			iJozDOAGd8iEK69bwghcvvVloh9DJkfYMEnGCt4swaO6gCeRCVd85QQtvLZfZMKyP01OsWWSjFU0
 			3cRp+PcqMjGGYqcZ/hsiGZ0mjBNsmiTDEhrOMg430juQiWEUXLq3yobwGBfQBy/KMtwbd3sJj3DQ
 			PO7hHswgzuCVdqDtvIZRvMBmKeILfjyHOiZRiojWH/+zRoH14RpQAAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-	public static final String SYSTEM = """
+			""";
+	String SYSTEM = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHpSURBVDhPlVO/axRBFP5mZndv7zyCjYZ0Nkqq
 			RLASrhE7CdilELuI/4FdOnsxVZpU/miEVIJYaqc2ErkI5hLJniaaiMhdcuF2Z2fGN2/3zEaSQD54
@@ -243,8 +243,8 @@ public class IMG {
 			C4IAcRyzr6maw2F6RKQex3byyuUbov1xc2ZwcPAyTdNyi0qSZVQke0jwquTHtVoxJ4T0aJrNcw/E
 			55XkoVJqvlzn1D+129gfDI6cGAYhrk5P0cjvj0GHLIvl568f1euN+xTL9+IP03R3rmyUEbyUP7Ui
 			KoUUb/8CEuoXnLElteYAAAAASUVORK5CYII=
-			"""; //$NON-NLS-1$
-	public static final String USER = """
+			""";
+	String USER = """
 			iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIDSURBVDhPXVO/Sx1BEJ6dvX3PIkVUbAxCsBJT
 			pNGnIEYJCoE0IUUQBP+AECEREawUBU3jf2FSBARtLO1E8kAbSYgWIRYSVJLiQUDvbm/9Znd95t48
@@ -256,8 +256,8 @@ public class IMG {
 			kFlfvHy6UMI3a8Z2dcB8BGFGc1LVKsFcE9SLMYmqxMLfQf1znw/mfdM8GcQumC0QR+9JZb0LBAx6
 			Qq829z/8UCDKVT5Bp/wylEjxHANilMjG0ti6K+ykRoNegLgGlW30D9kq8UXkDDCWJcxeJoC5P4L9
 			q573vd0A9jV2yAY8/gj+DyF1+mv61YQT48nTKefc8S3H2rg6S3coSQAAAABJRU5ErkJggg==
-			"""; //$NON-NLS-1$
-	public static final String WARN = """
+			""";
+	String WARN = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAYAAAAmL5yKAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHgSURBVDhPfVJNaBNBGH07O5vNZjeJbf25NAVb
 			sBLRo0ShhypIsAqWHgpFaaEITU8VBBGlWCpevHkT0avgTfDkoRfx4MmTeJBWMEilpSRNE5tmdnf6
@@ -269,8 +269,8 @@ public class IMG {
 			dHcOC0mofI5hekQHC98hZM09j2p7hixon55esob78yv5jFFSgQg0eeWLh41tYPKCrtw4eowqhqwS
 			K/TZ07bBS7EJAQt5huHjWnyFkDW3gF+du8wUetFtSrR3/DgbPgYciTNH6V84nFOseRA/O8V9imDH
 			WRpjUvsAAAAASUVORK5CYII=
-			"""; //$NON-NLS-1$
-	public static final String WEB = """
+			""";
+	String WEB = """
 			iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 			jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAANqSURBVDhPbVNtaJxFEJ6Z3ffjLrl8nNegjbSl
 			DUZqxVSoZ5pC0FBpTat/KiL+iCApLYjpHymK/hDED4gUjCKipaEtWFK0UvyTorZpjaVFDTWt1Jha
@@ -289,8 +289,5 @@ public class IMG {
 			NHqaicYWinIg8CwVNdcp14W9Neg/wxRVIaMMe7G57gVM1l1wG0VXlN+uDVT0FeH7+DUqs1YKPhmP
 			mYFDaXu+hvvPOG9958parHP6o9VNcWs1SOEA0e+RjD8I4v1rfjx9avD13oiimgH8DQf4j5TZZjOE
 			AAAAAElFTkSuQmCC
-			"""; //$NON-NLS-1$
-
-	private IMG() {
-	}
+			""";
 }

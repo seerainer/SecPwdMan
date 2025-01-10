@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -21,83 +21,69 @@
 package io.github.seerainer.secpwdman.dialog;
 
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
-import static io.github.seerainer.secpwdman.util.SWTUtil.msgShowPasswords;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
+import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newText;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
+import static io.github.seerainer.secpwdman.widgets.Widgets.text;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.images.IMG;
+import io.github.seerainer.secpwdman.config.Icons;
+import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The Class TextDialog.
+ * The class TextDialog.
  */
-public class TextDialog {
+final class TextDialog implements Icons, StringConstants {
 
 	private final Action action;
 
-	/**
-	 * Instantiates a new text dialog.
-	 *
-	 * @param action the action
-	 */
-	public TextDialog(final Action action) {
+	TextDialog(final Action action) {
 		this.action = action;
-		open();
 	}
 
-	/**
-	 * Open.
-	 */
-	private void open() {
+	void open() {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
 		final var table = action.getTable();
 
-		if (table.getItemCount() > 0 && !cData.isCustomHeader() && !msgShowPasswords(cData, shell))
+		if (table.getItemCount() > 0 && !cData.isCustomHeader() && !msgYesNo(cData, shell, warnPass)) {
 			return;
+		}
 
 		SearchDialog.close();
 
-		final var image = getImage(shell.getDisplay(), IMG.APP_ICON);
-		final var layout = new GridLayout();
-		layout.marginHeight = 0;
-		layout.marginWidth = 0;
-
-		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE, image, layout, cData.textView);
+		final var image = getImage(shell.getDisplay(), APP_ICON);
 		final var isWriteable = !cData.isReadOnly();
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image, getLayout(),
+				isWriteable ? textView + textWarn : textView);
+
 		final var tableData = new String(action.extractData());
-		final var text = newText(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		final var text = text(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
 		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		text.setText(tableData);
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
-			final var textData = text.getText().replaceAll(System.lineSeparator(), cData.newLine);
+			final var textData = text.getText().replaceAll(System.lineSeparator(), newLine);
 
-			if (isWriteable && !isEmpty(textData) && !tableData.equals(textData)) {
+			if (isWriteable && !isBlank(textData) && !tableData.equals(textData)) {
 				action.fillTable(true, textData.getBytes());
 				cData.setModified(true);
 
 				action.colorURL();
 				action.fillGroupList();
 				action.resizeColumns();
-				action.enableItems();
-				action.setText();
+				action.updateUI();
 			}
 		}));
 
 		setCenter(dialog);
-
-		if (isWriteable)
-			dialog.setText(cData.textView + cData.textWarn);
-
 		image.dispose();
 		dialog.open();
 	}

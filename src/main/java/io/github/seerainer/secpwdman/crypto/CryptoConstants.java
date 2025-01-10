@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -18,33 +18,36 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman;
-
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+package io.github.seerainer.secpwdman.crypto;
 
 /**
- * The Class Messages.
+ * The interface CryptoConstants.
  */
-public class Messages {
+public interface CryptoConstants {
 
-	private static final String BUNDLE_NAME = "messages"; //$NON-NLS-1$
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+	int IV_LENGTH = 12;
+	int TAG_LENGTH = 128;
+	int KEY_LENGTH = 256;
+	int SALT_LENGTH = 16;
+	int OUT_LENGTH = 32;
+	int MEM_SIZE = 1024;
 
-	/**
-	 * Gets the string.
-	 *
-	 * @param key the key
-	 * @return the string
-	 */
-	public static String getString(final String key) {
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (final MissingResourceException e) {
-			return '!' + key + '!';
-		}
-	}
+	String alias = "secpwdman";
+	String messageDigest = "MessageDigest";
+	String signature = "Signature";
 
-	private Messages() {
-	}
+	String keyStore = "KeyStore";
+	String pkcs12 = "PKCS12";
+
+	String cipher = "Cipher";
+	String keyAES = "AES";
+	String keyChaCha20 = "CHACHA20";
+	String cipherAES = "AES_256/GCM/NOPADDING";
+	String cipherChaCha20 = "CHACHA20-POLY1305";
+
+	String mac = "Mac";
+	String pbkdf2 = "PBKDF2WithHmacSHA256";
+
+	String argon2id = "Argon2id";
+	String argon2d = "Argon2d";
 }

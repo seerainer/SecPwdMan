@@ -18,41 +18,25 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.util;
-
-import static org.apache.commons.validator.routines.UrlValidator.getInstance;
-
-import org.eclipse.swt.widgets.Table;
+package io.github.seerainer.secpwdman.crypto;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The class URLUtil.
+ * The class CryptoFactory.
  */
-public final class URLUtil implements StringConstants {
+public final class CryptoFactory implements CryptoConstants {
 
 	/**
-	 * Checks if is url.
+	 * Instantiates a new crypto.
 	 *
-	 * @param cData the cData
-	 * @param table the table
-	 * @return true, if is url
+	 * @param cData the cdata
 	 */
-	public static boolean isUrl(final ConfigData cData, final Table table) {
-		return isUrl(table.getSelection()[0].getText(cData.getColumnMap().get(csvHeader[3]).intValue()));
+	public static CryptoContext crypto(final ConfigData cData) {
+		return new CryptoContext(
+				keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData) : new ChaCha20EncryptionStrategy(cData));
 	}
 
-	/**
-	 * Checks if is url.
-	 *
-	 * @param url the string url
-	 * @return true, if is url
-	 */
-	public static boolean isUrl(final String url) {
-		return getInstance().isValid(url);
-	}
-
-	private URLUtil() {
+	private CryptoFactory() {
 	}
 }

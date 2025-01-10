@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -21,109 +21,141 @@
 package io.github.seerainer.secpwdman.util;
 
 import java.io.File;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
- * The Class Util.
+ * The class Util.
  */
-public class Util {
-
-//	public static final boolean WIN32 = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$
+public final class Util {
 
 	/**
-	 * Clear byte[].
+	 * Clear byte array.
 	 *
-	 * @param b the byte[]
+	 * @param bytes the byte array
 	 */
-	public static void clear(final byte[] b) {
-		Arrays.fill(b, (byte) 0);
+	public static void clear(final byte[] bytes) {
+		if (bytes != null) {
+			Arrays.fill(bytes, (byte) 0);
+		}
 	}
 
 	/**
-	 * Clear char[].
+	 * Clear char array.
 	 *
-	 * @param b the byte[]
+	 * @param chars the char array
 	 */
-	public static void clear(final char[] c) {
-		Arrays.fill(c, Character.MIN_VALUE);
+	public static void clear(final char[] chars) {
+		if (chars != null) {
+			Arrays.fill(chars, Character.MIN_VALUE);
+		}
 	}
 
 	/**
 	 * Get the absolute pathname.
 	 *
-	 * @param f the string f
+	 * @param file the string file
 	 * @return absolutePath
 	 */
-	public static String getFilePath(final String f) {
-		return new File(f).getAbsolutePath();
+	public static String getFilePath(final String file) {
+		return new File(file).getAbsolutePath();
 	}
 
 	/**
-	 * Get a new secure random instance strong.
+	 * Get random UUID in upper case.
 	 *
-	 * @return InstanceStrong
-	 * @throws NoSuchAlgorithmException
+	 * @return randomUUID
 	 */
-	public static SecureRandom getSecureRandom() {
-		try {
-			return SecureRandom.getInstanceStrong();
-		} catch (final NoSuchAlgorithmException e) {
-			return new SecureRandom();
-		}
+	public static String getUUID() {
+		return UUID.randomUUID().toString().toUpperCase();
 	}
 
 	/**
-	 * Checks if is empty string.
+	 * Checks if string is blank.
 	 *
-	 * @param s the string s
-	 * @return true, if is empty string
+	 * @param s the string
+	 * @return true, if string is blank
 	 */
-	public static boolean isEmpty(final String s) {
+	public static boolean isBlank(final String s) {
 		return s == null || s.isBlank();
 	}
 
 	/**
-	 * Checks if array is equal.
+	 * Checks if two char arrays are equal.
 	 *
-	 * @param a the first object a
-	 * @param b the second object b
-	 * @return true, if equal
+	 * @param a the first char array
+	 * @param b the second char array
+	 * @return true if the arrays are equal, false otherwise
+	 */
+	public static boolean isEqual(final char[] a, final char[] b) {
+		return Arrays.equals(a, b);
+	}
+
+	/**
+	 * Checks if two object arrays are equal.
+	 *
+	 * @param a the first object array
+	 * @param b the second object array
+	 * @return true if the arrays are equal, false otherwise
 	 */
 	public static boolean isEqual(final Object[] a, final Object[] b) {
 		return Arrays.equals(a, b);
 	}
 
 	/**
-	 * Checks if file is open.
+	 * Checks if a file is not empty and readable.
 	 *
-	 * @param f the string f
-	 * @return true, if is file open
+	 * @param filePath the file path
+	 * @return true if the file is ready, false otherwise
 	 */
-	public static boolean isFileOpen(final String f) {
-		return !isEmpty(f) && isReadable(f);
+	public static boolean isFileReady(final String filePath) {
+		return !isBlank(filePath) && isReadable(filePath);
 	}
 
 	/**
-	 * Checks if file is readable.
+	 * Checks if a file is readable.
 	 *
-	 * @param f the string f
-	 * @return true, if is readable
+	 * @param filePath the file path
+	 * @return true if the file is readable, false otherwise
 	 */
-	public static boolean isReadable(final String f) {
-		final var file = new File(f);
+	public static boolean isReadable(final String filePath) {
+		final var file = new File(filePath);
 		return (file.exists() && file.canRead() && file.canWrite() && file.isFile());
 	}
 
 	/**
-	 * Get Integer value of int.
+	 * Converts a char array to a byte array using UTF-8 encoding.
 	 *
-	 * @param i the int i
-	 * @return Integer
+	 * @param chars the char array
+	 * @return the byte array
 	 */
-	public static Integer valueOf(final int i) {
-		return Integer.valueOf(i);
+	public static byte[] toBytes(final char[] chars) {
+		final var charBuffer = CharBuffer.wrap(chars);
+		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+		final var bytes = new byte[byteBuffer.remaining()];
+		byteBuffer.get(bytes);
+		clear(charBuffer.array());
+		clear(byteBuffer.array());
+		return bytes;
+	}
+
+	/**
+	 * Converts a byte array to a char array using UTF-8 encoding.
+	 *
+	 * @param bytes the byte array
+	 * @return the char array
+	 */
+	public static char[] toChars(final byte[] bytes) {
+		final var byteBuffer = ByteBuffer.wrap(bytes);
+		final var charBuffer = StandardCharsets.UTF_8.decode(byteBuffer);
+		final var chars = new char[byteBuffer.remaining()];
+		charBuffer.get(chars);
+		clear(charBuffer.array());
+		clear(byteBuffer.array());
+		return chars;
 	}
 
 	private Util() {

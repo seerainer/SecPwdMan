@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -28,18 +28,21 @@ import java.util.Base64;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import io.github.seerainer.secpwdman.config.ConfData;
+import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The Class SWTUtil.
+ * The class SWTUtil.
  */
-public class SWTUtil {
+public final class SWTUtil implements StringConstants {
 
 	public static final boolean DARK = Display.isSystemDarkTheme();
-	public static final boolean WIN32 = "win32".equals(SWT.getPlatform()); //$NON-NLS-1$
+	public static final boolean WIN32 = "win32".equals(SWT.getPlatform());
 
 	/**
 	 * Gets the image.
@@ -49,20 +52,68 @@ public class SWTUtil {
 	 * @return the image
 	 */
 	public static Image getImage(final Display display, final String image) {
-		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image)));
+		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image.getBytes())));
 		img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
 		return img;
 	}
 
 	/**
-	 * Asks to show passwords in cleartext.
+	 * Gets the default layout.
+	 *
+	 * @return GridLayout
+	 */
+	public static GridLayout getLayout() {
+		final var layout = new GridLayout();
+		layout.horizontalSpacing = 0;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		layout.verticalSpacing = 0;
+		return layout;
+	}
+
+	/**
+	 * Gets the layout.
+	 *
+	 * @param numColumns   the num columns
+	 * @param hSpacing     the h spacing
+	 * @param vSpacing     the v spacing
+	 * @param marginBottom the margin bottom
+	 * @param marginLeft   the margin left
+	 * @param marginRight  the margin right
+	 * @param marginTop    the margin top
+	 * @return GridLayout the layout
+	 */
+	public static GridLayout getLayout(final int numColumns, final int hSpacing, final int vSpacing, final int marginBottom,
+			final int marginLeft, final int marginRight, final int marginTop) {
+		final var layout = new GridLayout(numColumns, false);
+		layout.horizontalSpacing = hSpacing;
+		layout.marginBottom = marginBottom;
+		layout.marginLeft = marginLeft;
+		layout.marginRight = marginRight;
+		layout.marginTop = marginTop;
+		layout.verticalSpacing = vSpacing;
+		return layout;
+	}
+
+	/**
+	 * Returns the preferred size of the shell.
+	 *
+	 * @param control the shell
+	 * @return Point
+	 */
+	public static Point getPrefSize(final Control control) {
+		return control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+	}
+
+	/**
+	 * Asks yes or no.
 	 *
 	 * @param cData the cData
 	 * @param shell the shell
 	 * @return true, if is yes
 	 */
-	public static boolean msgShowPasswords(final ConfData cData, final Shell shell) {
-		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, cData.titleWar, cData.warnPass) == SWT.YES;
+	public static boolean msgYesNo(final ConfigData cData, final Shell shell, final String txt) {
+		return msg(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO, titleWar, txt) == SWT.YES;
 	}
 
 	/**

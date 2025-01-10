@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -23,20 +23,26 @@ package io.github.seerainer.secpwdman.action;
 import static io.github.seerainer.secpwdman.util.URLUtil.isUrl;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.getFilePath;
-import static io.github.seerainer.secpwdman.util.Util.getSecureRandom;
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static io.github.seerainer.secpwdman.util.Util.isEqual;
-import static io.github.seerainer.secpwdman.util.Util.isFileOpen;
-import static io.github.seerainer.secpwdman.util.Util.valueOf;
+import static io.github.seerainer.secpwdman.util.Util.isFileReady;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
+import static java.lang.Integer.valueOf;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SealedObject;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -50,85 +56,66 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.ToolBar;
+import org.slf4j.Logger;
 
 import com.github.skjolber.stcsv.CsvReader;
 import com.github.skjolber.stcsv.sa.StringArrayCsvReader;
 import com.password4j.SecureString;
 
-import io.github.seerainer.secpwdman.config.ConfData;
-import io.github.seerainer.secpwdman.crypto.Crypto;
+import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
+import io.github.seerainer.secpwdman.config.StringConstants;
+import io.github.seerainer.secpwdman.crypto.CryptoConstants;
+import io.github.seerainer.secpwdman.crypto.CryptoUtil;
+import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The abstract class Action.
  */
-public abstract class Action {
+public abstract class Action implements CryptoConstants, PrimitiveConstants, StringConstants {
 
-	final ConfData cData;
+	private static final Logger LOG = LogFactory.getLog();
+
+	final ConfigData cData;
 	final Shell shell;
 	final Table table;
 
-	/**
-	 * Instantiates a new action.
-	 *
-	 * @param cData the cdata
-	 * @param shell the shell
-	 * @param table the table
-	 */
-	Action(final ConfData cData, final Shell shell, final Table table) {
+	Action(final ConfigData cData, final Shell shell, final Table table) {
 		this.cData = cData;
 		this.shell = shell;
 		this.table = table;
 	}
 
 	/**
-	 * Convert string array to string.
-	 *
-	 * @param s the string
-	 * @return absolutePath
-	 */
-	private String arrayToString(final String[] s) {
-		final var str = Arrays.toString(s).replace(cData.comma + cData.space, cData.comma);
-		return str.substring(1, str.length() - 1);
-	}
-
-	/**
-	 * Clear clipboard.
+	 * Clears the clipboard.
 	 */
 	public void clearClipboard() {
 		final var cb = new Clipboard(shell.getDisplay());
-		cb.setContents(new Object[] { cData.nullStr }, new Transfer[] { TextTransfer.getInstance() });
+		cb.setContents(new Object[] { nullStr }, new Transfer[] { TextTransfer.getInstance() });
 		cb.clearContents();
 		cb.dispose();
 	}
 
 	/**
-	 * Color URL.
+	 * Colors the URL.
 	 */
 	public void colorURL() {
-		if (cData.isCustomHeader())
+		if (cData.isCustomHeader()) {
 			return;
-
-		final var index = cData.getColumnMap().get(cData.csvHeader[3]).intValue();
+		}
+		final var index = cData.getColumnMap().get(csvHeader[3]).intValue();
 
 		for (final var item : table.getItems()) {
-			item.setForeground(index, cData.getTextColor());
-
-			if (isUrl(item.getText(index)))
-				item.setForeground(index, cData.getLinkColor());
+			item.setForeground(index, isUrl(item.getText(index)) ? cData.getLinkColor() : cData.getTextColor());
 		}
 	}
 
-	/**
-	 * Creates the columns.
-	 *
-	 * @param header the header
-	 */
 	private void createColumns(final String[] header) {
 		table.removeAll();
 
-		while (table.getColumnCount() > 0)
+		while (table.getColumnCount() > 0) {
 			table.getColumns()[0].dispose();
-
+		}
 		for (final var head : header) {
 			final var col = new TableColumn(table, SWT.NONE);
 			col.addSelectionListener(widgetSelectedAdapter(this::sortTable));
@@ -139,87 +126,50 @@ public abstract class Action {
 	}
 
 	/**
-	 * Internal de/encryption for the group list.
+	 * Internal encryption for the group list.
 	 *
-	 * @param data    the data
-	 * @param encrypt true if encrypt
-	 * @return byte[]
+	 * @param tableData the data
+	 * @return SealedObject
 	 */
-	public byte[] cryptData(final byte[] data, final boolean encrypt) {
-		if (data == null)
+	public SealedObject cryptData(final byte[] tableData) {
+		if (tableData == null) {
+			LOG.warn("Data is null");
 			return null;
-
-		final var oldArgo = cData.isArgon2id();
-		final var oldIter = cData.getPBKDFIter();
-		cData.setArgon2id(false);
-		cData.setPBKDFIter(ConfData.ITERATIONS);
-
-		byte[] bytes = null;
-
-		try {
-			if (encrypt) {
-				final var random = getSecureRandom();
-				final var pwd = new byte[random.nextInt(ConfData.OUT_LENGTH) + ConfData.OUT_LENGTH];
-				random.nextBytes(pwd);
-				bytes = new Crypto(cData).encrypt(data, pwd);
-				cData.setKey(pwd);
-				clear(data);
-			} else
-				bytes = new Crypto(cData).decrypt(data, cData.getKey());
-		} catch (final Exception e) {
-			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
 		}
-
-		cData.setArgon2id(oldArgo);
-		cData.setPBKDFIter(oldIter);
-
-		return bytes;
+		try {
+			cData.setDataKey(CryptoUtil.generateSecretKey(keyAES).getEncoded());
+			return CryptoUtil.generateSealedObject(tableData, cData.getDataKey(), cipherAES, keyAES);
+		} catch (InvalidKeyException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException
+				| IOException e) {
+			LOG.error(e.fillInStackTrace().toString());
+			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+			return null;
+		}
 	}
 
-	/**
-	 * Creates a custom header.
-	 *
-	 * @param header the header
-	 */
 	private void customHeader(final String[] header) {
-		final var csvHeader = cData.csvHeader;
-		final var newHeader = Arrays.copyOfRange(header, 0, header.length);
-		final var map = new HashMap<String, Integer>();
-
-		for (var i = 0; i < header.length; i++)
-			if (header[i].equalsIgnoreCase(csvHeader[0])) {
-				map.put(csvHeader[0], valueOf(i));
-				newHeader[i] = cData.tableHeader[0];
-			} else if (header[i].equalsIgnoreCase(csvHeader[1])) {
-				map.put(csvHeader[1], valueOf(i));
-				newHeader[i] = cData.tableHeader[1];
-			} else if (header[i].equalsIgnoreCase(csvHeader[2])) {
-				map.put(csvHeader[2], valueOf(i));
-				newHeader[i] = cData.tableHeader[2];
-			} else if (header[i].equalsIgnoreCase(csvHeader[3])) {
-				map.put(csvHeader[3], valueOf(i));
-				newHeader[i] = cData.tableHeader[3];
-			} else if (header[i].equalsIgnoreCase(csvHeader[4])) {
-				map.put(csvHeader[4], valueOf(i));
-				newHeader[i] = cData.tableHeader[4];
-			} else if (header[i].equalsIgnoreCase(csvHeader[5])) {
-				map.put(csvHeader[5], valueOf(i));
-				newHeader[i] = cData.tableHeader[5];
-			} else if (header[i].equalsIgnoreCase(csvHeader[6])) {
-				map.put(csvHeader[6], valueOf(i));
-				newHeader[i] = cData.tableHeader[6];
+		final var newHeader = Arrays.copyOf(header, header.length);
+		final var map = new HashMap<String, Integer>(header.length);
+		for (var i = 0; i < header.length; i++) {
+			for (var j = 0; j < csvHeader.length; j++) {
+				if (header[i].equalsIgnoreCase(csvHeader[j])) {
+					map.put(csvHeader[j], valueOf(i));
+					newHeader[i] = tableHeader[j];
+					break;
+				}
 			}
-
+		}
 		cData.setColumnMap(map);
-		cData.setHeader(arrayToString(header));
+		cData.setHeader(headerArrayToString(header));
 
-		for (final var key : csvHeader)
+		for (final var key : csvHeader) {
 			if (!map.containsKey(key)) {
 				cData.setCustomHeader(true);
 				createColumns(header);
+				LOG.warn("Custom header created");
 				return;
 			}
-
+		}
 		cData.setCustomHeader(false);
 		createColumns(newHeader);
 		hideColumns();
@@ -229,21 +179,19 @@ public abstract class Action {
 	 * Creates the default header.
 	 */
 	public void defaultHeader() {
-		final var csvHeader = cData.csvHeader;
-		final var map = new HashMap<String, Integer>();
-
-		for (var i = 0; i < csvHeader.length; i++)
+		final var map = new HashMap<String, Integer>(csvHeader.length);
+		for (var i = 0; i < csvHeader.length; i++) {
 			map.put(csvHeader[i], valueOf(i));
-
+		}
 		cData.setColumnMap(map);
 		cData.setCustomHeader(false);
-		cData.setHeader(arrayToString(csvHeader));
-		createColumns(cData.tableHeader);
+		cData.setHeader(headerArrayToString(csvHeader));
+		createColumns(tableHeader);
 		hideColumns();
 	}
 
 	/**
-	 * Enable menu items.
+	 * Disables menu and toolbar items.
 	 */
 	public void enableItems() {
 		final var menu = shell.getMenuBar();
@@ -251,39 +199,45 @@ public abstract class Action {
 		final var edit = menu.getItem(1).getMenu();
 		final var find = menu.getItem(2).getMenu();
 		final var view = menu.getItem(3).getMenu();
-		final var isFileOpen = isFileOpen(cData.getFile());
-		final var isModified = cData.isModified();
 		final var isDefaultHeader = !cData.isCustomHeader();
+		final var isFileOpen = isFileReady(cData.getFile());
+		final var isModified = cData.isModified();
+		final var isShowPass = cData.isShowPassword();
 		final var isUnlocked = !cData.isLocked();
 		final var isWriteable = !cData.isReadOnly();
 		final var itemCount = table.getItemCount();
 		final var selectionCount = table.getSelectionCount();
+
 		file.getItem(1).setEnabled(!isFileOpen);
-		file.getItem(2).setEnabled(itemCount > 0 && isModified);
-		file.getItem(4).setEnabled(isFileOpen && !isModified && isDefaultHeader);
-		file.getItem(6).setEnabled(!isFileOpen);
-		file.getItem(7).setEnabled(itemCount > 0);
+		file.getItem(2).setEnabled(itemCount > 0 && isWriteable);
+		file.getItem(4).setEnabled(isFileOpen && !isModified && isUnlocked && isWriteable);
+		file.getItem(6).setEnabled(isFileOpen && !isModified && isDefaultHeader);
+		file.getItem(8).setEnabled(!isFileOpen);
+		file.getItem(9).setEnabled(itemCount > 0 && isShowPass);
+
 		edit.getItem(0).setEnabled(isUnlocked && isWriteable && isDefaultHeader);
 		edit.getItem(1).setEnabled(selectionCount == 1 && isDefaultHeader);
-		edit.getItem(3).setEnabled(itemCount > 0 && isWriteable);
+		edit.getItem(3).setEnabled(itemCount > 0);
 		edit.getItem(4).setEnabled(selectionCount > 0 && isWriteable);
 		edit.getItem(6).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(7).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(8).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(9).setEnabled(selectionCount == 1 && isDefaultHeader);
 		edit.getItem(11).setEnabled(selectionCount == 1 && isDefaultHeader && isUrl(cData, table));
+
 		find.getItem(0).setEnabled(itemCount > 1);
+
 		view.getItem(0).setEnabled(isFileOpen && isUnlocked && !isModified && isDefaultHeader);
 		view.getItem(0).setSelection(cData.isReadOnly());
 		view.getItem(2).setEnabled(isDefaultHeader);
-		view.getItem(6).setEnabled(view.getItem(7).getSelection() && isDefaultHeader);
+		view.getItem(6).setEnabled(view.getItem(7).getSelection() && isDefaultHeader && isShowPass);
 		view.getItem(7).setEnabled(view.getItem(6).getSelection() && isDefaultHeader);
-		view.getItem(11).setEnabled(isUnlocked);
+		view.getItem(11).setEnabled(isUnlocked && isShowPass);
 
 		final var toolBar = getToolBar();
 		toolBar.getItem(0).setEnabled(file.getItem(1).getEnabled());
 		toolBar.getItem(1).setEnabled(file.getItem(2).getEnabled());
-		toolBar.getItem(3).setEnabled(file.getItem(4).getEnabled());
+		toolBar.getItem(3).setEnabled(file.getItem(6).getEnabled());
 		toolBar.getItem(5).setEnabled(edit.getItem(0).getEnabled());
 		toolBar.getItem(6).setEnabled(edit.getItem(1).getEnabled());
 		toolBar.getItem(8).setEnabled(find.getItem(0).getEnabled());
@@ -294,149 +248,133 @@ public abstract class Action {
 		toolBar.getItem(15).setEnabled(edit.getItem(11).getEnabled());
 	}
 
-	/**
-	 * Escape special character.
-	 *
-	 * @param s the string
-	 * @return the string
-	 */
 	private SecureString escapeSpecialChar(final String s) {
-		if (s == null)
+		if (s == null) {
+			LOG.warn("String is null");
 			return new SecureString(new char[0]);
-
-		final var ascii = s.codePoints().allMatch(c -> c < ConfData.GCM_TAG_LENGTH);
-		final var newLine = s.contains(cData.newLine);
-		final var doubleQ = s.contains(cData.doubleQ);
-		final var space = s.contains(cData.space);
-		final var apost = s.contains(cData.apost);
-		final var comma = s.contains(cData.comma);
-		final var grave = s.contains(cData.grave);
-		var escapedData = new SecureString(s.replaceAll(cData.lineBrk, cData.space).toCharArray());
-
-		if (newLine || doubleQ || space || apost || comma || grave || !ascii) {
-			final var str = s.replace(cData.doubleQ, cData.doubleQ + cData.doubleQ);
-			escapedData = new SecureString((cData.doubleQ + str + cData.doubleQ).toCharArray());
 		}
 
-		return escapedData;
+		final var asciiLength = 127;
+		//@formatter:off
+		final var hasSpecialChar = s.codePoints().anyMatch(c -> c > asciiLength)
+								|| s.contains(quote)
+								|| s.contains(comma)
+								|| s.contains(newLine)
+								|| s.contains(space)
+								|| s.contains(String.valueOf(cData.getDivider()));
+		//@formatter:on
+		return new SecureString(hasSpecialChar ? (quote + s.replace(quote, quote + quote) + quote).toCharArray()
+				: s.replaceAll(lineBrk, space).toCharArray());
 	}
 
 	/**
-	 * Extract data from table.
+	 * Extracts all data from the table.
 	 *
 	 * @return the byte[]
 	 */
 	public byte[] extractData() {
-		final var sb = new StringBuilder();
-		sb.append(cData.getHeader() + cData.newLine);
+		final var csvDivider = String.valueOf(cData.getDivider());
+		final var sb = new StringBuilder(table.getItemCount() * OUT_LENGTH); // preallocate size
+		sb.append(cData.getHeader()).append(newLine);
 
 		for (final var item : table.getItems()) {
 			final var itemText = new SecureString[table.getColumnCount()];
-
-			for (var i = 0; i < itemText.length; i++)
+			for (var i = 0; i < itemText.length; i++) {
 				itemText[i] = escapeSpecialChar(item.getText(i));
+			}
 
 			final var line = new StringBuilder();
-
-			for (var j = 0; j < itemText.length - 1; j++)
-				line.append(itemText[j]).append(cData.comma);
-
-			line.append(itemText[itemText.length - 1]).append(cData.newLine);
-			sb.append(line.toString());
+			for (var j = 0; j < itemText.length; j++) {
+				if (j > 0) {
+					line.append(csvDivider);
+				}
+				line.append(itemText[j]);
+			}
+			sb.append(line).append(newLine);
 		}
 
 		return sb.toString().getBytes();
 	}
 
 	/**
-	 * Fill group list.
+	 * Fills the group list.
 	 */
 	public void fillGroupList() {
 		final var list = getList();
-
-		if (list.isVisible() && !cData.isCustomHeader()) {
-			final var set = new HashSet<String>();
-			final var index = cData.getColumnMap().get(cData.csvHeader[1]).intValue();
-
-			for (final var item : table.getItems())
-				set.add(item.getText(index));
-
-			list.setRedraw(false);
-			list.removeAll();
-			list.add(cData.listFirs);
-
-			for (final var text : set)
-				if (!isEmpty(text))
-					list.add(text);
-
-			list.setRedraw(true);
+		if (!list.isVisible() || cData.isCustomHeader()) {
+			return;
 		}
+		final var set = new HashSet<String>(table.getItemCount());
+		final var index = cData.getColumnMap().get(csvHeader[1]).intValue();
+
+		for (final var item : table.getItems()) {
+			set.add(item.getText(index));
+		}
+		list.setRedraw(false);
+		list.removeAll();
+		list.add(listFirs);
+		set.stream().filter((final var text) -> !isBlank(text)).forEach(list::add);
+		list.setSelection(0);
+		list.setRedraw(true);
 	}
 
 	/**
-	 * Fill table.
+	 * Fills the table.
 	 *
 	 * @param newHeader true if new header
-	 * @param data      the data
-	 * @throws Exception
+	 * @param tableData the data
 	 */
-	public void fillTable(final boolean newHeader, final byte[] data) {
-		final var reader = new InputStreamReader(new ByteArrayInputStream(data));
-		final var length = cData.getBufferLength() * ConfData.MEM_SIZE;
+	public void fillTable(final boolean newHeader, final byte[] tableData) {
+		final var reader = new InputStreamReader(new ByteArrayInputStream(tableData));
+		final var length = cData.getBufferLength() * MEM_SIZE;
+		final var csvDivider = cData.getDivider();
 		final var builder = StringArrayCsvReader.builder().bufferLength(length);
-
+		if (!comma.equals(String.valueOf(csvDivider))) {
+			LOG.warn("Divider is not a comma");
+			// TODO: Add support for escape character and quote character
+			// Identical escape and quote character not supported
+			builder.divider(csvDivider).escapeCharacter(newLine.charAt(0)).quoteCharacter(quote.charAt(0));
+		}
 		table.setRedraw(false);
 		table.setSortColumn(null);
 		table.removeAll();
-
 		try (final var iterator = builder.build(reader)) {
 			final var header = iterator.next();
-
 			if (newHeader) {
-				if (isEqual(header, cData.csvHeader))
+				if (isEqual(header, csvHeader)) {
 					defaultHeader();
-				else
+				} else {
 					customHeader(header);
-
+				}
 				fillTable(iterator, null);
-				cData.setData(cryptData(data, true));
+				cData.setSealedData(cryptData(tableData));
 			} else {
 				final var list = getList();
 				final var listSelection = list.getItem(list.getSelectionIndex());
-
-				if (listSelection.equals(cData.listFirs))
-					fillTable(iterator, null);
-				else
-					fillTable(iterator, listSelection);
+				fillTable(iterator, listSelection.equals(listFirs) ? null : listSelection);
 			}
 		} catch (final Exception e) {
-			msg(shell, SWT.ICON_ERROR | SWT.OK, cData.titleErr, e.fillInStackTrace().toString());
+			LOG.error(e.fillInStackTrace().toString());
+			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 		}
-
-		clear(data);
+		clear(tableData);
 		colorURL();
-		resizeColumns();
 		table.setRedraw(true);
+		resizeColumns();
 		table.redraw();
 	}
 
-	/**
-	 * Fill table.
-	 *
-	 * @param iterator  the iterator
-	 * @param selection the list selection
-	 * @throws Exception
-	 */
 	private void fillTable(final CsvReader<String[]> iterator, final String selection) throws Exception {
-		do {
+		while (true) {
 			final var txt = iterator.next();
-
-			if (txt == null)
+			if (txt == null) {
 				break;
-
-			if (selection == null || selection.equals(txt[1]))
-				new TableItem(table, SWT.NONE).setText(txt);
-		} while (true);
+			}
+			if (selection == null || selection.equals(txt[1])) {
+				final var ti = new TableItem(table, SWT.NONE);
+				ti.setText(txt);
+			}
+		}
 	}
 
 	/**
@@ -444,14 +382,14 @@ public abstract class Action {
 	 *
 	 * @return the cdata
 	 */
-	public ConfData getCData() {
+	public ConfigData getCData() {
 		return cData;
 	}
 
 	/**
-	 * Gets the shell.
+	 * Gets the list.
 	 *
-	 * @return the shell
+	 * @return the list
 	 */
 	public List getList() {
 		return (List) ((SashForm) shell.getChildren()[1]).getChildren()[0];
@@ -475,55 +413,52 @@ public abstract class Action {
 		return table;
 	}
 
-	/**
-	 * Gets the table.
-	 *
-	 * @return the table
-	 */
 	ToolBar getToolBar() {
 		return (ToolBar) shell.getChildren()[0];
 	}
 
-	/**
-	 * Hide uuid, group and password column.
-	 */
+	private String headerArrayToString(final String[] s) {
+		final var str = Arrays.toString(s).replace(comma + space, String.valueOf(cData.getDivider()));
+		return str.substring(1, str.length() - 1);
+	}
+
 	private void hideColumns() {
 		final var map = cData.getColumnMap();
-		final var uuid = table.getColumn(map.get(cData.csvHeader[0]).intValue());
-		final var group = table.getColumn(map.get(cData.csvHeader[1]).intValue());
+		final var uuid = table.getColumn(map.get(csvHeader[0]).intValue());
+		final var group = table.getColumn(map.get(csvHeader[1]).intValue());
 		uuid.setResizable(false);
 		uuid.setWidth(0);
 		group.setResizable(false);
 		group.setWidth(0);
-
 		hidePasswordColumn();
 	}
 
 	/**
-	 * Hide password column.
+	 * Hides the password column.
 	 */
-	void hidePasswordColumn() {
-		final var map = cData.getColumnMap();
-		final var pwdIndex = map.get(cData.csvHeader[5]).intValue();
-		final var pwdCol = table.getColumn(pwdIndex);
-
-		if (pwdCol.getResizable()) {
-			pwdCol.setWidth(0);
-			pwdCol.setResizable(false);
-			final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
-			viewMenu.getItem(6).setSelection(false);
-			viewMenu.getItem(7).setSelection(true);
-			final var titleIndex = map.get(cData.csvHeader[2]).intValue();
-			table.getColumn(titleIndex).setText(cData.tableHeader[2]);
+	public void hidePasswordColumn() {
+		if (cData.isCustomHeader()) {
+			return;
 		}
+		final var map = cData.getColumnMap();
+		final var passwordIndex = map.get(csvHeader[5]).intValue();
+		final var passwordColumn = table.getColumn(passwordIndex);
+		if (!passwordColumn.getResizable()) {
+			return;
+		}
+		passwordColumn.setWidth(0);
+		passwordColumn.setResizable(false);
+		final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
+		viewMenu.getItem(6).setSelection(false);
+		viewMenu.getItem(7).setSelection(true);
+		table.getColumn(map.get(csvHeader[2]).intValue()).setText(tableHeader[2]);
 	}
 
 	/**
-	 * Reset group list.
+	 * Resets the group list.
 	 */
 	public void resetGroupList() {
 		final var list = getList();
-
 		if (list.isVisible() && list.getSelectionIndex() > 0) {
 			list.setSelection(0);
 			setGroupSelection();
@@ -531,137 +466,118 @@ public abstract class Action {
 	}
 
 	/**
-	 * Resize columns.
+	 * Resizes the columns.
 	 */
 	public void resizeColumns() {
+		final var resize = shell.getMenuBar().getItem(3).getMenu().getItem(4).getSelection();
+		cData.setResizeCol(resize);
+
 		table.setRedraw(false);
-
-		for (final var col : table.getColumns())
-			if (col.getResizable())
-				if (shell.getMenuBar().getItem(3).getMenu().getItem(4).getSelection())
-					col.pack();
-				else
-					col.setWidth(cData.getColumnWidth());
-
+		for (final var column : table.getColumns()) {
+			if (column.getResizable()) {
+				if (resize) {
+					column.pack();
+				} else {
+					column.setWidth(cData.getColumnWidth());
+				}
+			}
+		}
 		table.setRedraw(true);
 	}
 
 	/**
-	 * Fill table with selected group.
+	 * Fills the table with the selected group.
 	 */
 	public void setGroupSelection() {
 		final var index = getList().getSelectionIndex();
-
-		if (index < 0)
+		if (index < 0) {
 			return;
-
-		var data = cryptData(cData.getData(), false);
-
-		if (data == null)
-			data = extractData();
-
-		fillTable(false, data);
-		data = null;
+		}
+		final var sealedData = cData.getSealedData();
+		final var dataKey = cData.getDataKey();
+		byte[] tableData = null;
+		if (sealedData != null && dataKey != null) {
+			try {
+				tableData = ((String) sealedData.getObject(CryptoUtil.getSecretKey(dataKey, keyAES))).getBytes();
+			} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
+				LOG.error(e.fillInStackTrace().toString());
+				msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+			}
+		}
+		fillTable(false, tableData == null ? extractData() : tableData);
+		tableData = null;
 	}
 
-	/**
-	 * Sets the menu, shell and toolbar text.
-	 */
-	public void setText() {
+	private void setText() {
 		final var file = cData.getFile();
-
-		if (isFileOpen(file)) {
+		final var name = APP_NAME;
+		var shellTitle = name;
+		if (isFileReady(file)) {
 			final var filePath = getFilePath(file);
-
-			if (cData.isModified())
-				shell.setText(ConfData.APP_NAME + cData.titleMD + filePath);
-			else
-				shell.setText(ConfData.APP_NAME + cData.titlePH + filePath);
-		} else
-			shell.setText(ConfData.APP_NAME);
+			shellTitle = cData.isModified() ? name + titleMD + filePath : name + titlePH + filePath;
+		}
+		shell.setText(shellTitle);
 
 		final var menu = shell.getMenuBar();
 		final var tool = getToolBar();
-		final var lockMenu = menu.getItem(0).getMenu().getItem(4);
-		final var lockTool = tool.getItem(3);
+		final var lockText = cData.isLocked() ? menuUnlo : menuLock;
+		menu.getItem(0).getMenu().getItem(6).setText(lockText);
+		tool.getItem(3).setToolTipText(lockText);
 
-		if (cData.isLocked()) {
-			lockMenu.setText(cData.menuUnlo);
-			lockTool.setToolTipText(cData.menuUnlo);
-		} else {
-			lockMenu.setText(cData.menuLock);
-			lockTool.setToolTipText(cData.menuLock);
-		}
-
-		final var readCont = table.getMenu().getItem(8);
-		final var readMenu = menu.getItem(1).getMenu().getItem(1);
-		final var readTool = tool.getItem(6);
-
-		if (cData.isReadOnly()) {
-			readCont.setText(cData.menuVent);
-			readMenu.setText(cData.menuVent);
-			readTool.setToolTipText(cData.entrView);
-		} else {
-			readCont.setText(cData.menuEent);
-			readMenu.setText(cData.menuEent);
-			readTool.setToolTipText(cData.entrEdit);
-		}
+		final var readOnly = cData.isReadOnly();
+		final var readOnlyText = readOnly ? menuVent : menuEent;
+		table.getMenu().getItem(8).setText(readOnlyText);
+		menu.getItem(1).getMenu().getItem(1).setText(readOnlyText);
+		tool.getItem(6).setToolTipText(readOnly ? entrView : entrEdit);
 	}
 
-	/**
-	 * Sort table.
-	 *
-	 * @param e the SelectionEvent
-	 */
 	private void sortTable(final SelectionEvent e) {
-		if (table.getItemCount() < 2)
+		if (table.getItemCount() < 2) {
 			return;
-
-		final var sortColumn = table.getSortColumn();
+		}
+		final var startTime = System.currentTimeMillis();
 		final var selectedColumn = (TableColumn) e.widget;
 		var dir = table.getSortDirection();
-
-		if (sortColumn == selectedColumn)
-			dir = dir == SWT.UP ? SWT.DOWN : SWT.UP;
-		else {
+		if (table.getSortColumn() == selectedColumn) {
+			dir = (dir == SWT.UP) ? SWT.DOWN : SWT.UP;
+		} else {
 			table.setSortColumn(selectedColumn);
 			dir = SWT.UP;
 		}
-
-		final var count = table.getColumnCount();
-		var index = 0;
-
-		for (; index < count; index++)
-			if (selectedColumn.equals(table.getColumn(index)))
-				break;
-
+		final var finalDir = dir; // Make dir effectively final
+		final var index = Arrays.asList(table.getColumns()).indexOf(selectedColumn);
 		final var collator = Collator.getInstance();
-		var items = table.getItems();
+		final var items = table.getItems();
 
-		for (var i = 1; i < items.length; i++)
-			for (var j = 0; j < i; j++) {
-				final var value1 = items[i].getText(index);
-				final var value2 = items[j].getText(index);
-				final var up = collator.compare(value1, value2) < 0 && dir == SWT.UP;
-				final var down = collator.compare(value1, value2) > 0 && dir == SWT.DOWN;
+		Arrays.sort(items, (item1, item2) -> {
+			final var value1 = item1.getText(index);
+			final var value2 = item2.getText(index);
+			return finalDir == SWT.UP ? collator.compare(value1, value2) : collator.compare(value2, value1);
+		});
 
-				if (up || down) {
-					final var values = new String[count];
-
-					for (var k = 0; k < count; k++)
-						values[k] = items[i].getText(k);
-
-					items[i].dispose();
-					new TableItem(table, SWT.NONE, j).setText(values);
-					items = table.getItems();
-					break;
-				}
+		table.setRedraw(false);
+		final var values = new String[table.getColumnCount()];
+		for (var i = 0; i < items.length; i++) {
+			final var item = items[i];
+			for (var j = 0; j < values.length; j++) {
+				values[j] = item.getText(j);
 			}
+			item.dispose();
+			final var newItem = new TableItem(table, SWT.NONE, i);
+			newItem.setText(values);
+		}
+		table.setRedraw(true);
 
-		items = null;
 		colorURL();
+		table.setSortDirection(dir);
+		LOG.info("Time to sort: %d ms".formatted(Long.valueOf(System.currentTimeMillis() - startTime)));
+	}
+
+	/**
+	 * Enables menu and toolbar items and sets the menu, shell and toolbar text.
+	 */
+	public void updateUI() {
 		enableItems();
 		setText();
-		table.setSortDirection(dir);
 	}
 }

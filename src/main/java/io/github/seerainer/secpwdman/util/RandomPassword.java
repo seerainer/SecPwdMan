@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -25,88 +25,72 @@ import java.util.Arrays;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.ConfData;
+import io.github.seerainer.secpwdman.config.StringConstants;
+import io.github.seerainer.secpwdman.crypto.CryptoUtil;
 
 /**
- * The Class RandomPassword.
+ * The class RandomPassword.
  */
-public class RandomPassword {
+public final class RandomPassword implements StringConstants {
 
 	/**
 	 * Generate a random password.
 	 *
 	 * @param action   the action
 	 * @param children the children
+	 * @param pwdField the password text field
 	 * @return the string
 	 */
-	public static String generate(final Action action, final Control[] children) {
-		final var cData = action.getCData();
+	public static String generate(final Action action, final Control[] children, final Text pwdField) {
 		final var sign = new StringBuilder();
-		final boolean[] select = { false, false, false, false, false, false };
-
+		final var select = new boolean[6];
 		for (var i = 0; i < select.length; i++) {
 			select[i] = ((Button) children[i]).getSelection();
 			final var text = ((Button) children[i]).getText();
-
-			if (select[i])
-				if (i == 5)
-					sign.append(cData.space);
-				else if (i == 3)
-					sign.append(text.substring(0, text.length() - 1));
-				else
-					sign.append(text);
+			if (select[i]) {
+				sign.append(i == 5 ? space : (i == 3 ? text.substring(0, text.length() - 1) : text));
+			}
 		}
-
-		if (Util.isEmpty(sign.toString()))
-			return cData.empty;
-
+		if (Util.isBlank(sign.toString())) {
+			return empty;
+		}
 		final var randomPwd = new StringBuilder();
-		final var random = Util.getSecureRandom();
-		final var spinner = ((Spinner) children[11]).getSelection();
-
+		final var random = CryptoUtil.getSecureRandom();
+		final var spinner = ((Spinner) children[8]).getSelection();
 		do {
 			randomPwd.setLength(0);
-
 			for (var count = spinner; count > 0; count--) {
-				final var next = random.nextInt(sign.length());
-				final var c = sign.charAt(next % sign.length());
-				randomPwd.append(c);
+				randomPwd.append(sign.charAt(random.nextInt(sign.length())));
 			}
-		} while (isWeakPassword(cData, select, randomPwd.toString().toCharArray()));
+		} while (isWeakPassword(select, randomPwd.toString().toCharArray()));
 
 		return randomPwd.toString();
 	}
 
-	/**
-	 * Checks if it is a weak password.
-	 *
-	 * @param cData     the cdata
-	 * @param selection the selection
-	 * @param pwd       the pwd
-	 * @return true, if it is a weak password
-	 */
-	private static boolean isWeakPassword(final ConfData cData, final boolean[] selection, final char[] pwd) {
-		final boolean[] b = { false, false, false, false, false, false };
-
-		for (final char c : pwd)
-			if (Character.isLowerCase(c))
+	private static boolean isWeakPassword(final boolean[] selection, final char[] pwd) {
+		final var b = new boolean[6];
+		for (final char c : pwd) {
+			if (Character.isLowerCase(c)) {
 				b[0] = true;
-			else if (Character.isUpperCase(c))
+			} else if (Character.isUpperCase(c)) {
 				b[1] = true;
-			else if (Character.isDigit(c))
+			} else if (Character.isDigit(c)) {
 				b[2] = true;
-			else if ((cData.rSpecia1).contains(Character.toString(c)))
+			} else if (rSpecia1.indexOf(c) >= 0) {
 				b[3] = true;
-			else if ((cData.rSpecia2).contains(Character.toString(c)))
+			} else if (rSpecia2.indexOf(c) >= 0) {
 				b[4] = true;
-			else if (Character.isSpaceChar(c))
+			} else if (Character.isSpaceChar(c)) {
 				b[5] = true;
+			}
+		}
 
-		if (Arrays.equals(selection, b))
-			return false;
+		return !Arrays.equals(selection, b);
+	}
 
-		return true;
+	private RandomPassword() {
 	}
 }

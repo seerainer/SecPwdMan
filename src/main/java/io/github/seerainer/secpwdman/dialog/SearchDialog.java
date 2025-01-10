@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -20,31 +20,36 @@
  */
 package io.github.seerainer.secpwdman.dialog;
 
-import static io.github.seerainer.secpwdman.util.Util.isEmpty;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
+import static io.github.seerainer.secpwdman.util.Util.isBlank;
+import static io.github.seerainer.secpwdman.widgets.Widgets.button;
+import static io.github.seerainer.secpwdman.widgets.Widgets.label;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newButton;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newLabel;
-import static io.github.seerainer.secpwdman.widgets.Widgets.newText;
 import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
+import static io.github.seerainer.secpwdman.widgets.Widgets.text;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
+import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The Class SearchDialog.
+ * The class SearchDialog.
  */
-public class SearchDialog {
+public final class SearchDialog implements StringConstants {
 
 	private static Shell dialog;
 
-	public static final void close() {
-		if (dialog != null && !dialog.isDisposed())
+	/**
+	 * Closes the dialog.
+	 */
+	public static void close() {
+		if (dialog != null && !dialog.isDisposed()) {
 			dialog.close();
+		}
 	}
 
 	private final Action action;
@@ -59,66 +64,46 @@ public class SearchDialog {
 	}
 
 	/**
-	 * Open.
+	 * Opens the dialog.
 	 */
-	public void open() {
+	void open() {
 		if (dialog != null && !dialog.isDisposed()) {
 			dialog.forceActive();
 			return;
 		}
 
-		final var cData = action.getCData();
-		final var layout = new GridLayout(4, false);
-		layout.marginLeft = 5;
-		layout.marginRight = 5;
-		layout.marginTop = 10;
-		layout.verticalSpacing = 10;
+		dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.TOOL, getLayout(4, 5, 10, 10, 5, 5, 10), searTitl);
 
-		dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.TOOL, layout, cData.searTitl);
-
-		newLabel(dialog, SWT.HORIZONTAL, cData.searText);
-		final var text = newText(dialog, SWT.BORDER | SWT.SINGLE);
+		label(dialog, SWT.HORIZONTAL, searText);
+		final var text = text(dialog, SWT.BORDER | SWT.SINGLE);
 		text.setFocus();
 		text.setTextLimit(128);
 
-		dialog.setDefaultButton(newButton(dialog, SWT.PUSH, widgetSelectedAdapter(e -> search()), cData.entrOkay));
+		dialog.setDefaultButton(button(dialog, SWT.PUSH, entrOkay, widgetSelectedAdapter(e -> search())));
 		dialog.setSize(480, 100);
 		dialog.open();
 	}
 
-	/**
-	 * Search the table.
-	 */
 	private void search() {
-		final var text = ((Text) dialog.getChildren()[1]);
+		final var text = (Text) dialog.getChildren()[1];
 		final var value = text.getText();
-
-		if (isEmpty(value)) {
+		if (isBlank(value)) {
 			text.setFocus();
 			return;
 		}
-
 		final var shell = action.getShell();
 		final var table = action.getTable();
 		final var length = value.length();
 		final var itemCount = table.getItemCount();
 		final var columnCount = table.getColumnCount();
-		final var selectionCount = table.getSelectionCount();
-		var selectionIndex = table.getSelectionIndex();
-
-		if (selectionCount == 1)
-			selectionIndex += 1;
-		else
-			selectionIndex = 0;
-
-		for (var i = selectionIndex; i < itemCount; i++)
+		final var selectionIndex = table.getSelectionCount() == 1 ? table.getSelectionIndex() + 1 : 0;
+		for (var i = selectionIndex; i < itemCount; i++) {
 			for (var j = 0; j < columnCount; j++) {
 				final var item = table.getItem(i).getText(j);
-
 				for (var k = 0; k + length <= item.length(); k++) {
-					if (!table.getColumn(j).getResizable())
+					if (!table.getColumn(j).getResizable()) {
 						break;
-
+					}
 					if (item.substring(k, k + length).equalsIgnoreCase(value)) {
 						table.setSelection(i);
 						shell.forceActive();
@@ -127,10 +112,8 @@ public class SearchDialog {
 					}
 				}
 			}
-
-		final var cData = action.getCData();
-		msg(shell, SWT.ICON_INFORMATION | SWT.OK, cData.titleInf, cData.doubleQ + value + cData.doubleQ + cData.searMess);
-
+		}
+		msg(shell, SWT.ICON_INFORMATION | SWT.OK, titleInf, quote + value + quote + searMess);
 		text.setFocus();
 		table.setSelection(-1);
 	}

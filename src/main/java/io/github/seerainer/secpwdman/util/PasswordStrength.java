@@ -1,6 +1,6 @@
 /*
  * Secure Password Manager
- * Copyright (C) 2024  Philipp Seerainer
+ * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
  * https://www.seerainer.com/
  *
@@ -27,12 +27,14 @@ import org.eclipse.swt.widgets.Label;
 
 import com.nulabinc.zxcvbn.Zxcvbn;
 
-import io.github.seerainer.secpwdman.config.ConfData;
+import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
+import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The Class PasswordStrength.
+ * The class PasswordStrength.
  */
-public class PasswordStrength {
+public final class PasswordStrength implements PrimitiveConstants, StringConstants {
 
 	/**
 	 * Evaluate the password strength.
@@ -41,52 +43,41 @@ public class PasswordStrength {
 	 * @param label the label
 	 * @param pwd   the text
 	 */
-	public static void evalPasswordStrength(final ConfData cData, final Label label, final char[] pwd) {
+	public static void evalPasswordStrength(final ConfigData cData, final Label label, final char[] pwd) {
 		final var display = label.getDisplay();
-
-		if (pwd.length < ConfData.PASSWORD_MIN_LENGTH) {
+		if (pwd.length < PASSWORD_ABSOLUTE_MIN_LENGTH) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			label.setText(cData.passShor);
-			label.setToolTipText(cData.empty);
+			label.setText(passShor);
+			label.setToolTipText(empty);
 			return;
 		}
-
 		final var charBuffer = CharBuffer.wrap(pwd);
 		final var strength = new Zxcvbn().measure(charBuffer);
 		Util.clear(pwd);
 		Util.clear(charBuffer.array());
-
-		var text = cData.passWeak;
-
+		var text = passWeak;
 		switch (strength.getScore()) {
-		case 2:
-			text = cData.passFair;
-			break;
-		case 3:
-			text = cData.passStro;
-			break;
-		case 4:
-			text = cData.passSecu;
-			break;
-		default:
-			break;
+		case 2 -> text = passFair;
+		case 3 -> text = passStro;
+		case 4 -> text = passSecu;
+		default -> {
+			// break;
 		}
-
-		if (text == cData.passWeak || text == cData.passFair)
+		}
+		if (text.equals(passWeak) || text.equals(passFair)) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		else if (SWTUtil.DARK)
+		} else if (SWTUtil.DARK) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
-		else
+		} else {
 			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
-
+		}
 		label.setText(text);
-
 		final var feedback = strength.getFeedback();
 		final var str = new StringBuilder();
-
-		for (final var s : feedback.getSuggestions())
-			str.append(s).append(cData.newLine);
-
+		feedback.getSuggestions().forEach((final var s) -> str.append(s).append(newLine));
 		label.setToolTipText(str.toString() + feedback.getWarning());
+	}
+
+	private PasswordStrength() {
 	}
 }
