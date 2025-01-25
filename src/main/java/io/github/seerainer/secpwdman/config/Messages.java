@@ -37,7 +37,7 @@ final class Messages {
 		try {
 			return RESOURCE_BUNDLE.getString(key);
 		} catch (final MissingResourceException e) {
-			LogFactory.getLog().error("Missing resource: " + key);
+			LogFactory.getLog().error("Missing resource: {}", key);
 			return '!' + key + '!';
 		}
 	}

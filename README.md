@@ -23,7 +23,6 @@
 - [nanojson](https://github.com/mmastrac/nanojson) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
 - [password4j](https://github.com/Password4j/password4j) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
 - [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [commons-validator](https://github.com/apache/commons-validator) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
 
 ## Installation
 

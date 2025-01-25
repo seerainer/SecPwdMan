@@ -45,7 +45,7 @@ public final class PasswordStrength implements PrimitiveConstants, StringConstan
 	 */
 	public static void evalPasswordStrength(final ConfigData cData, final Label label, final char[] pwd) {
 		final var display = label.getDisplay();
-		if (pwd.length < PASSWORD_ABSOLUTE_MIN_LENGTH) {
+		if (pwd.length < PWD_MIN_LENGTH) {
 			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 			label.setText(passShor);
 			label.setToolTipText(empty);

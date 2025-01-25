@@ -39,19 +39,20 @@ record ChaCha20EncryptionStrategy(ConfigData cData) implements CryptoConstants, 
 
 	@Override
 	public byte[] encrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
-			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var instance = CryptoUtil.getCipher(cipherChaCha20);
 		final var nonce = CryptoUtil.getRandomValue(IV_LENGTH);
 		final var salt = CryptoUtil.getRandomValue(SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.ENCRYPT_MODE, password, salt, nonce, cData).doFinal(data);
+		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.ENCRYPT_MODE, password, salt, nonce, cData)
+				.doFinal(data);
 		return CryptoUtil.appendValues(nonce, salt, ciphertext);
 	}
 
 	@Override
 	public byte[] decrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
-			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 		final var instance = CryptoUtil.getCipher(cipherChaCha20);
 		final var nonce = CryptoUtil.getValueFromData(data, 0, IV_LENGTH);
 		final var salt = CryptoUtil.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);

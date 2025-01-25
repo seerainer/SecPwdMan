@@ -38,20 +38,9 @@ import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The class InfoDialog.
+ * The record InfoDialog.
  */
-final class InfoDialog implements StringConstants {
-
-	private final Action action;
-
-	/**
-	 * Instantiates a new info dialog.
-	 *
-	 * @param action the action
-	 */
-	InfoDialog(final Action action) {
-		this.action = action;
-	}
+record InfoDialog(Action action) implements StringConstants {
 
 	void open() {
 		final var cData = action.getCData();
@@ -76,8 +65,6 @@ final class InfoDialog implements StringConstants {
 		link(depencies, p4jAddress, linkColor, p4jLink);
 		link(depencies, apaAddress, linkColor, apaLink);
 		link(depencies, csvAddress, linkColor, csvLink);
-		link(depencies, apaAddress, linkColor, apaLink);
-		link(depencies, valAddress, linkColor, valLink);
 		link(depencies, apaAddress, linkColor, apaLink);
 		link(depencies, swtAddress, linkColor, swtLink);
 		link(depencies, eplAddress, linkColor, eplLink);

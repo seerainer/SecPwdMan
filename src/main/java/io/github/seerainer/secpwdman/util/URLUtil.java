@@ -20,17 +20,18 @@
  */
 package io.github.seerainer.secpwdman.util;
 
-import static org.apache.commons.validator.routines.UrlValidator.getInstance;
+import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Table;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The class URLUtil.
  */
-public final class URLUtil implements StringConstants {
+public final class URLUtil implements PrimitiveConstants, StringConstants {
 
 	/**
 	 * Checks if is url.
@@ -50,7 +51,10 @@ public final class URLUtil implements StringConstants {
 	 * @return true, if is url
 	 */
 	public static boolean isUrl(final String url) {
-		return getInstance().isValid(url);
+		if (url == null || url.length() > MAX_URL_LENGTH) {
+			return false;
+		}
+		return Pattern.compile(DOMAIN_PATTERN).matcher(url).matches();
 	}
 
 	private URLUtil() {

@@ -43,11 +43,11 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 
 /**
- * The class SystemDialog.
+ * The record SystemDialog.
  */
-final class SystemDialog implements CryptoConstants, Icons, StringConstants {
+record SystemDialog(Action action) implements CryptoConstants, Icons, StringConstants {
 
-	private static final class TablePopulator {
+	private static record TablePopulator() {
 
 		private static void populateAlgorithms(final Table tbl, final String type) {
 			Arrays.stream(Security.getProviders()).flatMap(provider -> provider.getServices().stream())
@@ -71,22 +71,13 @@ final class SystemDialog implements CryptoConstants, Icons, StringConstants {
 		private static void populateTable(final Table tbl, final String name, final String value) {
 			new TableItem(tbl, SWT.NONE).setText(new String[] { name, value });
 		}
-
-		private TablePopulator() {
-		}
-	}
-
-	private final Action action;
-
-	SystemDialog(final Action action) {
-		this.action = action;
 	}
 
 	void open() {
 		final var shell = action.getShell();
 		final var image = getImage(shell.getDisplay(), APP_ICON);
-		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image, getLayout(),
-				systInfo);
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image,
+				getLayout(), systInfo);
 		final var tbl = table(dialog);
 		final var col1 = new TableColumn(tbl, SWT.LEAD, 0);
 		final var col2 = new TableColumn(tbl, SWT.LEAD, 1);

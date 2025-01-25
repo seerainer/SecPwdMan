@@ -18,32 +18,25 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.config;
+package io.github.seerainer.secpwdman.crypto;
+
+import javax.crypto.SecretKey;
+
+import com.password4j.Argon2Function;
+import com.password4j.Password;
+
+import io.github.seerainer.secpwdman.config.ConfigData;
 
 /**
- * The interface PrimitiveConstants.
+ * The record Argon2KeyDerivation.
  */
-public interface PrimitiveConstants {
+record Argon2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDerivationStrategy {
 
-	int asciiLength = 127;
-	int BUFFER_MIN = 64;
-	int BUFFER_MAX = 0x100000;
-	int CLEAR_PWD_MIN = 5;
-	int CLEAR_PWD_MAX = 300;
-	int COL_MIN_WIDTH = 10;
-	int COL_MAX_WIDTH = 5000;
-	int LOG_FILE_SIZE = 0x100000;
-	int LOG_FILES = 5;
-	int MAX_URL_LENGTH = 2083;
-	int PWD_MIN_LENGTH = 6;
-	int PWD_MAX_LENGTH = 64;
-	int PWD_CONFIRM_HEIGHT = 210;
-	int PREF_POS_XY = 25;
-	int PREF_SIZE_Y = 600;
-	int SASH_FORM_WEIGHT_1 = 16;
-	int SASH_FORM_WEIGHT_2 = 84;
-	int SECONDS = 1000;
-
-	char echoChr = '\u25CF';
-	char nullChr = '\0';
+	@Override
+	public SecretKey deriveKey(final byte[] password, final byte[] salt) {
+		final var hashingFunction = Argon2Function.getInstance(cData.getArgonMemo() * MEM_SIZE, cData.getArgonIter(),
+				cData.getArgonPara(), OUT_LENGTH, cData.getArgonType());
+		return CryptoUtil.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
+				cData.getKeyALGO());
+	}
 }

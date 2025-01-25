@@ -40,51 +40,69 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 public final class Main implements PrimitiveConstants, StringConstants {
 
-	private static final Logger LOG = LogFactory.getLog();
+	private static Color menuBarBackgroundColor;
+	private static Color menuBarForegroundColor;
+	private static Logger logger;
+
+	private static final long startTime = System.currentTimeMillis();
 
 	private static Display getDisplay() {
+		final var currentDisplay = Display.getCurrent();
+		final var display = currentDisplay != null ? currentDisplay : Display.getDefault();
+		if (DARK && WIN32) {
+			setDarkMode(display);
+		}
+		return display;
+	}
+
+	private static Logger getLogger() {
+		if (logger == null) {
+			logger = LogFactory.getLog();
+		}
+		return logger;
+	}
+
+	/**
+	 * The main method that initializes the display and starts the main window. It
+	 * measures and logs the time taken to start the application and the total
+	 * execution time.
+	 *
+	 * @param args The command line arguments.
+	 */
+	public static void main(final String[] args) {
 		Display.setAppName(APP_NAME);
 		Display.setAppVersion(APP_VERS);
 		LogFactory.configureLogging();
 		System.setProperty("org.eclipse.swt.display.useSystemTheme", "true");
 
-		final var display = Display.getDefault();
-		if (DARK && WIN32) {
-			setDarkMode(display);
-		}
-
-		return display;
-	}
-
-	/**
-	 * The main method.
-	 *
-	 * @param args the arguments
-	 */
-	public static void main(final String[] args) {
-		final var startTime = System.currentTimeMillis();
 		final var display = getDisplay();
 		final var shell = new MainWindow(args).open(display);
-		LOG.info("Time to start: %d ms".formatted(Long.valueOf(System.currentTimeMillis() - startTime)));
+		getLogger().info("{} - Time to start: {} ms", APP_NAME, Long.valueOf(System.currentTimeMillis() - startTime));
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
 			}
 		}
-		LOG.info("Execution time: %d seconds".formatted(Long.valueOf((System.currentTimeMillis() - startTime) / SECONDS)));
+		getLogger().info("{} - Execution time: {} seconds", APP_NAME,
+				Long.valueOf((System.currentTimeMillis() - startTime) / SECONDS));
+		if (menuBarBackgroundColor != null) {
+			menuBarBackgroundColor.dispose();
+		}
+		if (menuBarForegroundColor != null) {
+			menuBarForegroundColor.dispose();
+		}
 		display.dispose();
 	}
 
 	private static void setDarkMode(final Display display) {
+		menuBarBackgroundColor = new Color(display, 0x32, 0x32, 0x32);
+		menuBarForegroundColor = new Color(display, 0xF8, 0xF8, 0xF8);
 		display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE);
 		display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", Boolean.TRUE);
-		display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor", new Color(0x32, 0x32, 0x32));
-		display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor", new Color(0xF8, 0xF8, 0xF8));
+		display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor", menuBarBackgroundColor);
+		display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor", menuBarForegroundColor);
 		display.setData("org.eclipse.swt.internal.win32.all.use_WS_BORDER", Boolean.TRUE);
 		display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", Boolean.TRUE);
 		display.setData("org.eclipse.swt.internal.win32.Text.useDarkThemeIcons", Boolean.TRUE);
-	}
-
-	private Main() {
 	}
 }

@@ -47,11 +47,11 @@ public final class LogFactory implements PrimitiveConstants, StringConstants {
 		rootLogger.setLevel(Level.INFO);
 
 		try {
-			final var fileHandler = new FileHandler(tempFold + APP_NAME + logExten, LOG_FILE_SIZE, 10, true);
+			final var fileHandler = new FileHandler(tempFold + APP_NAME + logExten, LOG_FILE_SIZE, LOG_FILES, true);
 			fileHandler.setFormatter(new SimpleFormatter());
 			rootLogger.addHandler(fileHandler);
 		} catch (final IOException e) {
-			e.printStackTrace();
+			logger.error("Error occurred", e);
 		}
 	}
 

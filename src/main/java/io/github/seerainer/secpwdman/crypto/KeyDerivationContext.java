@@ -18,32 +18,25 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.config;
+package io.github.seerainer.secpwdman.crypto;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import javax.crypto.SecretKey;
 
 /**
- * The interface PrimitiveConstants.
+ * The class KeyDerivationContext.
  */
-public interface PrimitiveConstants {
+final class KeyDerivationContext {
+	private final KeyDerivationStrategy strategy;
 
-	int asciiLength = 127;
-	int BUFFER_MIN = 64;
-	int BUFFER_MAX = 0x100000;
-	int CLEAR_PWD_MIN = 5;
-	int CLEAR_PWD_MAX = 300;
-	int COL_MIN_WIDTH = 10;
-	int COL_MAX_WIDTH = 5000;
-	int LOG_FILE_SIZE = 0x100000;
-	int LOG_FILES = 5;
-	int MAX_URL_LENGTH = 2083;
-	int PWD_MIN_LENGTH = 6;
-	int PWD_MAX_LENGTH = 64;
-	int PWD_CONFIRM_HEIGHT = 210;
-	int PREF_POS_XY = 25;
-	int PREF_SIZE_Y = 600;
-	int SASH_FORM_WEIGHT_1 = 16;
-	int SASH_FORM_WEIGHT_2 = 84;
-	int SECONDS = 1000;
+	KeyDerivationContext(final KeyDerivationStrategy strategy) {
+		this.strategy = strategy;
+	}
 
-	char echoChr = '\u25CF';
-	char nullChr = '\0';
+	SecretKey deriveKey(final byte[] password, final byte[] salt)
+			throws InvalidKeySpecException, NoSuchAlgorithmException {
+		return strategy.deriveKey(password, salt);
+	}
 }

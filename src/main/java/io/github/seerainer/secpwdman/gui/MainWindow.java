@@ -88,7 +88,8 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 
 	private final ConfigData cData = new ConfigData();
 
-	private List list;
+	private List groupList;
+	private Menu menuBar;
 	private Shell shell;
 	private Table table;
 	private EditAction editAction;
@@ -106,7 +107,8 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 	private final SelectionListener newEntry = widgetSelectedAdapter(e -> createEntryDialog(editAction, -1));
 	private final SelectionListener editEntry = widgetSelectedAdapter(
 			e -> createEntryDialog(editAction, table.getSelectionIndex()));
-	private final SelectionListener openSearch = widgetSelectedAdapter(e -> DialogFactory.createSearchDialog(fileAction));
+	private final SelectionListener openSearch = widgetSelectedAdapter(
+			e -> DialogFactory.createSearchDialog(fileAction));
 	private final SelectionListener selectAll = widgetSelectedAdapter(e -> {
 		table.selectAll();
 		table.setFocus();
@@ -141,77 +143,50 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		}
 	});
 
+	private final DropTargetAdapter dropTargetAdapter = new DropTargetAdapter() {
+		@Override
+		public void dragEnter(final DropTargetEvent event) {
+			if (event.detail == DND.DROP_DEFAULT) {
+				event.detail = DND.DROP_COPY;
+			}
+		}
+
+		@Override
+		public void dragOperationChanged(final DropTargetEvent event) {
+			if (event.detail == DND.DROP_DEFAULT) {
+				event.detail = DND.DROP_COPY;
+			}
+		}
+
+		@Override
+		public void dragOver(final DropTargetEvent event) {
+			if (isFileReady(cData.getFile())) {
+				event.detail = DND.DROP_NONE;
+			}
+		}
+
+		@Override
+		public void drop(final DropTargetEvent event) {
+			if (event.data != null && !isFileReady(cData.getFile())) {
+				fileAction.clearData();
+				cData.setFile(((String[]) event.data)[0]);
+				fileAction.openFileArg();
+			}
+		}
+	};
+
 	/**
 	 * Instantiates a new MainWindow.
 	 *
 	 * @param args the arguments
 	 */
 	public MainWindow(final String[] args) {
-		if (args.length > 0) {
+		if (args != null && args.length > 0) {
 			cData.setFile(args[0]);
 		}
 	}
 
-	private void dropTarget(final Control control) {
-		final var dropTarget = new DropTarget(control, DND.DROP_COPY | DND.DROP_DEFAULT | DND.DROP_NONE);
-		dropTarget.setTransfer(FileTransfer.getInstance());
-		dropTarget.addDropListener(new DropTargetAdapter() {
-			@Override
-			public void dragEnter(final DropTargetEvent event) {
-				if (event.detail == DND.DROP_DEFAULT) {
-					event.detail = DND.DROP_COPY;
-				}
-			}
-
-			@Override
-			public void dragOperationChanged(final DropTargetEvent event) {
-				if (event.detail == DND.DROP_DEFAULT) {
-					event.detail = DND.DROP_COPY;
-				}
-			}
-
-			@Override
-			public void dragOver(final DropTargetEvent event) {
-				if (isFileReady(cData.getFile())) {
-					event.detail = DND.DROP_NONE;
-				}
-			}
-
-			@Override
-			public void drop(final DropTargetEvent event) {
-				if (event.data != null && !isFileReady(cData.getFile())) {
-					fileAction.clearData();
-					cData.setFile(((String[]) event.data)[0]);
-					fileAction.openFileArg();
-				}
-			}
-		});
-	}
-
-	private void initializeActions() {
-		editAction = new EditAction(cData, shell, table);
-		fileAction = new FileAction(cData, shell, table);
-		viewAction = new ViewAction(cData, shell, table);
-		viewAction.defaultHeader();
-	}
-
-	private Menu menuBar() {
-		final var menuBar = new Menu(shell, SWT.BAR);
-		final var file = menu(shell, SWT.DROP_DOWN, enableItems);
-		menuItem(menuBar, SWT.CASCADE, file, menuFile);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.newDatabase()), SWT.CTRL + 'N', menuClea);
-		menuItem(file, SWT.PUSH, openFile, SWT.CTRL + 'O', menuOpen, OPEN);
-		menuItem(file, SWT.PUSH, saveFile, SWT.CTRL + 'S', menuSave, SAVE);
-		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> createPasswordDialog(fileAction, true)), menuChaP, KEY);
-		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, lockFile, SWT.CTRL + 'L', menuLock, LOCK);
-		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importDialog()), menuImpo);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.exportDialog()), menuExpo, WARN);
-		menuItemSeparator(file);
-		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> shell.close()), SWT.ESC, menuExit, EXIT);
-
+	private void createEditMenu() {
 		final var edit = menu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, edit, menuEdit);
 		menuItem(edit, SWT.PUSH, newEntry, SWT.INSERT, menuNent, NEW);
@@ -228,11 +203,98 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		menuItem(edit, SWT.PUSH, openURL, SWT.CTRL + 'D', menuOurl, WEB);
 		menuItemSeparator(edit);
 		menuItem(edit, SWT.PUSH, widgetSelectedAdapter(e -> editAction.clearClipboard()), SWT.CTRL + 'Z', menuClCb);
+	}
 
+	private void createFileMenu() {
+		final var file = menu(shell, SWT.DROP_DOWN, enableItems);
+		menuItem(menuBar, SWT.CASCADE, file, menuFile);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.newDatabase()), SWT.CTRL + 'N', menuClea);
+		menuItem(file, SWT.PUSH, openFile, SWT.CTRL + 'O', menuOpen, OPEN);
+		menuItem(file, SWT.PUSH, saveFile, SWT.CTRL + 'S', menuSave, SAVE);
+		menuItemSeparator(file);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> createPasswordDialog(fileAction, true)), menuChaP, KEY);
+		menuItemSeparator(file);
+		menuItem(file, SWT.PUSH, lockFile, SWT.CTRL + 'L', menuLock, LOCK);
+		menuItemSeparator(file);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.importDialog()), menuImpo);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> fileAction.exportDialog()), menuExpo, WARN);
+		menuItemSeparator(file);
+		menuItem(file, SWT.PUSH, widgetSelectedAdapter(e -> shell.close()), SWT.ESC, menuExit, EXIT);
+	}
+
+	private void createInfoMenu() {
+		final var info = menu(shell, SWT.DROP_DOWN, enableItems);
+		menuItem(menuBar, SWT.CASCADE, info, menuInfo);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createSystemDialog(fileAction)), menuSysI,
+				SYSTEM);
+		menuItemSeparator(info);
+		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createInfoDialog(fileAction)), menuAbou,
+				INFO);
+	}
+
+	private Menu createMenuBar() {
+		menuBar = new Menu(shell, SWT.BAR);
+		createFileMenu();
+		createEditMenu();
+		createSearchMenu();
+		createViewMenu();
+		createInfoMenu();
+		return menuBar;
+	}
+
+	private void createSearchMenu() {
 		final var search = menu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, search, menuSear);
 		menuItem(search, SWT.PUSH, openSearch, SWT.CTRL + 'F', menuFind, SEARCH);
+	}
 
+	private void createShellArea() {
+		final var foreground = shell.getForeground();
+		final var form = new SashForm(shell, SWT.HORIZONTAL);
+		form.setForeground(foreground);
+		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		form.setLayout(getLayout());
+
+		groupList = new List(form, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
+		groupList.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
+		groupList.setForeground(foreground);
+		groupList.setVisible(false);
+
+		table = table(form);
+		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
+		table.addMouseListener(mouseDoubleClickAdapter(e -> createEntryDialog(editAction, table.getSelectionIndex())));
+		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
+		table.setHeaderVisible(true);
+		table.setMenu(initializeTableMenu());
+
+		form.setWeights(SASH_FORM_WEIGHT_1, SASH_FORM_WEIGHT_2);
+	}
+
+	private ToolBar createToolBar() {
+		final var toolBar = new ToolBar(shell, SWT.FLAT | SWT.SHADOW_OUT);
+		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+
+		toolItem(toolBar, OPEN, openFile, menuOpen);
+		toolItem(toolBar, SAVE, saveFile, menuSave);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, LOCK, lockFile, menuLock);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, NEW, newEntry, menuNent);
+		toolItem(toolBar, EDIT, editEntry, menuEent);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, SEARCH, openSearch, menuSear);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, LINK, copyURL, menuCurl);
+		toolItem(toolBar, USER, copyName, menuCusr);
+		toolItem(toolBar, KEY, copyPass, menuCpwd);
+		toolItem(toolBar, NOTE, copyNotes, menuCnot);
+		toolItemSeparator(toolBar);
+		toolItem(toolBar, WEB, openURL, menuOurl);
+
+		return toolBar;
+	}
+
+	private void createViewMenu() {
 		final var view = menu(shell, SWT.DROP_DOWN, enableItems);
 		menuItem(menuBar, SWT.CASCADE, view, menuView);
 		menuItem(view, SWT.CHECK, widgetSelectedAdapter(e -> viewAction.readOnlySwitch()), menuReaO);
@@ -249,83 +311,43 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		menuItem(fontMenu, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont(true)), menuFoSh);
 		menuItem(fontMenu, SWT.PUSH, widgetSelectedAdapter(e -> viewAction.changeFont(false)), menuFoTa);
 		menuItemSeparator(view);
-		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createTextDialog(viewAction)), menuText, WARN);
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createTextDialog(viewAction)), menuText,
+				WARN);
 		menuItemSeparator(view);
-		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createConfigDialog(viewAction)), menuPref, GEAR);
-
-		final var info = menu(shell, SWT.DROP_DOWN, enableItems);
-		menuItem(menuBar, SWT.CASCADE, info, menuInfo);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createSystemDialog(fileAction)), menuSysI, SYSTEM);
-		menuItemSeparator(info);
-		menuItem(info, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createInfoDialog(fileAction)), menuAbou, INFO);
-
-		return menuBar;
+		menuItem(view, SWT.PUSH, widgetSelectedAdapter(e -> DialogFactory.createConfigDialog(viewAction)), menuPref,
+				GEAR);
 	}
 
-	/**
-	 * Opens the main window.
-	 *
-	 * @param display the display
-	 * @return the shell
-	 */
-	public Shell open(final Display display) {
-		final var image = getImage(display, APP_ICON);
-		final var layout = getLayout();
+	private void initializeDropTarget(final Control control) {
+		final var dropTarget = new DropTarget(control, DND.DROP_COPY | DND.DROP_DEFAULT);
+		dropTarget.setTransfer(FileTransfer.getInstance());
+		dropTarget.addDropListener(dropTargetAdapter);
+	}
+
+	private void initializeShell(final Display display, final Image image) {
 		shell = new Shell(display, SWT.SHELL_TRIM);
 		shell.addShellListener(shellClosedAdapter(e -> e.doit = fileAction.exit()));
 		shell.addShellListener(deiconified);
 		shell.addShellListener(shellIconifiedAdapter(e -> fileAction.setLocked()));
+		final var layout = getLayout();
 		if (WIN32) {
 			layout.marginTop = -2;
 		}
-		shell.setImage(image);
 		shell.setLayout(layout);
-		shell.setMenuBar(menuBar());
-
-		shellColor(display, toolBar());
-		shellArea();
-		initializeActions(); // Initialize actions after table creation
-		IO.openConfig(fileAction);
-		shellValues();
-
-		shell.open();
-		shell.forceActive();
-
-		dropTarget(table);
-		if (WIN32) {
-			trayItem(display, image);
-		}
-		fileAction.openFileArg();
-		fileAction.resizeColumns();
-		fileAction.updateUI();
-		selfTest();
-
-		return shell;
+		shell.setImage(image);
+		shell.setMenuBar(createMenuBar());
+		initializeShellColor(display, createToolBar());
+		createShellArea();
 	}
 
-	private void shellArea() {
-		final var foreground = shell.getForeground();
-		final var form = new SashForm(shell, SWT.HORIZONTAL);
-		form.setForeground(foreground);
-		form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		form.setLayout(getLayout());
-
-		list = new List(form, SWT.BORDER | SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL);
-		list.addSelectionListener(widgetSelectedAdapter(e -> fileAction.setGroupSelection()));
-		list.setForeground(foreground);
-		list.setVisible(false);
-
-		table = table(form);
-		table.addKeyListener(keyPressedAdapter(e -> fileAction.enableItems()));
-		table.addMouseListener(mouseDoubleClickAdapter(e -> createEntryDialog(editAction, table.getSelectionIndex())));
-		table.addSelectionListener(widgetSelectedAdapter(e -> fileAction.enableItems()));
-		table.setHeaderVisible(true);
-		table.setMenu(tableMenu());
-
-		form.setWeights(SASH_FORM_WEIGHT_1, SASH_FORM_WEIGHT_2);
+	private void initializeShellActions() {
+		editAction = new EditAction(cData, shell, table);
+		fileAction = new FileAction(cData, shell, table);
+		viewAction = new ViewAction(cData, shell, table);
+		viewAction.defaultHeader();
 	}
 
-	private void shellColor(final Display display, final ToolBar toolBar) {
+	private void initializeShellColor(final Display display, final ToolBar toolBar) {
 		if (DARK) {
 			final var darkForeground = new Color(0xEE, 0xEE, 0xEE);
 			toolBar.setBackground(new Color(0x64, 0x64, 0x64));
@@ -341,14 +363,15 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		}
 	}
 
-	private void shellValues() {
-		final var display = shell.getDisplay();
+	private void initializeShellValues(final Display display) {
+		IO.openConfig(fileAction);
+
 		final var maximized = cData.isMaximized();
 		final var shellFont = cData.getShellFont();
 		final var shellLoca = cData.getShellLocation();
 		final var shellSize = cData.getShellSize();
 		final var tableFont = cData.getTableFont();
-		shell.getMenuBar().getItem(3).getMenu().getItem(4).setSelection(cData.isResizeCol());
+		menuBar.getItem(3).getMenu().getItem(4).setSelection(cData.isResizeCol());
 		shell.setLocation(shellLoca == null || maximized ? new Point(PREF_POS_XY, PREF_POS_XY) : shellLoca);
 		shell.setSize(shellSize == null || maximized ? new Point(getPrefSize(shell).x, PREF_SIZE_Y) : shellSize);
 
@@ -356,7 +379,7 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 			shell.setFont(new Font(display, new FontData(shellFont)));
 		}
 		if (tableFont != null) {
-			list.setFont(new Font(display, new FontData(tableFont)));
+			groupList.setFont(new Font(display, new FontData(tableFont)));
 			table.setFont(new Font(display, new FontData(tableFont)));
 		}
 		if (maximized) {
@@ -364,7 +387,7 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		}
 	}
 
-	private Menu tableMenu() {
+	private Menu initializeTableMenu() {
 		final var menu = menu(shell, SWT.POP_UP, menuShownAdapter(e -> {
 			final var item = ((Menu) e.widget);
 			final var editMenu = shell.getMenuBar().getItem(1).getMenu();
@@ -395,31 +418,7 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		return menu;
 	}
 
-	private ToolBar toolBar() {
-		final var toolBar = new ToolBar(shell, SWT.FLAT | SWT.SHADOW_OUT);
-		toolBar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-
-		toolItem(toolBar, OPEN, openFile, menuOpen);
-		toolItem(toolBar, SAVE, saveFile, menuSave);
-		toolItemSeparator(toolBar);
-		toolItem(toolBar, LOCK, lockFile, menuLock);
-		toolItemSeparator(toolBar);
-		toolItem(toolBar, NEW, newEntry, menuNent);
-		toolItem(toolBar, EDIT, editEntry, menuEent);
-		toolItemSeparator(toolBar);
-		toolItem(toolBar, SEARCH, openSearch, menuSear);
-		toolItemSeparator(toolBar);
-		toolItem(toolBar, LINK, copyURL, menuCurl);
-		toolItem(toolBar, USER, copyName, menuCusr);
-		toolItem(toolBar, KEY, copyPass, menuCpwd);
-		toolItem(toolBar, NOTE, copyNotes, menuCnot);
-		toolItemSeparator(toolBar);
-		toolItem(toolBar, WEB, openURL, menuOurl);
-
-		return toolBar;
-	}
-
-	private void trayItem(final Display display, final Image image) {
+	private void initializeTrayItem(final Display display, final Image image) {
 		final var tray = display.getSystemTray();
 		if (tray == null) {
 			return;
@@ -431,5 +430,34 @@ public final class MainWindow implements CryptoConstants, Icons, PrimitiveConsta
 		});
 		trayItem.setImage(image);
 		trayItem.setVisible(false);
+	}
+
+	/**
+	 * Opens the main window. Initializes the shell, its listeners, layout, UI
+	 * components, actions and UI values. Also sets up the drop target and tray item
+	 * if applicable.
+	 *
+	 * @param display the display used to create the shell and other UI components
+	 * @return the shell instance representing the main window
+	 */
+	public Shell open(final Display display) {
+		final var image = getImage(display, APP_ICON);
+		initializeShell(display, image);
+		initializeShellActions();
+		initializeShellValues(display);
+
+		shell.open();
+		shell.forceActive();
+
+		initializeDropTarget(table);
+		if (WIN32) {
+			initializeTrayItem(display, image);
+		}
+		fileAction.openFileArg();
+		fileAction.resizeColumns();
+		fileAction.updateUI();
+		selfTest();
+
+		return shell;
 	}
 }

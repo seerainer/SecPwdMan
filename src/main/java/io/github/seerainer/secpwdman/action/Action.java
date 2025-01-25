@@ -133,15 +133,16 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	 */
 	public SealedObject cryptData(final byte[] tableData) {
 		if (tableData == null) {
-			LOG.warn("Data is null");
+			LOG.error("Data is null");
 			return null;
 		}
 		try {
-			cData.setDataKey(CryptoUtil.generateSecretKey(keyAES).getEncoded());
-			return CryptoUtil.generateSealedObject(tableData, cData.getDataKey(), cipherAES, keyAES);
+			final var sensitiveData = cData.getSensitiveData();
+			sensitiveData.setDataKey(CryptoUtil.generateSecretKey(keyAES).getEncoded());
+			return CryptoUtil.generateSealedObject(tableData, sensitiveData.getDataKey(), cipherAES, keyAES);
 		} catch (InvalidKeyException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException
-				| IOException e) {
-			LOG.error(e.fillInStackTrace().toString());
+				| IOException | ClassNotFoundException e) {
+			LOG.error("Error occurred", e);
 			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 			return null;
 		}
@@ -254,7 +255,6 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 			return new SecureString(new char[0]);
 		}
 
-		final var asciiLength = 127;
 		//@formatter:off
 		final var hasSpecialChar = s.codePoints().anyMatch(c -> c > asciiLength)
 								|| s.contains(quote)
@@ -347,14 +347,14 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 					customHeader(header);
 				}
 				fillTable(iterator, null);
-				cData.setSealedData(cryptData(tableData));
+				cData.getSensitiveData().setSealedData(cryptData(tableData));
 			} else {
 				final var list = getList();
 				final var listSelection = list.getItem(list.getSelectionIndex());
 				fillTable(iterator, listSelection.equals(listFirs) ? null : listSelection);
 			}
 		} catch (final Exception e) {
-			LOG.error(e.fillInStackTrace().toString());
+			LOG.error("Error occurred", e);
 			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 		}
 		clear(tableData);
@@ -459,10 +459,11 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	 */
 	public void resetGroupList() {
 		final var list = getList();
-		if (list.isVisible() && list.getSelectionIndex() > 0) {
-			list.setSelection(0);
-			setGroupSelection();
+		if (!list.isVisible() || list.getSelectionIndex() < 1) {
+			return;
 		}
+		list.setSelection(0);
+		setGroupSelection();
 	}
 
 	/**
@@ -493,14 +494,15 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		if (index < 0) {
 			return;
 		}
-		final var sealedData = cData.getSealedData();
-		final var dataKey = cData.getDataKey();
+		final var sensitiveData = cData.getSensitiveData();
+		final var sealedData = sensitiveData.getSealedData();
+		final var dataKey = sensitiveData.getDataKey();
 		byte[] tableData = null;
 		if (sealedData != null && dataKey != null) {
 			try {
 				tableData = ((String) sealedData.getObject(CryptoUtil.getSecretKey(dataKey, keyAES))).getBytes();
 			} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
-				LOG.error(e.fillInStackTrace().toString());
+				LOG.error("Error occurred", e);
 				msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 			}
 		}
@@ -510,11 +512,10 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 
 	private void setText() {
 		final var file = cData.getFile();
-		final var name = APP_NAME;
-		var shellTitle = name;
+		var shellTitle = APP_NAME;
 		if (isFileReady(file)) {
 			final var filePath = getFilePath(file);
-			shellTitle = cData.isModified() ? name + titleMD + filePath : name + titlePH + filePath;
+			shellTitle = cData.isModified() ? APP_NAME + titleMD + filePath : APP_NAME + titlePH + filePath;
 		}
 		shell.setText(shellTitle);
 
@@ -570,7 +571,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 
 		colorURL();
 		table.setSortDirection(dir);
-		LOG.info("Time to sort: %d ms".formatted(Long.valueOf(System.currentTimeMillis() - startTime)));
+		LOG.info("Time to sort: {} ms", Long.valueOf(System.currentTimeMillis() - startTime));
 	}
 
 	/**

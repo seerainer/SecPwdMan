@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Table;
 import io.github.seerainer.secpwdman.config.ConfigData;
 
 /**
- * The Class EditAction.
+ * The class EditAction.
  */
 public final class EditAction extends Action {
 
@@ -89,7 +89,7 @@ public final class EditAction extends Action {
 			table.remove(table.getSelectionIndices());
 		}
 		table.setRedraw(true);
-		cData.setSealedData(cryptData(extractData()));
+		cData.getSensitiveData().setSealedData(cryptData(extractData()));
 		fillGroupList();
 		updateUI();
 	}

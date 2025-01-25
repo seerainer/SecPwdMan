@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'io.github.seerainer.secpwdman'
-version = '1.0.0-rc.1'
+version = '1.0.0-rc.2'
 
 repositories {
     mavenCentral()
@@ -41,12 +41,6 @@ switch (arch) {
 }
 
 dependencies {
-    implementation('commons-validator:commons-validator:1.9.0') {
-        exclude group: 'commons-beanutils', module: 'commons-beanutils'
-        exclude group: 'commons-collections', module: 'commons-collections'
-        exclude group: 'commons-digester', module: 'commons-digester'
-        exclude group: 'commons-logging', module: 'commons-logging'
-    }
     implementation 'com.github.skjolber.sesseltjonna-csv:parser:1.0.25'
     implementation 'com.grack:nanojson:1.9'
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
@@ -115,8 +109,7 @@ tasks.withType(Jar).configureEach {
     exclude(
         'META-INF/ECLIPSE*',
     	'META-INF/maven/**/**/*',
-    	'META-INF/LICENSE.txt',
-    	'META-INF/NOTICE.txt',
+    	'META-INF/*.txt',
         'about_files/*',
         'version.txt',
         '.api_description',
@@ -134,15 +127,39 @@ tasks.withType(Jar).configureEach {
         'swt-wgl-*.dll',
         'swt-webkit-*.dll',
         'WebView2Loader.dll',
+        'swt-win32-*.dll',
         // SWT
         'org/eclipse/swt/awt/*',
         'org/eclipse/swt/browser/*',
+        'org/eclipse/swt/dnd/HTMLTransfer*',
+        'org/eclipse/swt/dnd/ImageTransfer*',
+        'org/eclipse/swt/dnd/RTFTransfer*',
+        'org/eclipse/swt/dnd/URLTransfer*',
         'org/eclipse/swt/internal/image/GIF*',
         'org/eclipse/swt/internal/image/JPEG*',
         'org/eclipse/swt/internal/image/LZW*',
         'org/eclipse/swt/internal/image/OS2*',
         'org/eclipse/swt/internal/image/TIFF*',
         'org/eclipse/swt/internal/image/Win*',
+        'org/eclipse/swt/internal/SWTMessages_a*',
+        'org/eclipse/swt/internal/SWTMessages_b*',
+        'org/eclipse/swt/internal/SWTMessages_c*',
+        'org/eclipse/swt/internal/SWTMessages_da*',
+        'org/eclipse/swt/internal/SWTMessages_e*',
+        'org/eclipse/swt/internal/SWTMessages_f*',
+        'org/eclipse/swt/internal/SWTMessages_h*',
+        'org/eclipse/swt/internal/SWTMessages_i*',
+        'org/eclipse/swt/internal/SWTMessages_j*',
+        'org/eclipse/swt/internal/SWTMessages_k*',
+        'org/eclipse/swt/internal/SWTMessages_l*',
+        'org/eclipse/swt/internal/SWTMessages_m*',
+        'org/eclipse/swt/internal/SWTMessages_n*',
+        'org/eclipse/swt/internal/SWTMessages_p*',
+        'org/eclipse/swt/internal/SWTMessages_r*',
+        'org/eclipse/swt/internal/SWTMessages_s*',
+        'org/eclipse/swt/internal/SWTMessages_t*',
+        'org/eclipse/swt/internal/SWTMessages_u*',
+        'org/eclipse/swt/internal/SWTMessages_z*',
         'org/eclipse/swt/layout/Border*',
         'org/eclipse/swt/layout/Fill*',
         'org/eclipse/swt/layout/Form*',

@@ -29,30 +29,18 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import com.password4j.Argon2Function;
-import com.password4j.Password;
-
 import io.github.seerainer.secpwdman.config.ConfigData;
 
 /**
- * The class KeyTransformation.
+ * The record PBKDF2KeyDerivation.
  */
-final class KeyTransformation implements CryptoConstants {
+record PBKDF2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDerivationStrategy {
 
-	static SecretKey argon2(final byte[] password, final byte[] salt, final ConfigData cData) {
-		final var hashingFunction = Argon2Function.getInstance(cData.getArgonMemo() * MEM_SIZE, cData.getArgonIter(),
-				cData.getArgonPara(), OUT_LENGTH, cData.getArgonType());
-		return CryptoUtil.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
-				cData.getKeyALGO());
-	}
-
-	static SecretKey pbkdf2(final byte[] password, final byte[] salt, final ConfigData cData)
+	@Override
+	public SecretKey deriveKey(final byte[] password, final byte[] salt)
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
 		final var keySpec = new PBEKeySpec(toChars(password), salt, cData.getPBKDFIter(), KEY_LENGTH);
 		return CryptoUtil.getSecretKey(SecretKeyFactory.getInstance(pbkdf2).generateSecret(keySpec).getEncoded(),
 				cData.getKeyALGO());
-	}
-
-	private KeyTransformation() {
 	}
 }

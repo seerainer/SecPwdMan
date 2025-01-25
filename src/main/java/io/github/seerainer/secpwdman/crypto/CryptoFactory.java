@@ -32,9 +32,9 @@ public final class CryptoFactory implements CryptoConstants {
 	 *
 	 * @param cData the cdata
 	 */
-	public static CryptoContext crypto(final ConfigData cData) {
-		return new CryptoContext(
-				keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData) : new ChaCha20EncryptionStrategy(cData));
+	public static EncryptionContext crypto(final ConfigData cData) {
+		return new EncryptionContext(keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData)
+				: new ChaCha20EncryptionStrategy(cData));
 	}
 
 	private CryptoFactory() {

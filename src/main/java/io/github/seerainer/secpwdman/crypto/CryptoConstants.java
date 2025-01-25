@@ -32,6 +32,16 @@ public interface CryptoConstants {
 	int OUT_LENGTH = 32;
 	int MEM_SIZE = 1024;
 
+	int ARGON_MEMO_MIN = 19;
+	int ARGON_MEMO_MAX = 1024;
+	int ARGON_ITER_MIN = 2;
+	int ARGON_ITER_MAX = 256;
+	int ARGON_PARA_MIN = 1;
+	int ARGON_PARA_MAX = 8;
+
+	int PBKDF2_MIN = 600000;
+	int PBKDF2_MAX = 0x1000000;
+
 	String alias = "secpwdman";
 	String messageDigest = "MessageDigest";
 	String signature = "Signature";

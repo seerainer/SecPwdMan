@@ -68,10 +68,11 @@ public final class CryptoUtil implements CryptoConstants {
 	 * @throws IOException               the IO exception
 	 * @throws NoSuchPaddingException    the no such padding exception
 	 * @throws NoSuchAlgorithmException  the no such algorithm exception
+	 * @throws ClassNotFoundException    the class not found exception
 	 */
 	public static SealedObject generateSealedObject(final byte[] data, final byte[] key, final String transformation,
-			final String algorithm)
-			throws IllegalBlockSizeException, InvalidKeyException, IOException, NoSuchAlgorithmException, NoSuchPaddingException {
+			final String algorithm) throws IllegalBlockSizeException, InvalidKeyException, IOException,
+			NoSuchAlgorithmException, NoSuchPaddingException, ClassNotFoundException {
 		final var cipherInstance = Cipher.getInstance(transformation);
 		cipherInstance.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, algorithm));
 		return new SealedObject(new String(data), cipherInstance);
@@ -100,8 +101,8 @@ public final class CryptoUtil implements CryptoConstants {
 
 	private static SecretKey getKeyTransformation(final byte[] password, final byte[] salt, final ConfigData cData)
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		return cData.isArgon2() ? KeyTransformation.argon2(password, salt, cData)
-				: KeyTransformation.pbkdf2(password, salt, cData);
+		return cData.isArgon2() ? new KeyDerivationContext(new Argon2KeyDerivation(cData)).deriveKey(password, salt)
+				: new KeyDerivationContext(new PBKDF2KeyDerivation(cData)).deriveKey(password, salt);
 	}
 
 	static byte[] getRandomValue(final int length) {
@@ -141,8 +142,8 @@ public final class CryptoUtil implements CryptoConstants {
 	}
 
 	static Cipher initCipher(final Cipher cipherInstance, final int mode, final byte[] password, final byte[] salt,
-			final byte[] nonce, final ConfigData cData)
-			throws NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, InvalidKeySpecException {
+			final byte[] nonce, final ConfigData cData) throws NoSuchAlgorithmException, InvalidKeyException,
+			InvalidAlgorithmParameterException, InvalidKeySpecException {
 		final var params = cipherAES.equals(cData.getCipherALGO()) ? new GCMParameterSpec(TAG_LENGTH, nonce)
 				: new IvParameterSpec(nonce);
 		cipherInstance.init(mode, getKeyTransformation(password, salt, cData), params);

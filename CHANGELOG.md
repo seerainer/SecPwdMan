@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-rc.2] - 2025-01-XX
+
+### Added
+
+- Regex pattern for URL validation
+
+### Changed
+
+- Upgrade: Gradle from 8.12 to 8.12.1
+- All dialog classes converted to records
+- Implemented the Strategy Pattern for key derivation functions
+- Extracted confidetial data variables from ConfigData in a new SensitiveData class
+- Refactoring the Main class and the MainWindow class
+
+### Removed
+
+- Apache Commons Validator
+
+### Fixed
+
+- Logging messages were fixed
+- Some small bugs were fixed
+
 ## [1.0.0-rc.1] - 2025-01-10
 
 ### Added

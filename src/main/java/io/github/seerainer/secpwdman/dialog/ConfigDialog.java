@@ -60,9 +60,9 @@ import io.github.seerainer.secpwdman.crypto.CryptoUtil;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
- * The class ConfigDialog.
+ * The record ConfigDialog.
  */
-final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, StringConstants {
+record ConfigDialog(Action action) implements CryptoConstants, Icons, PrimitiveConstants, StringConstants {
 
 	private static final Logger LOG = LogFactory.getLog();
 
@@ -140,26 +140,15 @@ final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, 
 			crypt.decrypt(enc, pwd);
 			final var t0 = Long.valueOf(end - start);
 			final var t1 = Long.valueOf(System.currentTimeMillis() - end);
-			LOG.info("Encrypted: %d ms, Decrypted: %d ms".formatted(t0, t1));
+			LOG.info("Encrypted: {} ms, Decrypted: {} ms", t0, t1);
 			msg(shell, SWT.ICON_INFORMATION | SWT.OK, titleInf, cfgTestI.formatted(t0, t1));
 		} catch (final Exception e) {
-			LOG.error(e.fillInStackTrace().toString());
+			LOG.error("Error occurred", e);
 			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 		}
 		cData.setKeyALGO(oldKeyA);
 		cData.setCipherALGO(oldCiph);
 		cData.setArgonType(oldArgT);
-	}
-
-	private final Action action;
-
-	/**
-	 * Instantiates a new config dialog.
-	 *
-	 * @param action the action
-	 */
-	ConfigDialog(final Action action) {
-		this.action = action;
 	}
 
 	/**
@@ -204,9 +193,9 @@ final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, 
 		comboArgon.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, true, false));
 		comboArgon.setItems(argon2d, argon2id);
 
-		final var argonMspinner = spinner(groupArgon, cData.getArgonMemo(), 19, 256, 0, 1, 16);
-		final var argonTspinner = spinner(groupArgon, cData.getArgonIter(), 2, 128, 0, 1, 8);
-		final var argonPspinner = spinner(groupArgon, cData.getArgonPara(), 1, 64, 0, 1, 4);
+		final var argonMspinner = spinner(groupArgon, cData.getArgonMemo(), ARGON_MEMO_MIN, ARGON_MEMO_MAX, 0, 1, 16);
+		final var argonTspinner = spinner(groupArgon, cData.getArgonIter(), ARGON_ITER_MIN, ARGON_ITER_MAX, 0, 1, 8);
+		final var argonPspinner = spinner(groupArgon, cData.getArgonPara(), ARGON_PARA_MIN, ARGON_PARA_MAX, 0, 1, 2);
 		argonMspinner.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, true, false));
 		argonTspinner.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, true, false));
 		argonPspinner.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, true, false));
@@ -214,7 +203,7 @@ final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, 
 				widgetSelectedAdapter(e -> testArgon2(cData, dialog, argonMspinner, argonTspinner, argonPspinner)));
 
 		final var groupPBKDF = group(encGroup, gridLayout(2), cfgPIter);
-		final var pbkdfIter = spinner(groupPBKDF, cData.getPBKDFIter(), 600000, 9999999, 0, 1, 10000);
+		final var pbkdfIter = spinner(groupPBKDF, cData.getPBKDFIter(), PBKDF2_MIN, PBKDF2_MAX, 0, 1, 0x10000);
 		pbkdfIter.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
 		final var testBtnB = button(groupPBKDF, SWT.PUSH, cfgTestB,
 				widgetSelectedAdapter(e -> testPBKDF2(cData, dialog, pbkdfIter)));
@@ -229,20 +218,21 @@ final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, 
 		optGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL));
 
 		label(optGroup, SWT.HORIZONTAL, cfgClPwd);
-		final var clearPwd = spinner(optGroup, cData.getClearPassword(), 5, 300, 0, 1, 10);
+		final var clearPwd = spinner(optGroup, cData.getClearPassword(), CLEAR_PWD_MIN, CLEAR_PWD_MAX, 0, 1, 10);
 
 		horizontalSeparator(optGroup);
 
 		label(optGroup, SWT.HORIZONTAL, cfgMinPl);
-		final var minPwdLength = spinner(optGroup, cData.getPasswordMinLength(), PASSWORD_ABSOLUTE_MIN_LENGTH, 64, 0, 1, 4);
+		final var minPwdLength = spinner(optGroup, cData.getPasswordMinLength(), PWD_MIN_LENGTH, PWD_MAX_LENGTH, 0, 1,
+				4);
 
 		horizontalSeparator(optGroup);
 
 		label(optGroup, SWT.HORIZONTAL, cfgColWh);
-		final var columnWidth = spinner(optGroup, cData.getColumnWidth(), 10, 5000, 0, 1, 10);
+		final var columnWidth = spinner(optGroup, cData.getColumnWidth(), COL_MIN_WIDTH, COL_MAX_WIDTH, 0, 1, 10);
 
 		label(optGroup, SWT.HORIZONTAL, cfgBuffL);
-		final var bufferLength = spinner(optGroup, cData.getBufferLength(), 64, 65536, 0, 1, 64);
+		final var bufferLength = spinner(optGroup, cData.getBufferLength(), BUFFER_MIN, BUFFER_MAX, 0, 1, 0x1000);
 
 		label(optGroup, SWT.HORIZONTAL, cfgDivid);
 		final var csvDivider = text(optGroup, SWT.BORDER | SWT.SINGLE);
@@ -257,7 +247,8 @@ final class ConfigDialog implements CryptoConstants, Icons, PrimitiveConstants, 
 		horizontalSeparator(optGroup);
 
 		final var showPassBtn = button(optGroup, showPasswd, cfgShPwd);
-		showPassBtn.addSelectionListener(widgetSelectedAdapter(e -> csvDivider.setEditable(showPassBtn.getSelection())));
+		showPassBtn
+				.addSelectionListener(widgetSelectedAdapter(e -> csvDivider.setEditable(showPassBtn.getSelection())));
 
 		optTab.setControl(optGroup);
 

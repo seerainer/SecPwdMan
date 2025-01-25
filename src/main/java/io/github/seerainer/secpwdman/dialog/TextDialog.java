@@ -37,15 +37,9 @@ import io.github.seerainer.secpwdman.config.Icons;
 import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The class TextDialog.
+ * The record TextDialog.
  */
-final class TextDialog implements Icons, StringConstants {
-
-	private final Action action;
-
-	TextDialog(final Action action) {
-		this.action = action;
-	}
+record TextDialog(Action action) implements Icons, StringConstants {
 
 	void open() {
 		final var cData = action.getCData();
@@ -60,8 +54,8 @@ final class TextDialog implements Icons, StringConstants {
 
 		final var image = getImage(shell.getDisplay(), APP_ICON);
 		final var isWriteable = !cData.isReadOnly();
-		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image, getLayout(),
-				isWriteable ? textView + textWarn : textView);
+		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image,
+				getLayout(), isWriteable ? textView + textWarn : textView);
 
 		final var tableData = new String(action.extractData());
 		final var text = text(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);

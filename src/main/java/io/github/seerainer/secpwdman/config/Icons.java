@@ -21,7 +21,7 @@
 package io.github.seerainer.secpwdman.config;
 
 /**
- * The Class IMG.
+ * The class IMG.
  */
 public interface Icons {
 

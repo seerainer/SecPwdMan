@@ -37,9 +37,9 @@ import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
- * The class SearchDialog.
+ * The record SearchDialog.
  */
-public final class SearchDialog implements StringConstants {
+public record SearchDialog(Action action) implements StringConstants {
 
 	private static Shell dialog;
 
@@ -50,17 +50,6 @@ public final class SearchDialog implements StringConstants {
 		if (dialog != null && !dialog.isDisposed()) {
 			dialog.close();
 		}
-	}
-
-	private final Action action;
-
-	/**
-	 * Instantiates a new search dialog.
-	 *
-	 * @param action the action
-	 */
-	public SearchDialog(final Action action) {
-		this.action = action;
 	}
 
 	/**

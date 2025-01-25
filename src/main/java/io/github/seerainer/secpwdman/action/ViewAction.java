@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Table;
 import io.github.seerainer.secpwdman.config.ConfigData;
 
 /**
- * The Class ViewAction.
+ * The class ViewAction.
  */
 public final class ViewAction extends Action {
 

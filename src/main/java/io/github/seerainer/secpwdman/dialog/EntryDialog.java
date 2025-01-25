@@ -57,9 +57,9 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.RandomPassword;
 
 /**
- * The class EntryDialog.
+ * The record EntryDialog.
  */
-final class EntryDialog implements Icons, PrimitiveConstants, StringConstants {
+record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringConstants {
 
 	private static int[] getColumnIndexNumbers(final ConfigData cData) {
 		final var length = csvHeader.length;
@@ -69,17 +69,6 @@ final class EntryDialog implements Icons, PrimitiveConstants, StringConstants {
 			header[i] = map.get(csvHeader[i]).intValue();
 		}
 		return header;
-	}
-
-	private final Action action;
-
-	/**
-	 * Instantiates a new entry dialog.
-	 *
-	 * @param action the action
-	 */
-	EntryDialog(final Action action) {
-		this.action = action;
 	}
 
 	private void editEntry(final Shell dialog, final TableItem tableItem) {
@@ -146,7 +135,7 @@ final class EntryDialog implements Icons, PrimitiveConstants, StringConstants {
 			table.getItem(table.getSelectionIndex()).setText(textFields);
 		}
 		textFields[5] = null;
-		cData.setSealedData(action.cryptData(action.extractData()));
+		cData.getSensitiveData().setSealedData(action.cryptData(action.extractData()));
 		cData.setModified(true);
 		action.colorURL();
 		action.fillGroupList();
@@ -215,7 +204,7 @@ final class EntryDialog implements Icons, PrimitiveConstants, StringConstants {
 		emptyLabel(random, 4);
 
 		label(random, SWT.HORIZONTAL, entrLgth);
-		spinner(random, 20, PASSWORD_ABSOLUTE_MIN_LENGTH, 99, 0, 1, 4);
+		spinner(random, 20, PWD_MIN_LENGTH, 99, 0, 1, 4);
 
 		final var genBtn = button(random, SWT.PUSH, entrGene,
 				widgetSelectedAdapter(e -> pwd.setText(RandomPassword.generate(action, random.getChildren(), pwd))));

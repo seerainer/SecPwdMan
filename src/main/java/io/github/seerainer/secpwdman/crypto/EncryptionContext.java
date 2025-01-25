@@ -26,37 +26,28 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
-
 /**
- * The record AESEncryptionStrategy.
+ * The class CryptoContext.
  */
-record AESEncryptionStrategy(ConfigData cData) implements CryptoConstants, EncryptionStrategy {
+public final class EncryptionContext {
+	private final EncryptionStrategy strategy;
 
-	@Override
-	public byte[] encrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherAES);
-		final var iv = CryptoUtil.getRandomValue(IV_LENGTH);
-		final var salt = CryptoUtil.getRandomValue(SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.ENCRYPT_MODE, password, salt, iv, cData)
-				.doFinal(data);
-		return CryptoUtil.appendValues(iv, salt, ciphertext);
+	EncryptionContext(final EncryptionStrategy strategy) {
+		this.strategy = strategy;
 	}
 
-	@Override
 	public byte[] decrypt(final byte[] data, final byte[] password)
 			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherAES);
-		final var iv = CryptoUtil.getValueFromData(data, 0, IV_LENGTH);
-		final var salt = CryptoUtil.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.DECRYPT_MODE, password, salt, iv, cData);
-		return ciphertext.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
+		return strategy.decrypt(data, password);
+	}
+
+	public byte[] encrypt(final byte[] data, final byte[] password)
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+		return strategy.encrypt(data, password);
 	}
 }

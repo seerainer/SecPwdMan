@@ -35,10 +35,10 @@ import javax.crypto.NoSuchPaddingException;
 interface EncryptionStrategy {
 
 	byte[] decrypt(byte[] data, byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
-			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException;
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException;
 
 	byte[] encrypt(byte[] data, byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException,
-			InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException;
+			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException;
 }

@@ -83,8 +83,8 @@ public final class SWTUtil implements StringConstants {
 	 * @param marginTop    the margin top
 	 * @return GridLayout the layout
 	 */
-	public static GridLayout getLayout(final int numColumns, final int hSpacing, final int vSpacing, final int marginBottom,
-			final int marginLeft, final int marginRight, final int marginTop) {
+	public static GridLayout getLayout(final int numColumns, final int hSpacing, final int vSpacing,
+			final int marginBottom, final int marginLeft, final int marginRight, final int marginTop) {
 		final var layout = new GridLayout(numColumns, false);
 		layout.horizontalSpacing = hSpacing;
 		layout.marginBottom = marginBottom;

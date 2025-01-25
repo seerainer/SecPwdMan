@@ -136,7 +136,8 @@ public final class JsonUtil implements CryptoConstants, PrimitiveConstants, Stri
 		return APP_NAME.equals(obj.getString(appName)) && getBase64Data(obj.getString(encData)) != null;
 	}
 
-	private static JsonObject setEncryptionValues(final ConfigData cData, final InputStream is) throws JsonParserException {
+	private static JsonObject setEncryptionValues(final ConfigData cData, final InputStream is)
+			throws JsonParserException {
 		final var obj = getJsonObject(is);
 		cData.setKeyALGO(obj.getString(keyALGO, cData.getKeyALGO()));
 		cData.setCipherALGO(obj.getString(cipALGO, cData.getCipherALGO()));

@@ -49,9 +49,9 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.io.IO;
 
 /**
- * The class PasswordDialog.
+ * The record PasswordDialog.
  */
-final class PasswordDialog implements PrimitiveConstants, StringConstants {
+record PasswordDialog(FileAction action) implements PrimitiveConstants, StringConstants {
 
 	private static void testPassword(final ModifyEvent e, final ConfigData cData, final Text text2) {
 		final var text1 = (Text) e.widget;
@@ -59,7 +59,7 @@ final class PasswordDialog implements PrimitiveConstants, StringConstants {
 		final var pwd1 = text1.getTextChars();
 		final var pwd2 = text2.getTextChars();
 		if (isEqual(pwd1, pwd2)) {
-			if (pwd1.length >= PASSWORD_ABSOLUTE_MIN_LENGTH) {
+			if (pwd1.length >= PWD_MIN_LENGTH) {
 				evalPasswordStrength(cData, label, pwd1);
 			} else {
 				label.setText(errorLen.formatted(valueOf(cData.getPasswordMinLength())));
@@ -73,17 +73,6 @@ final class PasswordDialog implements PrimitiveConstants, StringConstants {
 		clear(pwd2);
 	}
 
-	private final FileAction action;
-
-	/**
-	 * Instantiates a new password dialog.
-	 *
-	 * @param action the action
-	 */
-	PasswordDialog(final FileAction action) {
-		this.action = action;
-	}
-
 	private void confirmPassword(final Shell dialog) {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
@@ -93,7 +82,7 @@ final class PasswordDialog implements PrimitiveConstants, StringConstants {
 		final var pwdCharsA = pwd.getTextChars();
 		final var length = pwdCharsA.length;
 		pwd.selectAll();
-		if (dialog.getBounds().height == PASSWORD_CONFIRM_HEIGHT) {
+		if (dialog.getBounds().height == PWD_CONFIRM_HEIGHT) {
 			final var pwdMinLength = cData.getPasswordMinLength();
 			final var pwdConfirm = ((Text) dialog.getChildren()[3]);
 			final var pwdCharsB = pwdConfirm.getTextChars();
@@ -154,7 +143,7 @@ final class PasswordDialog implements PrimitiveConstants, StringConstants {
 			final var label = label(dialog, SWT.HORIZONTAL, errorLen.formatted(valueOf(cData.getPasswordMinLength())));
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
 			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
-			dialog.setSize(480, PASSWORD_CONFIRM_HEIGHT);
+			dialog.setSize(480, PWD_CONFIRM_HEIGHT);
 		} else {
 			dialog.setSize(480, 150);
 		}

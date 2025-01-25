@@ -76,8 +76,8 @@ public final class Widgets {
 	 * @param text     the text
 	 * @return the button
 	 */
-	private static Button button(final Composite parent, final int style, final boolean select, final SelectionListener listener,
-			final String text) {
+	private static Button button(final Composite parent, final int style, final boolean select,
+			final SelectionListener listener, final String text) {
 		final var button = new Button(parent, style);
 		button.setFont(parent.getFont());
 		button.setForeground(parent.getForeground());
@@ -105,7 +105,8 @@ public final class Widgets {
 	 * @see io.github.seerainer.secpwdman.widgets.Widgets#button(Composite, int,
 	 *      boolean, SelectionListener, String)
 	 */
-	public static Button button(final Composite parent, final int style, final String text, final SelectionListener listener) {
+	public static Button button(final Composite parent, final int style, final String text,
+			final SelectionListener listener) {
 		return button(parent, style, false, listener, text);
 	}
 
@@ -147,7 +148,8 @@ public final class Widgets {
 	 * @param filterExte the filter extensions
 	 * @return path of the first selected file or null
 	 */
-	public static String fileDialog(final Shell parent, final int style, final String filterName, final String filterExte) {
+	public static String fileDialog(final Shell parent, final int style, final String filterName,
+			final String filterExte) {
 		final var dialog = new FileDialog(parent, style);
 		dialog.setFilterNames(new String[] { filterName });
 		dialog.setFilterExtensions(new String[] { filterExte });
@@ -197,8 +199,9 @@ public final class Widgets {
 		final var label = new Label(parent, style);
 		label.setFont(parent.getFont());
 		label.setForeground(parent.getForeground());
-		label.setLayoutData(style == SWT.HORIZONTAL + SWT.SEPARATOR ? new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1)
-				: new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		label.setLayoutData(
+				style == SWT.HORIZONTAL + SWT.SEPARATOR ? new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1)
+						: new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		if (!isBlank(text)) {
 			label.setText(text);
 		}
@@ -223,7 +226,8 @@ public final class Widgets {
 	 * @param font   the font
 	 * @return the link
 	 */
-	public static Link link(final Composite parent, final String url, final Color color, final String text, final String font) {
+	public static Link link(final Composite parent, final String url, final Color color, final String text,
+			final String font) {
 		final var link = new Link(parent, SWT.NONE);
 		link.addSelectionListener(widgetSelectedAdapter(e -> Program.launch(url)));
 		link.setForeground(parent.getForeground());
@@ -231,7 +235,8 @@ public final class Widgets {
 		link.setLinkForeground(color);
 		link.setText(text);
 		link.setToolTipText(url);
-		link.setFont(isBlank(font) ? parent.getFont() : new Font(parent.getDisplay(), new FontData(font, 12, SWT.BOLD)));
+		link.setFont(
+				isBlank(font) ? parent.getFont() : new Font(parent.getDisplay(), new FontData(font, 12, SWT.BOLD)));
 		return link;
 	}
 
@@ -262,8 +267,9 @@ public final class Widgets {
 	 * @param selection the selection
 	 * @return the menu item
 	 */
-	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu, final SelectionListener listener,
-			final int acc, final String text, final String image, final boolean selection) {
+	private static MenuItem menuItem(final Menu parent, final int state, final Menu menu,
+			final SelectionListener listener, final int acc, final String text, final String image,
+			final boolean selection) {
 		final var item = new MenuItem(parent, state);
 		if (menu != null) {
 			item.setMenu(menu);
@@ -318,7 +324,8 @@ public final class Widgets {
 	 * @see io.github.seerainer.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
 	 *      SelectionListener, int, String, String, boolean)
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener,
+			final String text) {
 		return menuItem(parent, state, null, listener, 0, text, null, false);
 	}
 
@@ -326,8 +333,8 @@ public final class Widgets {
 	 * @see io.github.seerainer.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
 	 *      SelectionListener, int, String, String, boolean)
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
-			final boolean selection) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener,
+			final String text, final boolean selection) {
 		return menuItem(parent, state, null, listener, 0, text, null, selection);
 	}
 
@@ -335,8 +342,8 @@ public final class Widgets {
 	 * @see io.github.seerainer.secpwdman.widgets.Widgets#menuItem(Menu, int, Menu,
 	 *      SelectionListener, int, String, String, boolean)
 	 */
-	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener, final String text,
-			final String image) {
+	public static MenuItem menuItem(final Menu parent, final int state, final SelectionListener listener,
+			final String text, final String image) {
 		return menuItem(parent, state, null, listener, 0, text, image, false);
 	}
 
@@ -376,7 +383,8 @@ public final class Widgets {
 	 * @param text   the text
 	 * @return the shell
 	 */
-	public static Shell shell(final Shell parent, final int style, final Image image, final Layout layout, final String text) {
+	public static Shell shell(final Shell parent, final int style, final Image image, final Layout layout,
+			final String text) {
 		final var shell = new Shell(parent, style);
 		shell.setFont(parent.getFont());
 		shell.setLayout(layout);

@@ -29,8 +29,11 @@ public interface StringConstants {
 
 	// Application strings
 	String APP_NAME = "SecPwdMan";
-	String APP_VERS = "1.0.0-rc.1";
+	String APP_VERS = "1.0.0-rc.2";
 	String APP_INFO = getString("APP.Info");
+
+	// Regular expressions for URL validation
+	String DOMAIN_PATTERN = "^(https?://)?(([^:@/]*):([^:@/]*)@)?([a-zA-Z0-9.-]+)(:\\d+)?(/[^\\s]*)?$";
 
 	// Links
 	String appLink = "<a>SecPwdMan</a>";
@@ -44,8 +47,6 @@ public interface StringConstants {
 	String mitLink = "(<a>MIT license</a>)";
 	String apaLink = "(<a>Apache 2 license</a>)";
 	String apaAddress = "https://www.apache.org/licenses/LICENSE-2.0";
-	String valLink = "<a>commons-validator</a>";
-	String valAddress = "https://github.com/apache/commons-validator";
 	String csvLink = "<a>sesseltjonna-csv</a>";
 	String csvAddress = "https://github.com/skjolber/sesseltjonna-csv";
 	String jsnLink = "<a>nanojson</a>";
@@ -228,6 +229,6 @@ public interface StringConstants {
 	String listFirs = getString("List.All");
 
 	String[] csvHeader = { "uuid", "group", "title", "url", "user", "password", "notes" };
-	String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), getString("Header.URL"), getString("Header.User"),
-			getString("Header.Pass"), getString("Header.Notes") };
+	String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), getString("Header.URL"),
+			getString("Header.User"), getString("Header.Pass"), getString("Header.Notes") };
 }

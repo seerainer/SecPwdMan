@@ -22,8 +22,6 @@ package io.github.seerainer.secpwdman.config;
 
 import java.util.HashMap;
 
-import javax.crypto.SealedObject;
-
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 
@@ -32,7 +30,7 @@ import com.password4j.types.Argon2;
 import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 
 /**
- * The Class ConfData.
+ * The class ConfData.
  */
 public final class ConfigData implements CryptoConstants {
 
@@ -46,10 +44,6 @@ public final class ConfigData implements CryptoConstants {
 	private boolean isReadOnly = false;
 	private boolean isResizeCol = false;
 	private boolean isShowPassword = false;
-
-	private transient byte[] dataKey;
-	private transient byte[] keyStoreData;
-	private transient byte[] keyStorePassword;
 
 	private char divider = '\u002C';
 
@@ -72,7 +66,7 @@ public final class ConfigData implements CryptoConstants {
 	private Point shellLocation;
 	private Point shellSize;
 
-	private transient SealedObject sealedData;
+	private final transient SensitiveData sensitiveData;
 
 	private String file = null;
 	private String header = null;
@@ -86,6 +80,7 @@ public final class ConfigData implements CryptoConstants {
 	 * Instantiates a new config data.
 	 */
 	public ConfigData() {
+		sensitiveData = new SensitiveData();
 	}
 
 	/**
@@ -152,13 +147,6 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @return the dataKey
-	 */
-	public byte[] getDataKey() {
-		return dataKey;
-	}
-
-	/**
 	 * @return the divider
 	 */
 	public char getDivider() {
@@ -187,20 +175,6 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @return the keyStoreData
-	 */
-	public byte[] getKeyStoreData() {
-		return keyStoreData;
-	}
-
-	/**
-	 * @return the keyStorePassword
-	 */
-	public byte[] getKeyStorePassword() {
-		return keyStorePassword;
-	}
-
-	/**
 	 * @return the linkColor
 	 */
 	public Color getLinkColor() {
@@ -222,10 +196,10 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @return the sealedData
+	 * @return the sensitiveData
 	 */
-	public SealedObject getSealedData() {
-		return sealedData;
+	public SensitiveData getSensitiveData() {
+		return sensitiveData;
 	}
 
 	/**
@@ -418,13 +392,6 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @param dataKey the dataKey to set
-	 */
-	public void setDataKey(final byte[] dataKey) {
-		this.dataKey = dataKey;
-	}
-
-	/**
 	 * @param divider the divider to set
 	 */
 	public void setDivider(final char divider) {
@@ -457,20 +424,6 @@ public final class ConfigData implements CryptoConstants {
 	 */
 	public void setKeyALGO(final String keyALGO) {
 		this.keyALGO = keyALGO;
-	}
-
-	/**
-	 * @param keyStoreData the keyStoreData to set
-	 */
-	public void setKeyStoreData(final byte[] keyStoreData) {
-		this.keyStoreData = keyStoreData;
-	}
-
-	/**
-	 * @param keyStorePassword the keyStorePassword to set
-	 */
-	public void setKeyStorePassword(final byte[] keyStorePassword) {
-		this.keyStorePassword = keyStorePassword;
 	}
 
 	/**
@@ -527,13 +480,6 @@ public final class ConfigData implements CryptoConstants {
 	 */
 	public void setResizeCol(final boolean isResizeCol) {
 		this.isResizeCol = isResizeCol;
-	}
-
-	/**
-	 * @param sealedData the sealedData to set
-	 */
-	public void setSealedData(final SealedObject sealedData) {
-		this.sealedData = sealedData;
 	}
 
 	/**

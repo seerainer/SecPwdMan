@@ -39,12 +39,13 @@ import org.eclipse.swt.widgets.Table;
 import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.config.SensitiveData;
 import io.github.seerainer.secpwdman.dialog.SearchDialog;
 import io.github.seerainer.secpwdman.io.IO;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
- * The Class FileAction.
+ * The class FileAction.
  */
 public final class FileAction extends Action {
 
@@ -62,13 +63,11 @@ public final class FileAction extends Action {
 	}
 
 	private void clearConfidentialData() {
-		clear(cData.getDataKey());
-		clear(cData.getKeyStorePassword());
-		clear(cData.getKeyStoreData());
-		cData.setDataKey(null);
-		cData.setKeyStoreData(null);
-		cData.setKeyStorePassword(null);
-		cData.setSealedData(null);
+		var sensitiveData = cData.getSensitiveData();
+		clear(sensitiveData.getDataKey());
+		clear(sensitiveData.getKeyStorePassword());
+		clear(sensitiveData.getKeyStoreData());
+		sensitiveData = new SensitiveData();
 	}
 
 	/**
@@ -157,7 +156,7 @@ public final class FileAction extends Action {
 	}
 
 	private void handleFileError(final String file, final String errorMessage) {
-		LOG.warn("File error: " + quote + file + quote);
+		LOG.warn("File error: {}{}{}", quote, file, quote);
 		msg(shell, SWT.ICON_ERROR, titleErr, errorMessage.formatted(file));
 		clearData();
 	}
@@ -179,11 +178,16 @@ public final class FileAction extends Action {
 	 */
 	public void importDialog() {
 		final var file = fileDialog(shell, SWT.OPEN, imexFile, imexExte);
-		final var io = new IO(this);
-		if (isFileReady(file) && io.openFile(null, file)) {
-			fillGroupList();
-			updateUI();
+		if (!isFileReady(file)) {
+			return;
 		}
+
+		final var io = new IO(this);
+		if (!io.openFile(null, file)) {
+			return;
+		}
+		fillGroupList();
+		updateUI();
 	}
 
 	/**
@@ -262,7 +266,7 @@ public final class FileAction extends Action {
 	}
 
 	/**
-	 * Opens the drag-and-drop and file argument.
+	 * Opens the file argument.
 	 */
 	public void openFileArg() {
 		final var file = cData.getFile();
@@ -270,8 +274,7 @@ public final class FileAction extends Action {
 			return;
 		}
 		if (!isReadable(file)) {
-			LOG.warn(quote + file + quote + " is not readable.");
-			cData.setFile(null);
+			handleFileError(file, errorFil);
 			return;
 		}
 		if (IO.isPasswordFile(file)) {
@@ -300,8 +303,9 @@ public final class FileAction extends Action {
 	public void saveDialog() {
 		SearchDialog.close();
 
-		final var keyStoreData = cData.getKeyStoreData();
-		final var keyStorePassword = cData.getKeyStorePassword();
+		final var sensitiveData = cData.getSensitiveData();
+		final var keyStoreData = sensitiveData.getKeyStoreData();
+		final var keyStorePassword = sensitiveData.getKeyStorePassword();
 		var file = cData.getFile();
 		if (isFileReady(file) && keyStoreData != null && keyStorePassword != null) {
 			final var io = new IO(this);

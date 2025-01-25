@@ -53,9 +53,12 @@ public final class KeyStoreManager implements CryptoConstants {
 	 * @return the password from key store
 	 */
 	public static byte[] getPasswordFromKeyStore(final char[] keyStorePassword, final byte[] keyStoreData) {
-		try {
+		if (keyStorePassword == null || keyStoreData == null) {
+			throw new IllegalArgumentException("KeyStore password and data must not be null");
+		}
+		try (var bais = new ByteArrayInputStream(keyStoreData)) {
 			final var keyStoreInstance = getInstance();
-			keyStoreInstance.load(new ByteArrayInputStream(keyStoreData), keyStorePassword);
+			keyStoreInstance.load(bais, keyStorePassword);
 			final var protParam = getPasswordProtection(keyStorePassword);
 			final var entry = keyStoreInstance.getEntry(alias, protParam);
 			if (entry instanceof KeyStore.SecretKeyEntry) {
@@ -64,7 +67,7 @@ public final class KeyStoreManager implements CryptoConstants {
 			throw new KeyStoreException("No SecretKeyEntry found for alias");
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException
 				| UnrecoverableEntryException e) {
-			LOG.error(e.fillInStackTrace().toString());
+			LOG.error("Error occurred", e);
 			return null;
 		}
 	}
@@ -92,7 +95,7 @@ public final class KeyStoreManager implements CryptoConstants {
 			keyStoreInstance.store(baos, keyStorePassword);
 			return baos.toByteArray();
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			LOG.error(e.fillInStackTrace().toString());
+			LOG.error("Error occurred", e);
 			return null;
 		}
 	}
