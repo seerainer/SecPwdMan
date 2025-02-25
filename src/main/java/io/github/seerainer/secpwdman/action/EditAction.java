@@ -20,22 +20,24 @@
  */
 package io.github.seerainer.secpwdman.action;
 
-import static io.github.seerainer.secpwdman.util.Util.isBlank;
+import static io.github.seerainer.secpwdman.util.Util.getBase64Char;
 
 import java.util.ArrayList;
 
 import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.io.CharArrayString;
 
 /**
  * The class EditAction.
  */
-public final class EditAction extends Action {
+public class EditAction extends Action {
 
 	/**
 	 * Instantiates a new edit action.
@@ -54,17 +56,20 @@ public final class EditAction extends Action {
 	 * @param index the selected index number
 	 */
 	public void copyToClipboard(final int index) {
-		var text = table.getItem(table.getSelectionIndex()).getText(index);
-		if (isBlank(text)) {
-			text = nullStr;
-		}
 		final var display = shell.getDisplay();
 		final var cb = new Clipboard(display);
-		cb.setContents(new Object[] { text }, new Transfer[] { TextTransfer.getInstance() });
-		cb.dispose();
+		final var sb = new StringBuilder();
+		final var cas = new CharArrayString(table.getItem(table.getSelectionIndex()).getText(index));
 		if (index == cData.getColumnMap().get(csvHeader[5]).intValue()) {
+			sb.append(getBase64Char(cas));
 			display.timerExec(cData.getClearPassword() * SECONDS, this::clearClipboard);
+		} else {
+			sb.append(cas.length() > 0 ? cas.toCharArray() : nullStr.toCharArray());
+			cas.clear();
 		}
+		cb.setContents(new Object[] { sb.toString() }, new Transfer[] { TextTransfer.getInstance() }, DND.CLIPBOARD);
+		cb.dispose();
+		sb.setLength(0);
 	}
 
 	/**

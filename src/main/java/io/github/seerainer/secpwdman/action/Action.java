@@ -20,12 +20,13 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.util.CharsetUtil.replaceSequence;
+import static io.github.seerainer.secpwdman.util.CharsetUtil.toBytes;
 import static io.github.seerainer.secpwdman.util.URLUtil.isUrl;
 import static io.github.seerainer.secpwdman.util.Util.clear;
-import static io.github.seerainer.secpwdman.util.Util.getFilePath;
+import static io.github.seerainer.secpwdman.util.Util.getBase64Char;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static io.github.seerainer.secpwdman.util.Util.isEqual;
-import static io.github.seerainer.secpwdman.util.Util.isFileReady;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 import static java.lang.Integer.valueOf;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
@@ -65,8 +66,11 @@ import com.password4j.SecureString;
 import io.github.seerainer.secpwdman.config.ConfigData;
 import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
+import io.github.seerainer.secpwdman.crypto.Crypto;
 import io.github.seerainer.secpwdman.crypto.CryptoConstants;
-import io.github.seerainer.secpwdman.crypto.CryptoUtil;
+import io.github.seerainer.secpwdman.io.ByteContainer;
+import io.github.seerainer.secpwdman.io.CharArrayString;
+import io.github.seerainer.secpwdman.io.IOUtil;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
@@ -75,6 +79,20 @@ import io.github.seerainer.secpwdman.util.LogFactory;
 public abstract class Action implements CryptoConstants, PrimitiveConstants, StringConstants {
 
 	private static final Logger LOG = LogFactory.getLog();
+
+	private static SecureString handleSpecialChars(final char[] chars) {
+		final var quoteChar1 = quote.toCharArray();
+		final var quoteChar2 = (quote + quote).toCharArray();
+		final var specialCha = replaceSequence(chars, quoteChar1, quoteChar2);
+		final var result = new char[specialCha.length + quoteChar2.length];
+		System.arraycopy(quoteChar1, 0, result, 0, quoteChar1.length);
+		System.arraycopy(specialCha, 0, result, quoteChar1.length, specialCha.length);
+		System.arraycopy(quoteChar1, 0, result, quoteChar1.length + specialCha.length, quoteChar1.length);
+		final var ss = new SecureString(result);
+		clear(result);
+		clear(specialCha);
+		return ss;
+	}
 
 	final ConfigData cData;
 	final Shell shell;
@@ -110,19 +128,32 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		}
 	}
 
+	private boolean containsSpecialChar(final char[] chars) {
+		for (final char c : chars) {
+			if (c > ASCII_LENGTH || c == quote.charAt(0) || c == comma.charAt(0) || c == newLine.charAt(0)
+					|| c == space.charAt(0) || c == cData.getDivider()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String convertHeaderArrayToString(final String[] s) {
+		return String.join(String.valueOf(cData.getDivider()), s);
+	}
+
 	private void createColumns(final String[] header) {
 		table.removeAll();
-
 		while (table.getColumnCount() > 0) {
 			table.getColumns()[0].dispose();
 		}
-		for (final var head : header) {
+		Arrays.stream(header).forEach(head -> {
 			final var col = new TableColumn(table, SWT.NONE);
 			col.addSelectionListener(widgetSelectedAdapter(this::sortTable));
 			col.setMoveable(true);
 			col.setText(head);
 			col.setWidth(cData.getColumnWidth());
-		}
+		});
 	}
 
 	/**
@@ -133,16 +164,16 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	 */
 	public SealedObject cryptData(final byte[] tableData) {
 		if (tableData == null) {
-			LOG.error("Data is null");
+			LOG.error(dataNull);
 			return null;
 		}
 		try {
 			final var sensitiveData = cData.getSensitiveData();
-			sensitiveData.setDataKey(CryptoUtil.generateSecretKey(keyAES).getEncoded());
-			return CryptoUtil.generateSealedObject(tableData, sensitiveData.getDataKey(), cipherAES, keyAES);
+			sensitiveData.setDataKey(Crypto.generateSecretKey(keyAES).getEncoded());
+			return Crypto.generateSealedObject(tableData, sensitiveData.getDataKey(), cipherAES, keyAES);
 		} catch (InvalidKeyException | IllegalBlockSizeException | NoSuchAlgorithmException | NoSuchPaddingException
 				| IOException | ClassNotFoundException e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 			return null;
 		}
@@ -150,7 +181,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 
 	private void customHeader(final String[] header) {
 		final var newHeader = Arrays.copyOf(header, header.length);
-		final var map = new HashMap<String, Integer>(header.length);
+		final HashMap<String, Integer> map = HashMap.newHashMap(header.length);
 		for (var i = 0; i < header.length; i++) {
 			for (var j = 0; j < csvHeader.length; j++) {
 				if (header[i].equalsIgnoreCase(csvHeader[j])) {
@@ -161,15 +192,13 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 			}
 		}
 		cData.setColumnMap(map);
-		cData.setHeader(headerArrayToString(header));
+		cData.setHeader(convertHeaderArrayToString(header));
 
-		for (final var key : csvHeader) {
-			if (!map.containsKey(key)) {
-				cData.setCustomHeader(true);
-				createColumns(header);
-				LOG.warn("Custom header created");
-				return;
-			}
+		if (Arrays.stream(csvHeader).anyMatch(key -> !map.containsKey(key))) {
+			cData.setCustomHeader(true);
+			createColumns(header);
+			LOG.warn(customHeader);
+			return;
 		}
 		cData.setCustomHeader(false);
 		createColumns(newHeader);
@@ -180,13 +209,13 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	 * Creates the default header.
 	 */
 	public void defaultHeader() {
-		final var map = new HashMap<String, Integer>(csvHeader.length);
+		final HashMap<String, Integer> map = HashMap.newHashMap(csvHeader.length);
 		for (var i = 0; i < csvHeader.length; i++) {
 			map.put(csvHeader[i], valueOf(i));
 		}
 		cData.setColumnMap(map);
 		cData.setCustomHeader(false);
-		cData.setHeader(headerArrayToString(csvHeader));
+		cData.setHeader(convertHeaderArrayToString(csvHeader));
 		createColumns(tableHeader);
 		hideColumns();
 	}
@@ -201,7 +230,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		final var find = menu.getItem(2).getMenu();
 		final var view = menu.getItem(3).getMenu();
 		final var isDefaultHeader = !cData.isCustomHeader();
-		final var isFileOpen = isFileReady(cData.getFile());
+		final var isFileOpen = IOUtil.isFileReady(cData.getFile());
 		final var isModified = cData.isModified();
 		final var isShowPass = cData.isShowPassword();
 		final var isUnlocked = !cData.isLocked();
@@ -249,40 +278,36 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		toolBar.getItem(15).setEnabled(edit.getItem(11).getEnabled());
 	}
 
-	private SecureString escapeSpecialChar(final String s) {
-		if (s == null) {
-			LOG.warn("String is null");
-			return new SecureString(new char[0]);
+	private SecureString escapeSpecialChar(final char[] chars) {
+		if (containsSpecialChar(chars)) {
+			return handleSpecialChars(chars);
 		}
-
-		//@formatter:off
-		final var hasSpecialChar = s.codePoints().anyMatch(c -> c > asciiLength)
-								|| s.contains(quote)
-								|| s.contains(comma)
-								|| s.contains(newLine)
-								|| s.contains(space)
-								|| s.contains(String.valueOf(cData.getDivider()));
-		//@formatter:on
-		return new SecureString(hasSpecialChar ? (quote + s.replace(quote, quote + quote) + quote).toCharArray()
-				: s.replaceAll(lineBrk, space).toCharArray());
+		final var notSpecial = replaceSequence(chars, lineBrk.toCharArray(), space.toCharArray());
+		final var ss = new SecureString(notSpecial);
+		clear(notSpecial);
+		return ss;
 	}
 
 	/**
 	 * Extracts all data from the table.
 	 *
-	 * @return the byte[]
+	 * @return the byte array
 	 */
 	public byte[] extractData() {
 		final var csvDivider = String.valueOf(cData.getDivider());
-		final var sb = new StringBuilder(table.getItemCount() * OUT_LENGTH); // preallocate size
+		final var passwordIndex = cData.getColumnMap().get(csvHeader[5]).intValue();
+		final var isBase64Off = !cData.isBase64();
+		final var sb = new StringBuilder(table.getItemCount() * BUFFER_MIN); // preallocate size
 		sb.append(cData.getHeader()).append(newLine);
 
 		for (final var item : table.getItems()) {
 			final var itemText = new SecureString[table.getColumnCount()];
 			for (var i = 0; i < itemText.length; i++) {
-				itemText[i] = escapeSpecialChar(item.getText(i));
+				final var cas = new CharArrayString(item.getText(i));
+				itemText[i] = (i == passwordIndex && isBase64Off) ? escapeSpecialChar(getBase64Char(cas))
+						: escapeSpecialChar(cas.toCharArray());
+				cas.clear();
 			}
-
 			final var line = new StringBuilder();
 			for (var j = 0; j < itemText.length; j++) {
 				if (j > 0) {
@@ -293,7 +318,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 			sb.append(line).append(newLine);
 		}
 
-		return sb.toString().getBytes();
+		return toBytes(sb);
 	}
 
 	/**
@@ -304,7 +329,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		if (!list.isVisible() || cData.isCustomHeader()) {
 			return;
 		}
-		final var set = new HashSet<String>(table.getItemCount());
+		final HashSet<String> set = HashSet.newHashSet(table.getItemCount());
 		final var index = cData.getColumnMap().get(csvHeader[1]).intValue();
 
 		for (final var item : table.getItems()) {
@@ -321,26 +346,25 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	/**
 	 * Fills the table.
 	 *
-	 * @param newHeader true if new header
-	 * @param tableData the data
+	 * @param withHeader true if filled with header
+	 * @param tableData  the data
 	 */
-	public void fillTable(final boolean newHeader, final byte[] tableData) {
+	public void fillTable(final boolean withHeader, final byte[] tableData) {
 		final var reader = new InputStreamReader(new ByteArrayInputStream(tableData));
 		final var length = cData.getBufferLength() * MEM_SIZE;
 		final var csvDivider = cData.getDivider();
 		final var builder = StringArrayCsvReader.builder().bufferLength(length);
 		if (!comma.equals(String.valueOf(csvDivider))) {
-			LOG.warn("Divider is not a comma");
-			// TODO: Add support for escape character and quote character
+			LOG.warn(divNotComma);
 			// Identical escape and quote character not supported
-			builder.divider(csvDivider).escapeCharacter(newLine.charAt(0)).quoteCharacter(quote.charAt(0));
+			builder.divider(csvDivider).escapeCharacter(escap.charAt(0)).quoteCharacter(quote.charAt(0));
 		}
 		table.setRedraw(false);
 		table.setSortColumn(null);
 		table.removeAll();
 		try (final var iterator = builder.build(reader)) {
 			final var header = iterator.next();
-			if (newHeader) {
+			if (withHeader) {
 				if (isEqual(header, csvHeader)) {
 					defaultHeader();
 				} else {
@@ -354,10 +378,11 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 				fillTable(iterator, listSelection.equals(listFirs) ? null : listSelection);
 			}
 		} catch (final Exception e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+		} finally {
+			clear(tableData);
 		}
-		clear(tableData);
 		colorURL();
 		table.setRedraw(true);
 		resizeColumns();
@@ -413,23 +438,25 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		return table;
 	}
 
-	ToolBar getToolBar() {
+	/**
+	 * Gets the toolbar.
+	 *
+	 * @return the toolbar
+	 */
+	public ToolBar getToolBar() {
 		return (ToolBar) shell.getChildren()[0];
 	}
 
-	private String headerArrayToString(final String[] s) {
-		final var str = Arrays.toString(s).replace(comma + space, String.valueOf(cData.getDivider()));
-		return str.substring(1, str.length() - 1);
+	private void hideColumn(final int columnIndex) {
+		final var column = table.getColumn(columnIndex);
+		column.setResizable(false);
+		column.setWidth(0);
 	}
 
 	private void hideColumns() {
 		final var map = cData.getColumnMap();
-		final var uuid = table.getColumn(map.get(csvHeader[0]).intValue());
-		final var group = table.getColumn(map.get(csvHeader[1]).intValue());
-		uuid.setResizable(false);
-		uuid.setWidth(0);
-		group.setResizable(false);
-		group.setWidth(0);
+		hideColumn(map.get(csvHeader[0]).intValue());
+		hideColumn(map.get(csvHeader[1]).intValue());
 		hidePasswordColumn();
 	}
 
@@ -497,24 +524,24 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 		final var sensitiveData = cData.getSensitiveData();
 		final var sealedData = sensitiveData.getSealedData();
 		final var dataKey = sensitiveData.getDataKey();
-		byte[] tableData = null;
+		byte[] bytes = null;
 		if (sealedData != null && dataKey != null) {
 			try {
-				tableData = ((String) sealedData.getObject(CryptoUtil.getSecretKey(dataKey, keyAES))).getBytes();
+				bytes = ((ByteContainer) sealedData.getObject(Crypto.getSecretKey(dataKey, keyAES))).getData();
 			} catch (InvalidKeyException | ClassNotFoundException | NoSuchAlgorithmException | IOException e) {
-				LOG.error("Error occurred", e);
+				LOG.error(error, e);
 				msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 			}
 		}
-		fillTable(false, tableData == null ? extractData() : tableData);
-		tableData = null;
+		fillTable(false, bytes == null ? extractData() : bytes);
+		clear(bytes);
 	}
 
 	private void setText() {
 		final var file = cData.getFile();
 		var shellTitle = APP_NAME;
-		if (isFileReady(file)) {
-			final var filePath = getFilePath(file);
+		if (IOUtil.isFileReady(file)) {
+			final var filePath = IOUtil.getFilePath(file);
 			shellTitle = cData.isModified() ? APP_NAME + titleMD + filePath : APP_NAME + titlePH + filePath;
 		}
 		shell.setText(shellTitle);
@@ -571,7 +598,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 
 		colorURL();
 		table.setSortDirection(dir);
-		LOG.info("Time to sort: {} ms", Long.valueOf(System.currentTimeMillis() - startTime));
+		LOG.info(timeSort, Long.valueOf(System.currentTimeMillis() - startTime));
 	}
 
 	/**

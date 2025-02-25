@@ -25,16 +25,16 @@ import java.util.Arrays;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
-import io.github.seerainer.secpwdman.crypto.CryptoUtil;
+import io.github.seerainer.secpwdman.crypto.Crypto;
 
 /**
  * The class RandomPassword.
  */
-public final class RandomPassword implements StringConstants {
+public class RandomPassword implements PrimitiveConstants, StringConstants {
 
 	/**
 	 * Generate a random password.
@@ -44,30 +44,46 @@ public final class RandomPassword implements StringConstants {
 	 * @param pwdField the password text field
 	 * @return the string
 	 */
-	public static String generate(final Action action, final Control[] children, final Text pwdField) {
-		final var sign = new StringBuilder();
+	public static char[] generate(final Action action, final Control[] children) {
+		final var sb = new StringBuilder();
 		final var select = new boolean[6];
 		for (var i = 0; i < select.length; i++) {
 			select[i] = ((Button) children[i]).getSelection();
 			final var text = ((Button) children[i]).getText();
 			if (select[i]) {
-				sign.append(i == 5 ? space : (i == 3 ? text.substring(0, text.length() - 1) : text));
+				sb.append(i == 5 ? space : (i == 3 ? text.substring(0, text.length() - 1) : text));
 			}
 		}
-		if (Util.isBlank(sign.toString())) {
-			return empty;
+		if (Util.isBlank(sb.toString())) {
+			return new char[0];
 		}
-		final var randomPwd = new StringBuilder();
-		final var random = CryptoUtil.getSecureRandom();
 		final var spinner = ((Spinner) children[8]).getSelection();
+		var randomPwd = new char[spinner];
 		do {
-			randomPwd.setLength(0);
-			for (var count = spinner; count > 0; count--) {
-				randomPwd.append(sign.charAt(random.nextInt(sign.length())));
-			}
-		} while (isWeakPassword(select, randomPwd.toString().toCharArray()));
+			randomPwd = generate(spinner, sb);
+		} while (isWeakPassword(select, randomPwd));
 
-		return randomPwd.toString();
+		return randomPwd;
+	}
+
+	private static char[] generate(final int length, final StringBuilder sb) {
+		final var random = Crypto.getSecureRandom();
+		final var chars = new char[length];
+		for (var i = 0; i < length; i++) {
+			chars[i] = sb.charAt(random.nextInt(sb.length()));
+		}
+		return chars;
+	}
+
+	/**
+	 * Generate a random password for the key store.
+	 *
+	 * @return the char array
+	 */
+	public static char[] generateKeyStorePassword() {
+		final var sb = new StringBuilder();
+		sb.append(rTextLoC + rTextUpC + rNumbers + rSpecia1 + rSpecia2 + space);
+		return generate(DEFAULT_PWD_LENGTH, sb);
 	}
 
 	private static boolean isWeakPassword(final boolean[] selection, final char[] pwd) {

@@ -28,7 +28,7 @@ import javax.crypto.SecretKey;
 /**
  * The class KeyDerivationContext.
  */
-final class KeyDerivationContext {
+class KeyDerivationContext {
 	private final KeyDerivationStrategy strategy;
 
 	KeyDerivationContext(final KeyDerivationStrategy strategy) {

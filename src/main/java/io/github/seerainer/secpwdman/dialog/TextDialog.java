@@ -20,21 +20,23 @@
  */
 package io.github.seerainer.secpwdman.dialog;
 
+import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
 import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
-import static io.github.seerainer.secpwdman.util.Util.isBlank;
+import static io.github.seerainer.secpwdman.util.Util.clear;
+import static io.github.seerainer.secpwdman.util.Util.isEqual;
 import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
 import static io.github.seerainer.secpwdman.widgets.Widgets.text;
 import static org.eclipse.swt.events.ShellListener.shellClosedAdapter;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 
 import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.Icons;
 import io.github.seerainer.secpwdman.config.StringConstants;
+import io.github.seerainer.secpwdman.util.CharsetUtil;
 
 /**
  * The record TextDialog.
@@ -57,24 +59,24 @@ record TextDialog(Action action) implements Icons, StringConstants {
 		final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.MAX | SWT.RESIZE, image,
 				getLayout(), isWriteable ? textView + textWarn : textView);
 
-		final var tableData = new String(action.extractData());
+		final var tableData = CharsetUtil.toChars(action.extractData());
 		final var text = text(dialog, SWT.BORDER | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(isWriteable);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		text.setText(tableData);
+		text.setLayoutData(getGridData(SWT.FILL, SWT.FILL, 1, 1));
+		text.setTextChars(tableData);
 
 		dialog.addShellListener(shellClosedAdapter(e -> {
-			final var textData = text.getText().replaceAll(System.lineSeparator(), newLine);
-
-			if (isWriteable && !isBlank(textData) && !tableData.equals(textData)) {
-				action.fillTable(true, textData.getBytes());
+			final var textData = CharsetUtil.replaceSequence(text.getTextChars(), System.lineSeparator().toCharArray(),
+					newLine.toCharArray());
+			if (isWriteable && textData.length > 0 && !isEqual(tableData, textData)) {
 				cData.setModified(true);
-
-				action.colorURL();
+				action.fillTable(true, CharsetUtil.toBytes(textData));
 				action.fillGroupList();
 				action.resizeColumns();
 				action.updateUI();
 			}
+			clear(tableData);
+			clear(textData);
 		}));
 
 		setCenter(dialog);

@@ -29,11 +29,28 @@ public interface StringConstants {
 
 	// Application strings
 	String APP_NAME = "SecPwdMan";
-	String APP_VERS = "1.0.0-rc.2";
+	String APP_VERS = "1.0.0";
 	String APP_INFO = getString("APP.Info");
 
 	// Regular expressions for URL validation
-	String DOMAIN_PATTERN = "^(https?://)?(([^:@/]*):([^:@/]*)@)?([a-zA-Z0-9.-]+)(:\\d+)?(/[^\\s]*)?$";
+	String DOMAIN_PATTERN = """
+			^(https?:\\/\\/)\
+			(([a-zA-Z0-9_-]+):([a-zA-Z0-9_-]+)@)?\
+			([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\
+			(:\\d+)?\
+			(\\/[^\\s]*)?\
+			$""";
+
+	// SWT
+	String useSystemTheme = "org.eclipse.swt.display.useSystemTheme";
+	String darkModeExplorerTheme = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme";
+	String shellTitleColoring = "org.eclipse.swt.internal.win32.useShellTitleColoring";
+	String menuBarBackgroundColor = "org.eclipse.swt.internal.win32.menuBarBackgroundColor";
+	String menuBarForegroundColor = "org.eclipse.swt.internal.win32.menuBarForegroundColor";
+	String menuBarBorderColor = "org.eclipse.swt.internal.win32.menuBarBorderColor";
+	String use_WS_BORDER = "org.eclipse.swt.internal.win32.all.use_WS_BORDER";
+	String useDarkTheme = "org.eclipse.swt.internal.win32.Combo.useDarkTheme";
+	String useDarkThemeIcons = "org.eclipse.swt.internal.win32.Text.useDarkThemeIcons";
 
 	// Links
 	String appLink = "<a>SecPwdMan</a>";
@@ -62,10 +79,12 @@ public interface StringConstants {
 
 	// General strings
 	String empty = "";
+	String quote = "\"";
 	String space = "\s";
 	String tabul = "\t";
+	String escap = "\u001B";
 	String comma = "\u002C";
-	String quote = "\"";
+	String fstop = "\u002E";
 	String newLine = "\n";
 	String nullStr = "\0";
 	String lineBrk = "\\R";
@@ -81,14 +100,42 @@ public interface StringConstants {
 	String rSpecia1 = "+-=_@#$%^&&";
 	String rSpecia2 = ";:,.<>/~\\[](){}?!|*";
 
+	// Log messages
+	String error = "Error occurred";
+	String warning = "Warning occurred";
+	String customHeader = "Custom header created";
+	String dataNull = "Data must not be null";
+	String divNotComma = "Divider is not a comma";
+	String fileError = "File error: {}{}{}";
+	String fileNull = "File must not be null";
+	String missingResource = "Missing resource for key: {}";
+	String noSettingsFile = "No settings file found, using default settings";
+	String timeCrypto = "Encrypted: {} ms, Decrypted: {} ms";
+	String timeOpen = "Time to open: {} ms";
+	String timeSave = "Time to save: {} ms";
+	String timeSort = "Time to sort: {} ms";
+	String timeStart = "{} - Time to start: {} ms";
+	String timeTotal = "{} - Execution time: {} seconds";
+
+	// System information
+	String securityProvider = "Security provider";
+	String systemEnvi = "System environment variables";
+	String systemProp = "System properties";
+
 	// Configuration values
+	String BUNDLE_NAME = "messages";
+	String UTF8 = "UTF-8";
 	String confFile = "config.json";
 	String imexExte = "*.csv; *.txt";
 	String passExte = "*.aes; *.json";
 	String safeFont = "Arial";
-	String consFont = "Consolas";
-	String tempFold = "%t/";
-	String logExten = ".log.%g.txt";
+	String consFont = "Courier New";
+	String logFileP = "%h/." + APP_NAME + "/" + APP_NAME + ".log.%g.txt";
+	String userHome = "user.home";
+	String linuxGTK = "gtk";
+	String macCocoa = "cocoa";
+	String windows = "win32";
+	String trueStr = "true";
 
 	// Configuration keys
 	String appName = "appName";
@@ -97,6 +144,7 @@ public interface StringConstants {
 	String argon2M = "argon2Memo";
 	String argon2P = "argon2Para";
 	String argon2T = "argon2Type";
+	String base64E = "base64Encode";
 	String buffLen = "bufferLength";
 	String cipALGO = "cipherALGO";
 	String clearPw = "clearPassword";
@@ -176,7 +224,9 @@ public interface StringConstants {
 	String cfgLoMin = getString("Dialog.Config.LockOnMin");
 	String cfgTestB = getString("Dialog.Config.Test");
 	String cfgDWarn = getString("Dialog.Config.Warn");
+	String cfgBase6 = getString("Dialog.Config.Base64");
 	String cfgShPwd = getString("Dialog.Config.ShowPass");
+	String cfgShPTt = getString("Dialog.Config.ShowPassTooltip");
 	String entrNewe = getString("Dialog.Entry.New");
 	String entrEdit = getString("Dialog.Entry.Edit");
 	String entrView = getString("Dialog.Entry.View");

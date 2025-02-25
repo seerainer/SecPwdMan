@@ -20,6 +20,8 @@
  */
 package io.github.seerainer.secpwdman.dialog;
 
+import static io.github.seerainer.secpwdman.util.SWTUtil.getFont;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
 import static io.github.seerainer.secpwdman.widgets.Widgets.button;
@@ -30,30 +32,29 @@ import static io.github.seerainer.secpwdman.widgets.Widgets.shell;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.layout.GridData;
 
 import io.github.seerainer.secpwdman.action.Action;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The record InfoDialog.
  */
-record InfoDialog(Action action) implements StringConstants {
+record InfoDialog(Action action) implements PrimitiveConstants, StringConstants {
 
 	void open() {
 		final var cData = action.getCData();
-		var layout = getLayout(1, 20, 30, 10, 50, 50, 20);
+		var layout = getLayout(1, 20, 30, 10, 40, 40, 20);
 		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL, layout, titleInf);
-
+		final var display = dialog.getDisplay();
 		final var info = label(dialog, SWT.HORIZONTAL, APP_NAME + space + APP_VERS + APP_INFO);
 		info.setAlignment(SWT.CENTER);
-		info.setFont(new Font(dialog.getDisplay(), new FontData(consFont, 10, SWT.BOLD)));
+		info.setFont(getFont(display, consFont, 12, SWT.BOLD));
+		info.setLayoutData(getGridData(SWT.CENTER, SWT.CENTER, 0, 0));
 		layout = getLayout(2, 5, 5, 10, 10, 10, 10);
 		layout.makeColumnsEqualWidth = true;
 		final var depencies = group(dialog, layout, infoDepe);
-		depencies.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		depencies.setLayoutData(getGridData(SWT.CENTER, SWT.CENTER, 0, 0));
 
 		final var linkColor = cData.getLinkColor();
 		link(depencies, slfAddress, linkColor, slfLink);
@@ -68,11 +69,12 @@ record InfoDialog(Action action) implements StringConstants {
 		link(depencies, apaAddress, linkColor, apaLink);
 		link(depencies, swtAddress, linkColor, swtLink);
 		link(depencies, eplAddress, linkColor, eplLink);
-		link(dialog, appAddress, linkColor, appLink, safeFont);
+		final var url = link(dialog, appAddress, linkColor, appLink);
+		url.setFont(getFont(display, safeFont, 13, SWT.BOLD));
 
 		final var okBtn = button(dialog, SWT.PUSH, entrOkay, widgetSelectedAdapter(e -> dialog.close()));
-		final var gridData = new GridData(SWT.CENTER, SWT.CENTER, false, false);
-		gridData.widthHint = 80;
+		final var gridData = getGridData(SWT.CENTER, SWT.CENTER, 0, 0);
+		gridData.widthHint = BUTTON_WIDTH;
 		okBtn.setFocus();
 		okBtn.setLayoutData(gridData);
 

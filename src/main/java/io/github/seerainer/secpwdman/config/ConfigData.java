@@ -30,11 +30,12 @@ import com.password4j.types.Argon2;
 import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 
 /**
- * The class ConfData.
+ * The class ConfigData.
  */
-public final class ConfigData implements CryptoConstants {
+public class ConfigData implements CryptoConstants {
 
 	private boolean isArgon2 = true;
+	private boolean isBase64 = true;
 	private boolean isClearAfterSave = false;
 	private boolean isCustomHeader = false;
 	private boolean isExitAfterSave = false;
@@ -47,10 +48,10 @@ public final class ConfigData implements CryptoConstants {
 
 	private char divider = '\u002C';
 
-	private int argonMemo = 32;
-	private int argonIter = 10;
-	private int argonPara = 1;
-	private int pbkdfIter = 600000;
+	private int argon2Memo = 64;
+	private int argon2Iter = 8;
+	private int argon2Para = 2;
+	private int pbkdf2Iter = 600000;
 	private int clearPassword = 10;
 	private int columnWidth = 150;
 	private int passwordMinLength = 8;
@@ -84,30 +85,30 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @return the argonIter
+	 * @return the argon2Iter
 	 */
-	public int getArgonIter() {
-		return argonIter;
+	public int getArgon2Iter() {
+		return argon2Iter;
 	}
 
 	/**
-	 * @return the argonMemo
+	 * @return the argon2Memo
 	 */
-	public int getArgonMemo() {
-		return argonMemo;
+	public int getArgon2Memo() {
+		return argon2Memo;
 	}
 
 	/**
-	 * @return the argonPara
+	 * @return the argon2Para
 	 */
-	public int getArgonPara() {
-		return argonPara;
+	public int getArgon2Para() {
+		return argon2Para;
 	}
 
 	/**
-	 * @return the argonType
+	 * @return the argon2Type
 	 */
-	public Argon2 getArgonType() {
+	public Argon2 getArgon2Type() {
 		return argon2Type;
 	}
 
@@ -191,8 +192,8 @@ public final class ConfigData implements CryptoConstants {
 	/**
 	 * @return the iter of pbkdf2
 	 */
-	public int getPBKDFIter() {
-		return pbkdfIter;
+	public int getPBKDF2Iter() {
+		return pbkdf2Iter;
 	}
 
 	/**
@@ -242,6 +243,13 @@ public final class ConfigData implements CryptoConstants {
 	 */
 	public boolean isArgon2() {
 		return isArgon2;
+	}
+
+	/**
+	 * @return the isBase64
+	 */
+	public boolean isBase64() {
+		return isBase64;
 	}
 
 	/**
@@ -315,31 +323,38 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @param argonIter the argonIter to set
+	 * @param argon2Iter the argon2Iter to set
 	 */
-	public void setArgonIter(final int argonIter) {
-		this.argonIter = argonIter;
+	public void setArgon2Iter(final int argon2Iter) {
+		this.argon2Iter = argon2Iter;
 	}
 
 	/**
-	 * @param argonMemo the argonMemo to set
+	 * @param argon2Memo the argon2Memo to set
 	 */
-	public void setArgonMemo(final int argonMemo) {
-		this.argonMemo = argonMemo;
+	public void setArgon2Memo(final int argon2Memo) {
+		this.argon2Memo = argon2Memo;
 	}
 
 	/**
-	 * @param argonPara the argonPara to set
+	 * @param argon2Para the argon2Para to set
 	 */
-	public void setArgonPara(final int argonPara) {
-		this.argonPara = argonPara;
+	public void setArgon2Para(final int argon2Para) {
+		this.argon2Para = argon2Para;
 	}
 
 	/**
-	 * @param argonType the argonType to set
+	 * @param argon2Type the argon2Type to set
 	 */
-	public void setArgonType(final Argon2 argonType) {
-		this.argon2Type = argonType;
+	public void setArgon2Type(final Argon2 argon2Type) {
+		this.argon2Type = argon2Type;
+	}
+
+	/**
+	 * @param isBase64 the isBase64 to set
+	 */
+	public void setBase64(final boolean isBase64) {
+		this.isBase64 = isBase64;
 	}
 
 	/**
@@ -462,10 +477,10 @@ public final class ConfigData implements CryptoConstants {
 	}
 
 	/**
-	 * @param pbkdfIter the new iter for pbkdf2
+	 * @param pbkdf2Iter the new iter for pbkdf2
 	 */
-	public void setPBKDFIter(final int pbkdfIter) {
-		this.pbkdfIter = pbkdfIter;
+	public void setPBKDF2Iter(final int pbkdf2Iter) {
+		this.pbkdf2Iter = pbkdf2Iter;
 	}
 
 	/**

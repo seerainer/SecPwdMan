@@ -41,22 +41,21 @@ record AESEncryptionStrategy(ConfigData cData) implements CryptoConstants, Encry
 	public byte[] encrypt(final byte[] data, final byte[] password)
 			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherAES);
-		final var iv = CryptoUtil.getRandomValue(IV_LENGTH);
-		final var salt = CryptoUtil.getRandomValue(SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.ENCRYPT_MODE, password, salt, iv, cData)
-				.doFinal(data);
-		return CryptoUtil.appendValues(iv, salt, ciphertext);
+		final var instance = Crypto.getCipher(cipherAES);
+		final var iv = Crypto.getRandomValue(IV_LENGTH);
+		final var salt = Crypto.getRandomValue(SALT_LENGTH);
+		final var cipherText = Crypto.initCipherAES(instance, Cipher.ENCRYPT_MODE, password, salt, iv, cData);
+		return Crypto.appendValues(iv, salt, cipherText.doFinal(data));
 	}
 
 	@Override
 	public byte[] decrypt(final byte[] data, final byte[] password)
 			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherAES);
-		final var iv = CryptoUtil.getValueFromData(data, 0, IV_LENGTH);
-		final var salt = CryptoUtil.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.DECRYPT_MODE, password, salt, iv, cData);
-		return ciphertext.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
+		final var instance = Crypto.getCipher(cipherAES);
+		final var iv = Crypto.getValueFromData(data, 0, IV_LENGTH);
+		final var salt = Crypto.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
+		final var cipherText = Crypto.initCipherAES(instance, Cipher.DECRYPT_MODE, password, salt, iv, cData);
+		return cipherText.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
 	}
 }

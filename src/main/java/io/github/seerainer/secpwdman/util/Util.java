@@ -20,17 +20,16 @@
  */
 package io.github.seerainer.secpwdman.util;
 
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.UUID;
+
+import io.github.seerainer.secpwdman.io.CharArrayString;
 
 /**
  * The class Util.
  */
-public final class Util {
+public class Util {
 
 	/**
 	 * Clear byte array.
@@ -55,13 +54,45 @@ public final class Util {
 	}
 
 	/**
-	 * Get the absolute pathname.
+	 * Get the base64 char array.
 	 *
-	 * @param file the string file
-	 * @return absolutePath
+	 * @param cas the char array string
+	 * @return base64Char
 	 */
-	public static String getFilePath(final String file) {
-		return new File(file).getAbsolutePath();
+	public static char[] getBase64Char(final CharArrayString cas) {
+		try {
+			return CharsetUtil.toChars(getBase64Decode(CharsetUtil.toBytes(cas.toCharArray())));
+		} catch (final IllegalArgumentException e) {
+			return cas.toCharArray();
+		} finally {
+			cas.clear();
+		}
+	}
+
+	/**
+	 * Get the base64 decoded bytes.
+	 *
+	 * @param data the byte array data
+	 * @return base64Bytes
+	 */
+	public static byte[] getBase64Decode(final byte[] data) {
+		if (data == null) {
+			return null;
+		}
+		return Base64.getDecoder().decode(data);
+	}
+
+	/**
+	 * Get the base64 encoded bytes.
+	 *
+	 * @param data the byte array data
+	 * @return base64Bytes
+	 */
+	public static byte[] getBase64Encode(final byte[] data) {
+		if (data == null) {
+			return null;
+		}
+		return Base64.getEncoder().encode(data);
 	}
 
 	/**
@@ -103,59 +134,6 @@ public final class Util {
 	 */
 	public static boolean isEqual(final Object[] a, final Object[] b) {
 		return Arrays.equals(a, b);
-	}
-
-	/**
-	 * Checks if a file is not empty and readable.
-	 *
-	 * @param filePath the file path
-	 * @return true if the file is ready, false otherwise
-	 */
-	public static boolean isFileReady(final String filePath) {
-		return !isBlank(filePath) && isReadable(filePath);
-	}
-
-	/**
-	 * Checks if a file is readable.
-	 *
-	 * @param filePath the file path
-	 * @return true if the file is readable, false otherwise
-	 */
-	public static boolean isReadable(final String filePath) {
-		final var file = new File(filePath);
-		return (file.exists() && file.canRead() && file.canWrite() && file.isFile());
-	}
-
-	/**
-	 * Converts a char array to a byte array using UTF-8 encoding.
-	 *
-	 * @param chars the char array
-	 * @return the byte array
-	 */
-	public static byte[] toBytes(final char[] chars) {
-		final var charBuffer = CharBuffer.wrap(chars);
-		final var byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-		final var bytes = new byte[byteBuffer.remaining()];
-		byteBuffer.get(bytes);
-		clear(charBuffer.array());
-		clear(byteBuffer.array());
-		return bytes;
-	}
-
-	/**
-	 * Converts a byte array to a char array using UTF-8 encoding.
-	 *
-	 * @param bytes the byte array
-	 * @return the char array
-	 */
-	public static char[] toChars(final byte[] bytes) {
-		final var byteBuffer = ByteBuffer.wrap(bytes);
-		final var charBuffer = StandardCharsets.UTF_8.decode(byteBuffer);
-		final var chars = new char[byteBuffer.remaining()];
-		charBuffer.get(chars);
-		clear(charBuffer.array());
-		clear(byteBuffer.array());
-		return chars;
 	}
 
 	private Util() {

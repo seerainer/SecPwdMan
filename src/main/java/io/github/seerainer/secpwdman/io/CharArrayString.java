@@ -18,25 +18,48 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.crypto;
+package io.github.seerainer.secpwdman.io;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
+import java.io.CharArrayWriter;
+
+import io.github.seerainer.secpwdman.util.Util;
 
 /**
- * The class CryptoFactory.
+ * The class CharArrayString.
  */
-public class CryptoFactory implements CryptoConstants {
+public class CharArrayString {
+
+	private final CharArrayWriter caw;
 
 	/**
-	 * Instantiates a new crypto.
+	 * Instantiates a new CharArrayString.
 	 *
-	 * @param cData the cdata
+	 * @param str the str
 	 */
-	public static EncryptionContext crypto(final ConfigData cData) {
-		return new EncryptionContext(keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData)
-				: new ChaCha20EncryptionStrategy(cData));
+	public CharArrayString(final String str) {
+		this.caw = new CharArrayWriter();
+		this.caw.write(str, 0, str.length());
 	}
 
-	private CryptoFactory() {
+	/**
+	 * Clear.
+	 */
+	public void clear() {
+		Util.clear(toCharArray());
+		caw.reset();
+	}
+
+	/**
+	 * @return the length
+	 */
+	public int length() {
+		return caw.size();
+	}
+
+	/**
+	 * @return the char array
+	 */
+	public char[] toCharArray() {
+		return caw.toCharArray();
 	}
 }

@@ -26,7 +26,7 @@ import io.github.seerainer.secpwdman.action.FileAction;
 /**
  * The class DialogFactory.
  */
-public final class DialogFactory {
+public class DialogFactory {
 
 	/**
 	 * Creates the config dialog.

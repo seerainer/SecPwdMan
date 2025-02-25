@@ -20,6 +20,8 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.util.Util.clear;
+
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -41,11 +43,22 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.io.ByteContainer;
 
 /**
- * The class CryptoUtil.
+ * The class Crypto.
  */
-public final class CryptoUtil implements CryptoConstants {
+public class Crypto implements CryptoConstants {
+
+	private static final SecureRandom RANDOM_INSTANCE;
+
+	static {
+		try {
+			RANDOM_INSTANCE = SecureRandom.getInstanceStrong();
+		} catch (final NoSuchAlgorithmException e) {
+			throw new RuntimeException(noSecureRandom, e);
+		}
+	}
 
 	static byte[] appendValues(final byte[] iv, final byte[] salt, final byte[] ciphertext) {
 		final var encrypted = new byte[iv.length + salt.length + ciphertext.length];
@@ -74,8 +87,12 @@ public final class CryptoUtil implements CryptoConstants {
 			final String algorithm) throws IllegalBlockSizeException, InvalidKeyException, IOException,
 			NoSuchAlgorithmException, NoSuchPaddingException, ClassNotFoundException {
 		final var cipherInstance = Cipher.getInstance(transformation);
-		cipherInstance.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, algorithm));
-		return new SealedObject(new String(data), cipherInstance);
+		cipherInstance.init(Cipher.ENCRYPT_MODE, getSecretKey(key, algorithm));
+		final var bc = new ByteContainer(data);
+		final var so = new SealedObject(bc, cipherInstance);
+		clear(data);
+		bc.clear();
+		return so;
 	}
 
 	/**
@@ -87,7 +104,7 @@ public final class CryptoUtil implements CryptoConstants {
 	 */
 	public static SecretKey generateSecretKey(final String algorithm) throws NoSuchAlgorithmException {
 		final var key = KeyGenerator.getInstance(algorithm);
-		key.init(KEY_LENGTH, getSecureRandom());
+		key.init(KEY_LENGTH, RANDOM_INSTANCE);
 		return key.generateKey();
 	}
 
@@ -101,13 +118,20 @@ public final class CryptoUtil implements CryptoConstants {
 
 	private static SecretKey getKeyTransformation(final byte[] password, final byte[] salt, final ConfigData cData)
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		return cData.isArgon2() ? new KeyDerivationContext(new Argon2KeyDerivation(cData)).deriveKey(password, salt)
-				: new KeyDerivationContext(new PBKDF2KeyDerivation(cData)).deriveKey(password, salt);
+		return new KeyDerivationContext(
+				cData.isArgon2() ? new Argon2KeyDerivation(cData) : new PBKDF2KeyDerivation(cData))
+				.deriveKey(password, salt);
 	}
 
-	static byte[] getRandomValue(final int length) {
+	/**
+	 * Gets a random value.
+	 *
+	 * @param length the length
+	 * @return byte[] the random value
+	 */
+	public static byte[] getRandomValue(final int length) {
 		final var value = new byte[length];
-		getSecureRandom().nextBytes(value);
+		RANDOM_INSTANCE.nextBytes(value);
 		return value;
 	}
 
@@ -130,23 +154,33 @@ public final class CryptoUtil implements CryptoConstants {
 	 *                                  RuntimeException
 	 */
 	public static SecureRandom getSecureRandom() {
-		try {
-			return SecureRandom.getInstanceStrong();
-		} catch (final NoSuchAlgorithmException e) {
-			throw new RuntimeException("No strong SecureRandom instance available.", e);
-		}
+		return RANDOM_INSTANCE;
 	}
 
 	static byte[] getValueFromData(final byte[] original, final int from, final int to) {
 		return Arrays.copyOfRange(original, from, to);
 	}
 
-	static Cipher initCipher(final Cipher cipherInstance, final int mode, final byte[] password, final byte[] salt,
+	static Cipher initCipherAES(final Cipher cipherInstance, final int mode, final byte[] password, final byte[] salt,
+			final byte[] iv, final ConfigData cData) throws NoSuchAlgorithmException, InvalidKeyException,
+			InvalidAlgorithmParameterException, InvalidKeySpecException {
+		try {
+			cipherInstance.init(mode, getKeyTransformation(password, salt, cData),
+					new GCMParameterSpec(TAG_LENGTH, iv));
+		} finally {
+			clear(password);
+		}
+		return cipherInstance;
+	}
+
+	static Cipher initCipherCHA(final Cipher cipherInstance, final int mode, final byte[] password, final byte[] salt,
 			final byte[] nonce, final ConfigData cData) throws NoSuchAlgorithmException, InvalidKeyException,
 			InvalidAlgorithmParameterException, InvalidKeySpecException {
-		final var params = cipherAES.equals(cData.getCipherALGO()) ? new GCMParameterSpec(TAG_LENGTH, nonce)
-				: new IvParameterSpec(nonce);
-		cipherInstance.init(mode, getKeyTransformation(password, salt, cData), params);
+		try {
+			cipherInstance.init(mode, getKeyTransformation(password, salt, cData), new IvParameterSpec(nonce));
+		} finally {
+			clear(password);
+		}
 		return cipherInstance;
 	}
 
@@ -159,17 +193,16 @@ public final class CryptoUtil implements CryptoConstants {
 	}
 
 	/**
-	 * Checks if Ciphers and strong SecureRandom are available.
+	 * Checks if Ciphers and strong SecureRandom are available. Test SecureRandom
+	 * strong, AES_256/GCM/NOPADDING, CHACHA20-POLY1305 and PKCS12
 	 */
 	public static void selfTest() {
-		// Test SecureRandom strong instance
-		getSecureRandom();
-		// Test AES_256/GCM/NOPADDING, CHACHA20-POLY1305 and PKCS12 availability
-		if (!isCipherAvailable(cipherAES) || !isCipherAvailable(cipherChaCha20) || !isPKCS12Available()) {
-			throw new RuntimeException("Cipher not available");
+		if (getSecureRandom() == null || !isCipherAvailable(cipherAES) || !isCipherAvailable(cipherChaCha20)
+				|| !isPKCS12Available()) {
+			throw new RuntimeException(noCipher);
 		}
 	}
 
-	private CryptoUtil() {
+	private Crypto() {
 	}
 }

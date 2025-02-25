@@ -28,16 +28,15 @@ import io.github.seerainer.secpwdman.util.LogFactory;
 /**
  * The class Messages.
  */
-final class Messages {
+class Messages implements StringConstants {
 
-	private static final String BUNDLE_NAME = "messages";
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
 	static String getString(final String key) {
 		try {
 			return RESOURCE_BUNDLE.getString(key);
 		} catch (final MissingResourceException e) {
-			LogFactory.getLog().error("Missing resource: {}", key);
+			LogFactory.getLog().error(missingResource, key);
 			return '!' + key + '!';
 		}
 	}

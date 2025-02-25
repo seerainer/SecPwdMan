@@ -18,25 +18,42 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.crypto;
+package io.github.seerainer.secpwdman.io;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
+import java.io.Serializable;
+
+import io.github.seerainer.secpwdman.util.Util;
 
 /**
- * The class CryptoFactory.
+ * The class ByteContainer.
  */
-public class CryptoFactory implements CryptoConstants {
+public class ByteContainer implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private final byte[] data;
 
 	/**
-	 * Instantiates a new crypto.
+	 * Instantiates a new ByteContainer.
 	 *
-	 * @param cData the cdata
+	 * @param data the data
 	 */
-	public static EncryptionContext crypto(final ConfigData cData) {
-		return new EncryptionContext(keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData)
-				: new ChaCha20EncryptionStrategy(cData));
+	public ByteContainer(final byte[] data) {
+		this.data = data.clone(); // Create defensive copy
 	}
 
-	private CryptoFactory() {
+	/**
+	 * Clear the data.
+	 */
+	public void clear() {
+		Util.clear(data);
+	}
+
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
+	public byte[] getData() {
+		return data.clone(); // Return defensive copy
 	}
 }

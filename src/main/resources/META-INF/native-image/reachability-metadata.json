@@ -315,26 +315,29 @@
     {
       "name": "com/nulabinc/zxcvbn/messages",
       "locales": [
-        "de",
-        "en"
+        "de"
       ]
     },
     {
       "name": "messages",
       "locales": [
-        "de",
-        "en"
+        "de"
       ]
     },
     {
       "name": "org.eclipse.swt.internal.SWTMessages",
       "locales": [
-        "de",
-        "en"
+        "de"
       ]
     }
   ],
   "serialization": [
+    {
+      "type": "byte[]"
+    },
+    {
+      "type": "io.github.seerainer.secpwdman.io.ByteContainer"
+    },
     {
       "type": "java.lang.String"
     }

@@ -34,7 +34,13 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 /**
  * The class PasswordStrength.
  */
-public final class PasswordStrength implements PrimitiveConstants, StringConstants {
+public class PasswordStrength implements PrimitiveConstants, StringConstants {
+
+	private static final Zxcvbn zxcvbn;
+
+	static {
+		zxcvbn = new Zxcvbn();
+	}
 
 	/**
 	 * Evaluate the password strength.
@@ -52,8 +58,7 @@ public final class PasswordStrength implements PrimitiveConstants, StringConstan
 			return;
 		}
 		final var charBuffer = CharBuffer.wrap(pwd);
-		final var strength = new Zxcvbn().measure(charBuffer);
-		Util.clear(pwd);
+		final var strength = zxcvbn.measure(charBuffer);
 		Util.clear(charBuffer.array());
 		var text = passWeak;
 		switch (strength.getScore()) {
@@ -61,7 +66,7 @@ public final class PasswordStrength implements PrimitiveConstants, StringConstan
 		case 3 -> text = passStro;
 		case 4 -> text = passSecu;
 		default -> {
-			// break;
+			break;
 		}
 		}
 		if (text.equals(passWeak) || text.equals(passFair)) {
@@ -73,9 +78,9 @@ public final class PasswordStrength implements PrimitiveConstants, StringConstan
 		}
 		label.setText(text);
 		final var feedback = strength.getFeedback();
-		final var str = new StringBuilder();
-		feedback.getSuggestions().forEach((final var s) -> str.append(s).append(newLine));
-		label.setToolTipText(str.toString() + feedback.getWarning());
+		final var sb = new StringBuilder();
+		feedback.getSuggestions().forEach((final var s) -> sb.append(s).append(newLine));
+		label.setToolTipText(sb.toString() + feedback.getWarning());
 	}
 
 	private PasswordStrength() {

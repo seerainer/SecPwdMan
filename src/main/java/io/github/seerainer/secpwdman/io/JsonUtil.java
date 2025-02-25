@@ -18,13 +18,14 @@
  * with this program; if not, see <http://www.gnu.org/licenses/>.
  *
  */
-package io.github.seerainer.secpwdman.util;
+package io.github.seerainer.secpwdman.io;
 
 import static java.lang.Boolean.valueOf;
 import static java.lang.Integer.valueOf;
 
 import java.io.InputStream;
-import java.util.Base64;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
@@ -43,18 +44,13 @@ import io.github.seerainer.secpwdman.config.ConfigData;
 import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.CryptoConstants;
+import io.github.seerainer.secpwdman.util.SWTUtil;
+import io.github.seerainer.secpwdman.util.Util;
 
 /**
  * The class JsonUtil.
  */
-public final class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
-
-	private static byte[] getBase64Data(final String dataStr) {
-		if (dataStr == null) {
-			return null;
-		}
-		return Base64.getDecoder().decode(dataStr.getBytes());
-	}
+class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
 
 	//@formatter:off
 	private static JsonStringWriter getEncryptionValues(final ConfigData cData) {
@@ -65,30 +61,25 @@ public final class JsonUtil implements CryptoConstants, PrimitiveConstants, Stri
 				.value(keyALGO, cData.getKeyALGO())
 				.value(cipALGO, cData.getCipherALGO())
 				.value(isArgon, valueOf(cData.isArgon2()))
-				.value(argon2T, cData.getArgonType() == Argon2.D ? argon2d : argon2id)
-				.value(argon2M, valueOf(cData.getArgonMemo()))
-				.value(argon2I, valueOf(cData.getArgonIter()))
-				.value(argon2P, valueOf(cData.getArgonPara()))
-				.value(pbkdf2I, valueOf(cData.getPBKDFIter()));
+				.value(argon2T, cData.getArgon2Type() == Argon2.D ? argon2d : argon2id)
+				.value(argon2M, valueOf(cData.getArgon2Memo()))
+				.value(argon2I, valueOf(cData.getArgon2Iter()))
+				.value(argon2P, valueOf(cData.getArgon2Para()))
+				.value(pbkdf2I, valueOf(cData.getPBKDF2Iter()));
 	}
 
 	private static String getFontDataString(final Control control) {
 		return control.getFont().getFontData()[0].toString();
 	}
 
-	/**
-	 * Gets the cData config.
-	 *
-	 * @param action the Action
-	 * @return byte array json object
-	 */
-	public static byte[] getJsonConfig(final Action action) {
+	static byte[] getJsonConfig(final Action action) throws UnsupportedEncodingException {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
 		final var size = shell.getSize();
 		final var pos = shell.getLocation();
 
 		return getEncryptionValues(cData)
+				.value(base64E, valueOf(cData.isBase64()))
 				.value(buffLen, valueOf(cData.getBufferLength()))
 				.value(clearPw, valueOf(cData.getClearPassword()))
 				.value(coWidth, valueOf(cData.getColumnWidth()))
@@ -104,36 +95,23 @@ public final class JsonUtil implements CryptoConstants, PrimitiveConstants, Stri
 				.value(shellPX, valueOf(pos.x))
 				.value(shellPY, valueOf(pos.y))
 			.end()
-		.done().getBytes();
+		.done().getBytes(UTF8);
 	}
 	//@formatter:on
 
-	/**
-	 * Gets configuration and the encrypted data.
-	 *
-	 * @param cData the ConfData
-	 * @param b     the encrypted byte array
-	 * @return byte array json object
-	 */
-	public static byte[] getJsonFile(final ConfigData cData, final byte[] bytes) {
-		final var encStr = new String(Base64.getEncoder().encode(bytes));
-		return getEncryptionValues(cData).value(encData, encStr).end().done().getBytes();
+	static byte[] getJsonFile(final ConfigData cData, final byte[] bytes) throws UnsupportedEncodingException {
+		final var encStr = new String(Util.getBase64Encode(bytes), StandardCharsets.UTF_8);
+		return getEncryptionValues(cData).value(encData, encStr).end().done().getBytes(UTF8);
 	}
 
 	private static JsonObject getJsonObject(final InputStream is) throws JsonParserException {
 		return JsonParser.object().from(is);
 	}
 
-	/**
-	 * Checks if the file has the correct format.
-	 *
-	 * @param is the InputStream
-	 * @return true if the file has the correct format
-	 * @throws JsonParserException
-	 */
-	public static boolean hasCorrectFileFormat(final InputStream is) throws JsonParserException {
+	static boolean hasCorrectFileFormat(final InputStream is) throws JsonParserException, UnsupportedEncodingException {
 		final var obj = getJsonObject(is);
-		return APP_NAME.equals(obj.getString(appName)) && getBase64Data(obj.getString(encData)) != null;
+		return APP_NAME.equals(obj.getString(appName))
+				&& Util.getBase64Decode(obj.getString(encData).getBytes(UTF8)) != null;
 	}
 
 	private static JsonObject setEncryptionValues(final ConfigData cData, final InputStream is)
@@ -142,28 +120,20 @@ public final class JsonUtil implements CryptoConstants, PrimitiveConstants, Stri
 		cData.setKeyALGO(obj.getString(keyALGO, cData.getKeyALGO()));
 		cData.setCipherALGO(obj.getString(cipALGO, cData.getCipherALGO()));
 		cData.setArgon2(obj.getBoolean(isArgon, valueOf(cData.isArgon2())));
-		cData.setArgonType(argon2d.equals(obj.getString(argon2T, argon2d)) ? Argon2.D : Argon2.ID);
-		cData.setArgonMemo(obj.getInt(argon2M, cData.getArgonMemo()));
-		cData.setArgonIter(obj.getInt(argon2I, cData.getArgonIter()));
-		cData.setArgonPara(obj.getInt(argon2P, cData.getArgonPara()));
-		cData.setPBKDFIter(obj.getInt(pbkdf2I, cData.getPBKDFIter()));
-
+		cData.setArgon2Type(argon2d.equals(obj.getString(argon2T, argon2d)) ? Argon2.D : Argon2.ID);
+		cData.setArgon2Memo(obj.getInt(argon2M, cData.getArgon2Memo()));
+		cData.setArgon2Iter(obj.getInt(argon2I, cData.getArgon2Iter()));
+		cData.setArgon2Para(obj.getInt(argon2P, cData.getArgon2Para()));
+		cData.setPBKDF2Iter(obj.getInt(pbkdf2I, cData.getPBKDF2Iter()));
 		return obj;
 	}
 
-	/**
-	 * Sets the cData config.
-	 *
-	 * @param action the Action
-	 * @param is     the InputStream
-	 * @throws JsonParserException
-	 */
-	public static void setJsonConfig(final Action action, final InputStream is) throws JsonParserException {
+	static void setJsonConfig(final Action action, final InputStream is) throws JsonParserException {
 		final var cData = action.getCData();
 		final var obj = setEncryptionValues(cData, is);
 		final var preferredSizeX = SWTUtil.getPrefSize(action.getShell()).x;
-		final var fontString = new FontData(safeFont, 9, SWT.NORMAL).toString();
-
+		final var fontString = new FontData(safeFont, 10, SWT.NORMAL).toString();
+		cData.setBase64(obj.getBoolean(base64E, valueOf(cData.isBase64())));
 		cData.setBufferLength(obj.getInt(buffLen, cData.getBufferLength()));
 		cData.setClearPassword(obj.getInt(clearPw, cData.getClearPassword()));
 		cData.setColumnWidth(obj.getInt(coWidth, cData.getColumnWidth()));
@@ -178,16 +148,9 @@ public final class JsonUtil implements CryptoConstants, PrimitiveConstants, Stri
 		cData.setTableFont(obj.getString(tableFo, fontString));
 	}
 
-	/**
-	 * Sets config and the encrypted data.
-	 *
-	 * @param cData the ConfData
-	 * @param is    the InputStream
-	 * @return byte array the encrypted data
-	 * @throws JsonParserException
-	 */
-	public static byte[] setJsonFile(final ConfigData cData, final InputStream is) throws JsonParserException {
-		final var dataStr = getBase64Data(setEncryptionValues(cData, is).getString(encData));
+	static byte[] setJsonFile(final ConfigData cData, final InputStream is)
+			throws JsonParserException, UnsupportedEncodingException {
+		final var dataStr = Util.getBase64Decode(setEncryptionValues(cData, is).getString(encData).getBytes(UTF8));
 		return dataStr == null ? new byte[0] : dataStr;
 	}
 

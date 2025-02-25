@@ -31,7 +31,7 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 /**
  * The class URLUtil.
  */
-public final class URLUtil implements PrimitiveConstants, StringConstants {
+public class URLUtil implements PrimitiveConstants, StringConstants {
 
 	/**
 	 * Checks if is url.

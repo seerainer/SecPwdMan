@@ -30,16 +30,27 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 
+import javax.security.auth.DestroyFailedException;
+
 import org.slf4j.Logger;
 
+import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The class KeyStoreManager.
  */
-public final class KeyStoreManager implements CryptoConstants {
+public class KeyStoreManager implements CryptoConstants, StringConstants {
 
 	private static final Logger LOG = LogFactory.getLog();
+
+	private static void destroyProtParam(final PasswordProtection protParam) {
+		try {
+			protParam.destroy();
+		} catch (final DestroyFailedException e) {
+			LOG.error(error, e);
+		}
+	}
 
 	private static KeyStore getInstance() throws KeyStoreException {
 		return KeyStore.getInstance(pkcs12);
@@ -54,21 +65,23 @@ public final class KeyStoreManager implements CryptoConstants {
 	 */
 	public static byte[] getPasswordFromKeyStore(final char[] keyStorePassword, final byte[] keyStoreData) {
 		if (keyStorePassword == null || keyStoreData == null) {
-			throw new IllegalArgumentException("KeyStore password and data must not be null");
+			throw new IllegalArgumentException(keyStoreNull);
 		}
+		final var protParam = getPasswordProtection(keyStorePassword);
 		try (var bais = new ByteArrayInputStream(keyStoreData)) {
 			final var keyStoreInstance = getInstance();
 			keyStoreInstance.load(bais, keyStorePassword);
-			final var protParam = getPasswordProtection(keyStorePassword);
 			final var entry = keyStoreInstance.getEntry(alias, protParam);
 			if (entry instanceof KeyStore.SecretKeyEntry) {
 				return ((KeyStore.SecretKeyEntry) entry).getSecretKey().getEncoded();
 			}
-			throw new KeyStoreException("No SecretKeyEntry found for alias");
+			throw new KeyStoreException(noEntryFound);
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException
 				| UnrecoverableEntryException e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			return null;
+		} finally {
+			destroyProtParam(protParam);
 		}
 	}
 
@@ -84,19 +97,21 @@ public final class KeyStoreManager implements CryptoConstants {
 	 * @return the byte array of the key store
 	 */
 	public static byte[] putPasswordInKeyStore(final char[] keyStorePassword, final byte[] passwordToStore) {
+		final var protParam = getPasswordProtection(keyStorePassword);
 		try {
 			final var keyStoreInstance = getInstance();
 			keyStoreInstance.load(null, keyStorePassword);
-			final var secretKey = CryptoUtil.getSecretKey(passwordToStore, keyAES);
+			final var secretKey = Crypto.getSecretKey(passwordToStore, keyAES);
 			final var entry = new KeyStore.SecretKeyEntry(secretKey);
-			final var protParam = getPasswordProtection(keyStorePassword);
 			keyStoreInstance.setEntry(alias, entry, protParam);
 			final var baos = new ByteArrayOutputStream();
 			keyStoreInstance.store(baos, keyStorePassword);
 			return baos.toByteArray();
 		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			return null;
+		} finally {
+			destroyProtParam(protParam);
 		}
 	}
 

@@ -23,11 +23,16 @@ package io.github.seerainer.secpwdman.util;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -39,10 +44,62 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 /**
  * The class SWTUtil.
  */
-public final class SWTUtil implements StringConstants {
+public class SWTUtil implements StringConstants {
 
 	public static final boolean DARK = Display.isSystemDarkTheme();
-	public static final boolean WIN32 = "win32".equals(SWT.getPlatform());
+	public static final boolean LINUX = linuxGTK.equals(SWT.getPlatform());
+	public static final boolean MACOS = macCocoa.equals(SWT.getPlatform());
+	public static final boolean WIN32 = windows.equals(SWT.getPlatform());
+
+	/**
+	 * Gets the color.
+	 *
+	 * @param r the red
+	 * @param g the green
+	 * @param b the blue
+	 * @return Color
+	 */
+	public static Color getColor(final int r, final int g, final int b) {
+		return new Color(r, g, b);
+	}
+
+	/**
+	 * Gets the font.
+	 *
+	 * @param display the display
+	 * @param font    the font
+	 * @return Font
+	 */
+	public static Font getFont(final Display display, final String font) {
+		return new Font(display, new FontData(font));
+	}
+
+	/**
+	 * Gets the font.
+	 *
+	 * @param display the display
+	 * @param font    the font
+	 * @param size    the size
+	 * @param style   the style
+	 * @return Font
+	 */
+	public static Font getFont(final Display display, final String font, final int size, final int style) {
+		return new Font(display, new FontData(font, size, style));
+	}
+
+	/**
+	 * Gets the grid data.
+	 *
+	 * @param values the values
+	 * @return GridData
+	 */
+	public static GridData getGridData(final int... values) {
+		return switch (values.length) {
+		case 4 -> new GridData(values[0], values[1], values[2] == 1, values[3] == 1);
+		case 6 -> new GridData(values[0], values[1], values[2] == 1, values[3] == 1, values[4], values[5]);
+		default -> new GridData(SWT.FILL, SWT.FILL);
+		};
+	}
 
 	/**
 	 * Gets the image.
@@ -50,10 +107,16 @@ public final class SWTUtil implements StringConstants {
 	 * @param display the display
 	 * @param image   the image
 	 * @return the image
+	 * @throws UnsupportedEncodingException
 	 */
 	public static Image getImage(final Display display, final String image) {
-		final var img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image.getBytes())));
-		img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		Image img = null;
+		try {
+			img = new Image(display, new ByteArrayInputStream(Base64.getMimeDecoder().decode(image.getBytes(UTF8))));
+			img.setBackground(display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+		} catch (final UnsupportedEncodingException e) {
+			LogFactory.getLog().error(error, e);
+		}
 		return img;
 	}
 

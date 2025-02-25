@@ -82,9 +82,13 @@ record SystemDialog(Action action) implements CryptoConstants, Icons, StringCons
 		final var col1 = new TableColumn(tbl, SWT.LEAD, 0);
 		final var col2 = new TableColumn(tbl, SWT.LEAD, 1);
 
+		TablePopulator.populateTable(tbl, systemProp, empty);
 		TablePopulator.populateSystemProperties(tbl);
+		TablePopulator.populateTable(tbl, empty, empty);
+		TablePopulator.populateTable(tbl, systemEnvi, empty);
 		TablePopulator.populateEnvironmentVariables(tbl);
 		TablePopulator.populateTable(tbl, empty, empty);
+		TablePopulator.populateTable(tbl, securityProvider, empty);
 		TablePopulator.populateAlgorithms(tbl, cipher);
 		TablePopulator.populateAlgorithms(tbl, keyStore);
 		TablePopulator.populateAlgorithms(tbl, mac);

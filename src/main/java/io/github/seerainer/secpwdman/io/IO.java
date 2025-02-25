@@ -21,19 +21,10 @@
 package io.github.seerainer.secpwdman.io;
 
 import static io.github.seerainer.secpwdman.crypto.CryptoFactory.crypto;
-import static io.github.seerainer.secpwdman.crypto.CryptoUtil.generateSecretKey;
 import static io.github.seerainer.secpwdman.crypto.KeyStoreManager.putPasswordInKeyStore;
-import static io.github.seerainer.secpwdman.util.JsonUtil.getJsonConfig;
-import static io.github.seerainer.secpwdman.util.JsonUtil.getJsonFile;
-import static io.github.seerainer.secpwdman.util.JsonUtil.hasCorrectFileFormat;
-import static io.github.seerainer.secpwdman.util.JsonUtil.setJsonConfig;
-import static io.github.seerainer.secpwdman.util.JsonUtil.setJsonFile;
+import static io.github.seerainer.secpwdman.util.RandomPassword.generateKeyStorePassword;
 import static io.github.seerainer.secpwdman.util.Util.clear;
-import static io.github.seerainer.secpwdman.util.Util.getFilePath;
-import static io.github.seerainer.secpwdman.util.Util.isReadable;
-import static io.github.seerainer.secpwdman.util.Util.toChars;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
-import static java.lang.Long.valueOf;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,81 +47,27 @@ import com.grack.nanojson.JsonParserException;
 import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.ConfigData;
 import io.github.seerainer.secpwdman.config.StringConstants;
-import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The class IO.
  */
-public class IO implements CryptoConstants, StringConstants {
+public class IO implements StringConstants {
 
 	private static final Logger LOG = LogFactory.getLog();
 
-	/**
-	 * Opens the file to test if it's a password file.
-	 *
-	 * @param file the file
-	 * @return true if the file has the correct format
-	 */
-	public static boolean isPasswordFile(final String file) {
-		try (final var is = open(file)) {
-			return hasCorrectFileFormat(is);
-		} catch (final IllegalArgumentException | IOException | JsonParserException e) {
-			LOG.warn("Warning occurred", e);
-			return false;
-		}
-	}
-
-	private static InputStream open(final String filePath) throws IOException {
+	static InputStream open(final String filePath) throws IOException {
 		return Files.newInputStream(Path.of(filePath));
 	}
 
-	/**
-	 * Opens the configuration file.
-	 *
-	 * @param action the action
-	 */
-	public static void openConfig(final Action action) {
-		if (!isReadable(confFile)) {
-			LOG.info("No settings file found. Using default settings.");
-			return;
-		}
-		var exMsg = empty;
-		try (final var is = open(confFile)) {
-			setJsonConfig(action, is);
-			return;
-		} catch (final IOException e) {
-			LOG.error("Error occurred", e);
-			exMsg = errorFil.formatted(confFile);
-		} catch (final JsonParserException e) {
-			LOG.warn("Warning occurred", e);
-			exMsg = errorImp.formatted(getFilePath(confFile));
-		}
-		msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, exMsg);
-	}
-
-	private static void save(final String filePath, final byte[] fileBytes) throws IOException {
+	static void save(final String filePath, final byte[] fileBytes) throws IOException {
 		Files.write(Path.of(filePath), fileBytes);
 	}
 
-	/**
-	 * Saves the configuration file.
-	 *
-	 * @param action the action
-	 */
-	public static void saveConfig(final Action action) {
-		try {
-			save(confFile, getJsonConfig(action));
-		} catch (final IOException e) {
-			LOG.error("Error occurred", e);
-			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, errorFil.formatted(confFile));
-		}
-	}
-
-	private static void savePassword(final byte[] password, final ConfigData cData) throws NoSuchAlgorithmException {
+	private static void savePassword(final byte[] password, final ConfigData cData) {
 		final var sensitiveData = cData.getSensitiveData();
-		sensitiveData.setKeyStorePassword(generateSecretKey(keyAES).getEncoded());
-		sensitiveData.setKeyStoreData(putPasswordInKeyStore(toChars(sensitiveData.getKeyStorePassword()), password));
+		sensitiveData.setKeyStorePassword(generateKeyStorePassword());
+		sensitiveData.setKeyStoreData(putPasswordInKeyStore(sensitiveData.getKeyStorePassword(), password));
 	}
 
 	private final Action action;
@@ -153,8 +90,9 @@ public class IO implements CryptoConstants, StringConstants {
 	 */
 	public boolean openFile(final byte[] password, final String file) {
 		if (file == null) {
-			throw new IllegalArgumentException("File must not be null");
+			throw new IllegalArgumentException(fileNull);
 		}
+		final var startTime = System.currentTimeMillis();
 		final var pwdIsNotNull = (password != null) && (password.length > 0);
 		final var cData = action.getCData();
 		var exMsg = empty;
@@ -162,30 +100,26 @@ public class IO implements CryptoConstants, StringConstants {
 			byte[] encText = null;
 			if (pwdIsNotNull) {
 				savePassword(password, cData);
-				encText = setJsonFile(cData, is);
+				encText = JsonUtil.setJsonFile(cData, is);
 			}
-			final var startTime = System.currentTimeMillis();
 			action.fillTable(true, pwdIsNotNull ? crypto(cData).decrypt(encText, password) : is.readAllBytes());
-			LOG.info("Time to open: {} ms", valueOf(System.currentTimeMillis() - startTime));
+			LOG.info(timeOpen, Long.valueOf(System.currentTimeMillis() - startTime));
 			return true;
 		} catch (final BadPaddingException e) {
-			LOG.warn("Warning occurred", e);
+			LOG.warn(warning, e);
 			exMsg = errorPwd;
 		} catch (final IOException e) {
-			LOG.warn("Warning occurred", e);
+			LOG.warn(warning, e);
 			exMsg = errorFil.formatted(file);
 		} catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException | JsonParserException e) {
-			LOG.warn("Warning occurred", e);
-			exMsg = errorImp.formatted(getFilePath(file));
+			LOG.warn(warning, e);
+			exMsg = errorImp.formatted(IOUtil.getFilePath(file));
 		} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
 				| InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException | OutOfMemoryError e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			exMsg = errorSev;
-		} finally {
-			clear(password);
 		}
 		msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, exMsg);
-
 		return false;
 	}
 
@@ -198,29 +132,30 @@ public class IO implements CryptoConstants, StringConstants {
 	 */
 	public boolean saveFile(final byte[] password, final String file) {
 		if (file == null) {
-			throw new IllegalArgumentException("File must not be null");
+			throw new IllegalArgumentException(fileNull);
 		}
+		final var startTime = System.currentTimeMillis();
 		final var pwdIsNotNull = (password != null) && (password.length > 0);
 		final var cData = action.getCData();
 		action.resetGroupList();
-		var fileBytes = action.extractData();
+		final var bytes = action.extractData();
 		try {
+			byte[] encText = null;
 			if (pwdIsNotNull) {
 				savePassword(password, cData);
+				encText = crypto(cData).encrypt(bytes, password);
 			}
-			final var startTime = System.currentTimeMillis();
-			save(file, pwdIsNotNull ? getJsonFile(cData, crypto(cData).encrypt(fileBytes, password)) : fileBytes);
-			LOG.info("Time to save: {} ms", valueOf(System.currentTimeMillis() - startTime));
+			save(file, pwdIsNotNull ? JsonUtil.getJsonFile(cData, encText) : bytes);
+			LOG.info(timeSave, Long.valueOf(System.currentTimeMillis() - startTime));
 			return true;
 		} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException
 				| InvalidKeyException | InvalidKeySpecException | IOException | NoSuchAlgorithmException
 				| NoSuchPaddingException e) {
-			LOG.error("Error occurred", e);
+			LOG.error(error, e);
 			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
 			return false;
 		} finally {
-			clear(password);
-			fileBytes = null;
+			clear(bytes);
 		}
 	}
 }

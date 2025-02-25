@@ -25,11 +25,11 @@ import javax.crypto.SealedObject;
 /**
  * The class SensitiveData.
  */
-public final class SensitiveData {
+public class SensitiveData {
 
 	private transient byte[] dataKey;
 	private transient byte[] keyStoreData;
-	private transient byte[] keyStorePassword;
+	private transient char[] keyStorePassword;
 	private transient SealedObject sealedData;
 
 	/**
@@ -59,7 +59,7 @@ public final class SensitiveData {
 	/**
 	 * @return the keyStorePassword
 	 */
-	public byte[] getKeyStorePassword() {
+	public char[] getKeyStorePassword() {
 		return keyStorePassword;
 	}
 
@@ -87,7 +87,7 @@ public final class SensitiveData {
 	/**
 	 * @param keyStorePassword the keyStorePassword to set
 	 */
-	public void setKeyStorePassword(final byte[] keyStorePassword) {
+	public void setKeyStorePassword(final char[] keyStorePassword) {
 		this.keyStorePassword = keyStorePassword;
 	}
 

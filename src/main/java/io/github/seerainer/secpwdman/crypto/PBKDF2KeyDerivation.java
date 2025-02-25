@@ -20,8 +20,6 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
-import static io.github.seerainer.secpwdman.util.Util.toChars;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -30,6 +28,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
+import io.github.seerainer.secpwdman.util.CharsetUtil;
 
 /**
  * The record PBKDF2KeyDerivation.
@@ -39,8 +38,8 @@ record PBKDF2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDeri
 	@Override
 	public SecretKey deriveKey(final byte[] password, final byte[] salt)
 			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		final var keySpec = new PBEKeySpec(toChars(password), salt, cData.getPBKDFIter(), KEY_LENGTH);
-		return CryptoUtil.getSecretKey(SecretKeyFactory.getInstance(pbkdf2).generateSecret(keySpec).getEncoded(),
+		final var keySpec = new PBEKeySpec(CharsetUtil.toChars(password), salt, cData.getPBKDF2Iter(), KEY_LENGTH);
+		return Crypto.getSecretKey(SecretKeyFactory.getInstance(pbkdf2).generateSecret(keySpec).getEncoded(),
 				cData.getKeyALGO());
 	}
 }

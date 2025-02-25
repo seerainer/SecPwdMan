@@ -20,18 +20,22 @@
  */
 package io.github.seerainer.secpwdman.config;
 
+import io.github.seerainer.secpwdman.util.SWTUtil;
+
 /**
  * The interface PrimitiveConstants.
  */
 public interface PrimitiveConstants {
 
-	int asciiLength = 127;
+	int ASCII_LENGTH = 127;
 	int BUFFER_MIN = 64;
 	int BUFFER_MAX = 0x100000;
+	int BUTTON_WIDTH = SWTUtil.WIN32 ? 80 : 100;
 	int CLEAR_PWD_MIN = 5;
 	int CLEAR_PWD_MAX = 300;
 	int COL_MIN_WIDTH = 10;
 	int COL_MAX_WIDTH = 5000;
+	int DEFAULT_PWD_LENGTH = 32;
 	int LOG_FILE_SIZE = 0x100000;
 	int LOG_FILES = 5;
 	int MAX_URL_LENGTH = 2083;
@@ -43,6 +47,19 @@ public interface PrimitiveConstants {
 	int SASH_FORM_WEIGHT_1 = 16;
 	int SASH_FORM_WEIGHT_2 = 84;
 	int SECONDS = 1000;
+	int UTF8_BYTES = 3; // UTF-8 can use up to 3 bytes per char
+
+	// Colors
+	int DARK_FORE = 0xEE;
+	int HEAD_BACK = 0x48;
+	int HEAD_FORE = 0xDD;
+	int LINK_COL1 = 0x00;
+	int LINK_COL2 = 0xBB;
+	int LINK_COL3 = 0xFF;
+	int MENU_BACK = 0x32;
+	int MENU_BORD = 0x32;
+	int MENU_FORE = 0xF8;
+	int TOOL_BACK = 0x64;
 
 	char echoChr = '\u25CF';
 	char nullChr = '\0';

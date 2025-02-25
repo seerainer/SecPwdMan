@@ -41,22 +41,21 @@ record ChaCha20EncryptionStrategy(ConfigData cData) implements CryptoConstants, 
 	public byte[] encrypt(final byte[] data, final byte[] password)
 			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherChaCha20);
-		final var nonce = CryptoUtil.getRandomValue(IV_LENGTH);
-		final var salt = CryptoUtil.getRandomValue(SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.ENCRYPT_MODE, password, salt, nonce, cData)
-				.doFinal(data);
-		return CryptoUtil.appendValues(nonce, salt, ciphertext);
+		final var instance = Crypto.getCipher(cipherChaCha20);
+		final var nonce = Crypto.getRandomValue(IV_LENGTH);
+		final var salt = Crypto.getRandomValue(SALT_LENGTH);
+		final var cipherText = Crypto.initCipherCHA(instance, Cipher.ENCRYPT_MODE, password, salt, nonce, cData);
+		return Crypto.appendValues(nonce, salt, cipherText.doFinal(data));
 	}
 
 	@Override
 	public byte[] decrypt(final byte[] data, final byte[] password)
 			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = CryptoUtil.getCipher(cipherChaCha20);
-		final var nonce = CryptoUtil.getValueFromData(data, 0, IV_LENGTH);
-		final var salt = CryptoUtil.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
-		final var ciphertext = CryptoUtil.initCipher(instance, Cipher.DECRYPT_MODE, password, salt, nonce, cData);
-		return ciphertext.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
+		final var instance = Crypto.getCipher(cipherChaCha20);
+		final var nonce = Crypto.getValueFromData(data, 0, IV_LENGTH);
+		final var salt = Crypto.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
+		final var cipherText = Crypto.initCipherCHA(instance, Cipher.DECRYPT_MODE, password, salt, nonce, cData);
+		return cipherText.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
 	}
 }

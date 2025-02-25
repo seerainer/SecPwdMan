@@ -26,11 +26,11 @@ package io.github.seerainer.secpwdman.crypto;
 public interface CryptoConstants {
 
 	int IV_LENGTH = 12;
-	int TAG_LENGTH = 128;
 	int KEY_LENGTH = 256;
-	int SALT_LENGTH = 16;
-	int OUT_LENGTH = 32;
 	int MEM_SIZE = 1024;
+	int OUT_LENGTH = 32;
+	int SALT_LENGTH = 16;
+	int TAG_LENGTH = 128;
 
 	int ARGON_MEMO_MIN = 19;
 	int ARGON_MEMO_MAX = 1024;
@@ -57,7 +57,11 @@ public interface CryptoConstants {
 
 	String mac = "Mac";
 	String pbkdf2 = "PBKDF2WithHmacSHA256";
-
 	String argon2id = "Argon2id";
 	String argon2d = "Argon2d";
+
+	String noCipher = "No encryption cipher available.";
+	String noSecureRandom = "No strong SecureRandom instance available.";
+	String keyStoreNull = "KeyStore password and data must not be null";
+	String noEntryFound = "No SecretKeyEntry found for alias";
 }

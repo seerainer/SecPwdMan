@@ -25,11 +25,7 @@ import static io.github.seerainer.secpwdman.dialog.DialogFactory.createPasswordD
 import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
 import static io.github.seerainer.secpwdman.util.Util.clear;
-import static io.github.seerainer.secpwdman.util.Util.getFilePath;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
-import static io.github.seerainer.secpwdman.util.Util.isFileReady;
-import static io.github.seerainer.secpwdman.util.Util.isReadable;
-import static io.github.seerainer.secpwdman.util.Util.toChars;
 import static io.github.seerainer.secpwdman.widgets.Widgets.fileDialog;
 import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 
@@ -42,12 +38,13 @@ import io.github.seerainer.secpwdman.config.ConfigData;
 import io.github.seerainer.secpwdman.config.SensitiveData;
 import io.github.seerainer.secpwdman.dialog.SearchDialog;
 import io.github.seerainer.secpwdman.io.IO;
+import io.github.seerainer.secpwdman.io.IOUtil;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The class FileAction.
  */
-public final class FileAction extends Action {
+public class FileAction extends Action {
 
 	private static final Logger LOG = LogFactory.getLog();
 
@@ -102,7 +99,6 @@ public final class FileAction extends Action {
 				image.dispose();
 			}
 		}
-		clearConfidentialData();
 		getList().getFont().dispose();
 		table.getFont().dispose();
 		shell.getFont().dispose();
@@ -127,15 +123,16 @@ public final class FileAction extends Action {
 				return false;
 			}
 			case SWT.NO -> {
-				// break;
+				break;
 			}
 			default -> {
 				return false;
 			}
 			}
 		}
-		IO.saveConfig(this);
+		IOUtil.saveConfig(this);
 		clearClipboard();
+		clearConfidentialData();
 		disposeResources();
 		return true;
 	}
@@ -156,7 +153,7 @@ public final class FileAction extends Action {
 	}
 
 	private void handleFileError(final String file, final String errorMessage) {
-		LOG.warn("File error: {}{}{}", quote, file, quote);
+		LOG.warn(fileError, quote, file, quote);
 		msg(shell, SWT.ICON_ERROR, titleErr, errorMessage.formatted(file));
 		clearData();
 	}
@@ -178,7 +175,7 @@ public final class FileAction extends Action {
 	 */
 	public void importDialog() {
 		final var file = fileDialog(shell, SWT.OPEN, imexFile, imexExte);
-		if (!isFileReady(file)) {
+		if (!IOUtil.isFileReady(file)) {
 			return;
 		}
 
@@ -197,11 +194,11 @@ public final class FileAction extends Action {
 	 * @return true if it is a password file
 	 */
 	public boolean isPasswordFileReady(final String file) {
-		if (!isFileReady(file)) {
+		if (!IOUtil.isFileReady(file)) {
 			handleFileError(file, errorFil);
 			return false;
 		}
-		if (IO.isPasswordFile(file)) {
+		if (IOUtil.isPasswordFile(file)) {
 			return true;
 		}
 		handleFileError(file, errorImp);
@@ -235,7 +232,7 @@ public final class FileAction extends Action {
 			}
 			case SWT.NO -> clearData();
 			default -> {
-				// break;
+				break;
 			}
 			}
 		} else {
@@ -250,12 +247,11 @@ public final class FileAction extends Action {
 		SearchDialog.close();
 
 		final var file = fileDialog(shell, SWT.OPEN, passFile, passExte);
-		if (isFileReady(file) && isPasswordFileReady(file)) {
+		if (IOUtil.isFileReady(file) && isPasswordFileReady(file)) {
 			table.setRedraw(false);
 			defaultHeader();
 			fillGroupList();
 			table.setRedraw(true);
-
 			cData.setFile(file);
 			cData.setLocked(true);
 			cData.setModified(false);
@@ -273,11 +269,11 @@ public final class FileAction extends Action {
 		if (isBlank(file)) {
 			return;
 		}
-		if (!isReadable(file)) {
+		if (!IOUtil.isReadable(file)) {
 			handleFileError(file, errorFil);
 			return;
 		}
-		if (IO.isPasswordFile(file)) {
+		if (IOUtil.isPasswordFile(file)) {
 			cData.setLocked(true);
 			createPasswordDialog(this, false);
 		} else {
@@ -307,9 +303,9 @@ public final class FileAction extends Action {
 		final var keyStoreData = sensitiveData.getKeyStoreData();
 		final var keyStorePassword = sensitiveData.getKeyStorePassword();
 		var file = cData.getFile();
-		if (isFileReady(file) && keyStoreData != null && keyStorePassword != null) {
+		if (IOUtil.isFileReady(file) && keyStoreData != null && keyStorePassword != null) {
 			final var io = new IO(this);
-			if (io.saveFile(getPasswordFromKeyStore(toChars(keyStorePassword), keyStoreData), file)) {
+			if (io.saveFile(getPasswordFromKeyStore(keyStorePassword, keyStoreData), file)) {
 				cData.setModified(false);
 				cData.setReadOnly(true);
 				postSave();
@@ -331,7 +327,7 @@ public final class FileAction extends Action {
 	 * Locks the app.
 	 */
 	public void setLocked() {
-		if (!isFileReady(cData.getFile()) || cData.isModified()) {
+		if (!IOUtil.isFileReady(cData.getFile()) || cData.isModified()) {
 			return;
 		}
 		cData.setLocked(true);
@@ -352,7 +348,7 @@ public final class FileAction extends Action {
 		shell.setMinimized(true);
 		shell.setVisible(false);
 		final var trayItem = tray.getItem(0);
-		trayItem.setToolTipText(APP_NAME + titlePH + getFilePath(cData.getFile()));
+		trayItem.setToolTipText(APP_NAME + titlePH + IOUtil.getFilePath(cData.getFile()));
 		trayItem.setVisible(true);
 	}
 }

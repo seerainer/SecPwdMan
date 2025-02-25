@@ -35,9 +35,13 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 /**
  * The class LogFactory.
  */
-public final class LogFactory implements PrimitiveConstants, StringConstants {
+public class LogFactory implements PrimitiveConstants, StringConstants {
 
-	private static final Logger logger = LoggerFactory.getLogger(LogFactory.class.getName());
+	private static final Logger logger;
+
+	static {
+		logger = LoggerFactory.getLogger(LogFactory.class.getName());
+	}
 
 	/**
 	 * Configures the logging.
@@ -47,11 +51,11 @@ public final class LogFactory implements PrimitiveConstants, StringConstants {
 		rootLogger.setLevel(Level.INFO);
 
 		try {
-			final var fileHandler = new FileHandler(tempFold + APP_NAME + logExten, LOG_FILE_SIZE, LOG_FILES, true);
+			final var fileHandler = new FileHandler(logFileP, LOG_FILE_SIZE, LOG_FILES, true);
 			fileHandler.setFormatter(new SimpleFormatter());
 			rootLogger.addHandler(fileHandler);
 		} catch (final IOException e) {
-			logger.error("Error occurred", e);
+			logger.error(error, e);
 		}
 	}
 

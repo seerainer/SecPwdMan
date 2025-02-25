@@ -20,12 +20,13 @@
  */
 package io.github.seerainer.secpwdman.dialog;
 
+import static io.github.seerainer.secpwdman.util.CharsetUtil.toBytes;
 import static io.github.seerainer.secpwdman.util.PasswordStrength.evalPasswordStrength;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.isEqual;
-import static io.github.seerainer.secpwdman.util.Util.toBytes;
 import static io.github.seerainer.secpwdman.widgets.Widgets.button;
 import static io.github.seerainer.secpwdman.widgets.Widgets.emptyLabel;
 import static io.github.seerainer.secpwdman.widgets.Widgets.label;
@@ -37,7 +38,6 @@ import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -52,6 +52,15 @@ import io.github.seerainer.secpwdman.io.IO;
  * The record PasswordDialog.
  */
 record PasswordDialog(FileAction action) implements PrimitiveConstants, StringConstants {
+
+	private static Shell dialog;
+
+	private static void close(final ConfigData cData) {
+		cData.setLocked(false);
+		cData.setModified(false);
+		cData.setReadOnly(true);
+		dialog.close();
+	}
 
 	private static void testPassword(final ModifyEvent e, final ConfigData cData, final Text text2) {
 		final var text1 = (Text) e.widget;
@@ -73,7 +82,7 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 		clear(pwd2);
 	}
 
-	private void confirmPassword(final Shell dialog) {
+	private void confirmPassword() {
 		final var cData = action.getCData();
 		final var shell = action.getShell();
 		final var file = cData.getFile();
@@ -89,20 +98,20 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 			pwdConfirm.selectAll();
 			if ((length > 0 && isEqual(pwdCharsA, pwdCharsB))) {
 				if (length < pwdMinLength) {
-					msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorLen.formatted(valueOf(pwdMinLength)));
+					msg(dialog, SWT.ICON_ERROR | SWT.OK, titleErr, errorLen.formatted(valueOf(pwdMinLength)));
 				} else if (io.saveFile(toBytes(pwdCharsB), file)) {
-					cData.setModified(false);
-					cData.setReadOnly(true);
-					dialog.close();
+					close(cData);
 					action.postSave();
 				}
 			}
 			clear(pwdCharsA);
-		} else if (length > 0 && io.openFile(toBytes(pwdCharsA), file)) {
-			cData.setLocked(false);
-			cData.setModified(false);
-			cData.setReadOnly(true);
-			dialog.close();
+		} else if (length > 0) {
+			dialog.setVisible(false);
+			if (io.openFile(toBytes(pwdCharsA), file)) {
+				close(cData);
+			} else {
+				dialog.setVisible(true);
+			}
 		}
 		if (!dialog.isDisposed()) {
 			pwd.setFocus();
@@ -114,16 +123,15 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 		action.updateUI();
 	}
 
-	/**
-	 * Opens the dialog.
-	 *
-	 * @param confirm if true open confirm dialog
-	 */
 	void open(final boolean confirm) {
+		if (dialog != null && !dialog.isDisposed()) {
+			dialog.forceActive();
+			return;
+		}
 		SearchDialog.close();
 
 		final var cData = action.getCData();
-		final var dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL,
+		dialog = shell(action.getShell(), SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL,
 				getLayout(3, 5, 10, 10, 8, 8, 10), passTitl);
 
 		label(dialog, SWT.HORIZONTAL, passWord);
@@ -142,7 +150,7 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 
 			final var label = label(dialog, SWT.HORIZONTAL, errorLen.formatted(valueOf(cData.getPasswordMinLength())));
 			label.setForeground(dialog.getDisplay().getSystemColor(SWT.COLOR_RED));
-			label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+			label.setLayoutData(getGridData(SWT.FILL, SWT.CENTER, 1, 0, 2, 1));
 			dialog.setSize(480, PWD_CONFIRM_HEIGHT);
 		} else {
 			dialog.setSize(480, 150);
@@ -150,15 +158,15 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 
 		emptyLabel(dialog, 3);
 
-		final var okBtn = button(dialog, SWT.PUSH, entrOkay, widgetSelectedAdapter(e -> confirmPassword(dialog)));
-		var gridData = new GridData(SWT.END, SWT.TOP, true, false, 2, 1);
-		gridData.widthHint = 80;
+		final var okBtn = button(dialog, SWT.PUSH, entrOkay, widgetSelectedAdapter(e -> confirmPassword()));
+		var gridData = getGridData(SWT.END, SWT.TOP, 1, 0, 2, 1);
+		gridData.widthHint = BUTTON_WIDTH;
 		okBtn.setLayoutData(gridData);
 		dialog.setDefaultButton(okBtn);
 
 		final var clBtn = button(dialog, SWT.PUSH, entrCanc, widgetSelectedAdapter(e -> dialog.close()));
-		gridData = new GridData(SWT.LEAD, SWT.TOP, true, false);
-		gridData.widthHint = 80;
+		gridData = getGridData(SWT.LEAD, SWT.TOP, 1, 0);
+		gridData.widthHint = BUTTON_WIDTH;
 		clBtn.setLayoutData(gridData);
 
 		setCenter(dialog);

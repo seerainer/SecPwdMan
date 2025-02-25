@@ -52,9 +52,6 @@ public record SearchDialog(Action action) implements StringConstants {
 		}
 	}
 
-	/**
-	 * Opens the dialog.
-	 */
 	void open() {
 		if (dialog != null && !dialog.isDisposed()) {
 			dialog.forceActive();

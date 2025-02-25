@@ -37,7 +37,7 @@ import io.github.seerainer.secpwdman.config.ConfigData;
 /**
  * The class ViewAction.
  */
-public final class ViewAction extends Action {
+public class ViewAction extends Action {
 
 	private static FontData[] getFontData(final Control control) {
 		return control.getFont().getFontData();

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-02-25
+
+### Changed
+
+- Upgrade: Gradle from 8.12.1 to 8.13
+- Upgrade: slf4j from 2.0.16 to 2.0.17
+- Configuration and log files are now stored in the users home directory
+- Using ByteBuffer.allocateDirect instead of ByteBuffer.wrap
+
+### Fixed
+
+- The password dialog is no longer above the message box
+- The KeyStore password was empty
+- Some small bugs were fixed
+
+### Security
+
+- Initializing SecureRandom only once
+
 ## [1.0.0-rc.2] - 2025-01-25
 
 ### Added

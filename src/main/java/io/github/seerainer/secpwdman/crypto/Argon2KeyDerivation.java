@@ -34,9 +34,9 @@ record Argon2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDeri
 
 	@Override
 	public SecretKey deriveKey(final byte[] password, final byte[] salt) {
-		final var hashingFunction = Argon2Function.getInstance(cData.getArgonMemo() * MEM_SIZE, cData.getArgonIter(),
-				cData.getArgonPara(), OUT_LENGTH, cData.getArgonType());
-		return CryptoUtil.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
+		final var hashingFunction = Argon2Function.getInstance(cData.getArgon2Memo() * MEM_SIZE, cData.getArgon2Iter(),
+				cData.getArgon2Para(), OUT_LENGTH, cData.getArgon2Type());
+		return Crypto.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
 				cData.getKeyALGO());
 	}
 }

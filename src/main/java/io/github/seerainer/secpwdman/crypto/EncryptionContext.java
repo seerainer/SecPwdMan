@@ -32,7 +32,7 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * The class CryptoContext.
  */
-public final class EncryptionContext {
+public class EncryptionContext {
 	private final EncryptionStrategy strategy;
 
 	EncryptionContext(final EncryptionStrategy strategy) {

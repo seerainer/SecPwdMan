@@ -21,17 +21,20 @@
 package io.github.seerainer.secpwdman.widgets;
 
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
-import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
+import static io.github.seerainer.secpwdman.util.SWTUtil.LINUX;
+import static io.github.seerainer.secpwdman.util.SWTUtil.MACOS;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.program.Program;
@@ -53,10 +56,12 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
+
 /**
  * The class Widgets.
  */
-public final class Widgets {
+public class Widgets implements PrimitiveConstants {
 
 	/**
 	 * @see io.github.seerainer.secpwdman.widgets.Widgets#button(Composite, int,
@@ -87,16 +92,16 @@ public final class Widgets {
 		}
 		final GridData data;
 		if (style == SWT.CHECK) {
-			data = new GridData(SWT.LEAD, SWT.CENTER, true, false, 2, 1);
+			data = getGridData(SWT.LEAD, SWT.CENTER, 1, 0, 2, 1);
 		} else if (style == SWT.RADIO) {
-			data = new GridData(SWT.CENTER, SWT.CENTER, true, false);
+			data = getGridData(SWT.CENTER, SWT.CENTER, 1, 0);
 		} else {
-			data = new GridData(SWT.LEAD, SWT.CENTER, false, false);
-			data.widthHint = 80;
+			data = getGridData(SWT.LEAD, SWT.CENTER, 0, 0);
+			data.widthHint = BUTTON_WIDTH;
 		}
 		button.setLayoutData(data);
 		if (select) {
-			button.setSelection(select);
+			button.setSelection(true);
 		}
 		return button;
 	}
@@ -127,6 +132,22 @@ public final class Widgets {
 	}
 
 	/**
+	 * CTabItem.
+	 *
+	 * @param parent the parent
+	 * @param style  the style
+	 * @param image  the image
+	 * @param text   the text
+	 * @return the CTabItem
+	 */
+	public static CTabItem cTabItem(final CTabFolder parent, final int style, final String image, final String text) {
+		final var item = new CTabItem(parent, style);
+		item.setImage(getImage(parent.getDisplay(), image));
+		item.setText(text);
+		return item;
+	}
+
+	/**
 	 * Empty label.
 	 *
 	 * @param parent the parent
@@ -135,7 +156,7 @@ public final class Widgets {
 	 */
 	public static Label emptyLabel(final Composite parent, final int hSpan) {
 		final var label = new Label(parent, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false, hSpan, 1));
+		label.setLayoutData(getGridData(SWT.BEGINNING, SWT.CENTER, 0, 0, hSpan, 1));
 		return label;
 	}
 
@@ -169,7 +190,7 @@ public final class Widgets {
 		final var group = new Group(parent, SWT.SHADOW_NONE);
 		group.setFont(parent.getFont());
 		group.setLayout(layout);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 2, 1));
+		group.setLayoutData(getGridData(SWT.FILL, SWT.FILL, 0, 0, 2, 1));
 		group.setText(text);
 		if (DARK) {
 			group.setForeground(parent.getForeground());
@@ -184,7 +205,9 @@ public final class Widgets {
 	 * @return the label
 	 */
 	public static Label horizontalSeparator(final Composite parent) {
-		return label(parent, SWT.HORIZONTAL | SWT.SEPARATOR, null);
+		final var label = new Label(parent, SWT.HORIZONTAL | SWT.SEPARATOR);
+		label.setLayoutData(getGridData(SWT.FILL, SWT.CENTER, 1, 0, 2, 1));
+		return label;
 	}
 
 	/**
@@ -199,21 +222,9 @@ public final class Widgets {
 		final var label = new Label(parent, style);
 		label.setFont(parent.getFont());
 		label.setForeground(parent.getForeground());
-		label.setLayoutData(
-				style == SWT.HORIZONTAL + SWT.SEPARATOR ? new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1)
-						: new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		if (!isBlank(text)) {
-			label.setText(text);
-		}
+		label.setLayoutData(getGridData(SWT.BEGINNING, SWT.CENTER, 0, 0));
+		label.setText(text);
 		return label;
-	}
-
-	/**
-	 * @see io.github.seerainer.secpwdman.widgets.Widgets#link(Composite, String,
-	 *      Color, String, String)
-	 */
-	public static Link link(final Composite parent, final String url, final Color color, final String text) {
-		return link(parent, url, color, text, null);
 	}
 
 	/**
@@ -223,20 +234,18 @@ public final class Widgets {
 	 * @param url    the url
 	 * @param color  the color
 	 * @param text   the text
-	 * @param font   the font
 	 * @return the link
 	 */
-	public static Link link(final Composite parent, final String url, final Color color, final String text,
-			final String font) {
+	public static Link link(final Composite parent, final String url, final Color color, final String text) {
 		final var link = new Link(parent, SWT.NONE);
 		link.addSelectionListener(widgetSelectedAdapter(e -> Program.launch(url)));
+		link.setBackground(parent.getBackground());
 		link.setForeground(parent.getForeground());
-		link.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+		link.setFont(parent.getFont());
+		link.setLayoutData(getGridData(SWT.CENTER, SWT.CENTER, 1, 0));
 		link.setLinkForeground(color);
 		link.setText(text);
 		link.setToolTipText(url);
-		link.setFont(
-				isBlank(font) ? parent.getFont() : new Font(parent.getDisplay(), new FontData(font, 12, SWT.BOLD)));
 		return link;
 	}
 
@@ -280,13 +289,13 @@ public final class Widgets {
 		if (acc > 0) {
 			item.setAccelerator(acc);
 		}
-		if (image != null && WIN32) {
+		if (image != null && !LINUX) {
 			final var img = getImage(parent.getDisplay(), image);
 			item.setImage(img);
 			img.dispose();
 		}
 		if (selection) {
-			item.setSelection(selection);
+			item.setSelection(true);
 		}
 		if (!isBlank(text)) {
 			item.setText(text);
@@ -388,7 +397,7 @@ public final class Widgets {
 		final var shell = new Shell(parent, style);
 		shell.setFont(parent.getFont());
 		shell.setLayout(layout);
-		if (DARK) {
+		if (DARK && !MACOS) {
 			shell.setBackground(parent.getBackground());
 			shell.setForeground(parent.getForeground());
 			shell.setBackgroundMode(SWT.INHERIT_FORCE);
@@ -442,13 +451,13 @@ public final class Widgets {
 		final var table = new Table(parent, SWT.FULL_SELECTION | SWT.MULTI);
 		table.setFocus();
 		table.setFont(parent.getFont());
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		table.setLayoutData(getGridData(SWT.FILL, SWT.FILL, 1, 1));
 		table.setLinesVisible(true);
-		if (DARK) {
+		if (DARK && !MACOS) {
 			table.setBackground(parent.getBackground());
 			table.setForeground(parent.getForeground());
-			table.setHeaderBackground(new Color(0x48, 0x48, 0x48));
-			table.setHeaderForeground(new Color(0xDD, 0xDD, 0xDD));
+			table.setHeaderBackground(getColor(HEAD_BACK, HEAD_BACK, HEAD_BACK));
+			table.setHeaderForeground(getColor(HEAD_FORE, HEAD_FORE, HEAD_FORE));
 		}
 		return table;
 	}
@@ -470,9 +479,9 @@ public final class Widgets {
 			text.setLayoutData(data);
 			text.setVisible(false);
 		} else if (style == SWT.BORDER + SWT.MULTI + SWT.V_SCROLL + SWT.WRAP) {
-			text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+			text.setLayoutData(getGridData(SWT.FILL, SWT.FILL, 1, 1, 2, 1));
 		} else {
-			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+			text.setLayoutData(getGridData(SWT.FILL, SWT.CENTER, 1, 0, 2, 1));
 		}
 		return text;
 	}
