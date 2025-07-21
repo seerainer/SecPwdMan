@@ -9,7 +9,7 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1.3.1
+      - uses: graalvm/setup-graalvm@v1.3.4
         with:
           java-version: '21'
           distribution: 'graalvm'
