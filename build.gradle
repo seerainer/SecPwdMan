@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.11.0'
+    id 'org.graalvm.buildtools.native' version '0.10.6'
 }
 
 group = 'io.github.seerainer.secpwdman'
@@ -33,11 +33,11 @@ def detectSwtArtifact() {
         swtArtifact += 'win32.win32.'
         swtWS = 'win32'
         swtOS = 'win32'
-    } else if (osName.contains("mac")) {
+    } else if (os.contains("mac")) {
         swtArtifact += 'cocoa.macosx.'
         swtWS = 'cocoa'
         swtOS = 'macosx'
-    } else if (osName.contains("linux")) {
+    } else if (os.contains("linux")) {
         swtArtifact += 'gtk.linux.'
         swtWS = 'gtk'
         swtOS = 'linux'
