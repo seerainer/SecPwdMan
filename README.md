@@ -1,11 +1,21 @@
-# SecPwdMan
+# 🔐 SecPwdMan
 
-[![Build Status](https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml/badge.svg)](https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml)
-[![CodeQL](https://github.com/seerainer/SecPwdMan/workflows/CodeQL/badge.svg)](https://github.com/seerainer/SecPwdMan/security/code-scanning)
+<p align="center">
+  <img width="120" height="120" alt="Logo" src="https://github.com/user-attachments/assets/fcdba2df-fb5e-4aba-a3f9-76ab2ff2be03" />
+</p>
 
-**SecPwdMan** stores all your passwords securely encrypted with only one master password.
+<p align="center">
+<b>SecPwdMan</b> is a cross-platform, open-source password manager that stores all your passwords securely encrypted with a single master password. It is designed for privacy, security, and usability, supporting advanced cryptography, and modern desktop features.
+</p>
 
-![SecPwdMan Screenshot](https://github.com/seerainer/SecPwdMan/assets/50533219/3651e148-d5a7-4f5c-b288-3df4a21ca774)
+<p align="center">
+  <a href="https://github.com/seerainer/SecPwdMan/releases"><img src="https://img.shields.io/github/v/release/seerainer/SecPwdMan?style=flat-square" alt="Release"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/seerainer/SecPwdMan?style=flat-square" alt="License"></a>
+  <a href="https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml"><img src="https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml/badge.svg" alt="Build Status"></a>
+  <a href="https://github.com/seerainer/SecPwdMan/security/code-scanning"><img src="https://github.com/seerainer/SecPwdMan/workflows/CodeQL/badge.svg" alt="CodeQL"></a>
+</p>
+
+---
 
 ## Features
 
