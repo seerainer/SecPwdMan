@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '0.11.0'
 }
 
 group = 'io.github.seerainer.secpwdman'
@@ -11,6 +11,7 @@ version = '1.1.0'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(24)
+        vendor = JvmVendorSpec.GRAAL_VM
     }
 }
 
