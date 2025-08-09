@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,43 +24,60 @@ package io.github.seerainer.secpwdman.crypto;
  */
 public interface CryptoConstants {
 
-	int IV_LENGTH = 12;
-	int KEY_LENGTH = 256;
-	int MEM_SIZE = 1024;
-	int OUT_LENGTH = 32;
-	int SALT_LENGTH = 16;
-	int TAG_LENGTH = 128;
+    int IV_LENGTH = 12;
+    int KEY_LENGTH = 256;
+    int MEM_SIZE = 1024;
+    int OUT_LENGTH = 32;
+    int SALT_LENGTH = 16;
+    int TAG_LENGTH = 128;
 
-	int ARGON_MEMO_MIN = 19;
-	int ARGON_MEMO_MAX = 1024;
-	int ARGON_ITER_MIN = 2;
-	int ARGON_ITER_MAX = 256;
-	int ARGON_PARA_MIN = 1;
-	int ARGON_PARA_MAX = 8;
+    int ARGON2_MEMO = 64;
+    int ARGON2_MEMO_MIN = 19;
+    int ARGON2_MEMO_MAX = 512;
+    int ARGON2_ITER = 8;
+    int ARGON2_ITER_MIN = 2;
+    int ARGON2_ITER_MAX = 256;
+    int ARGON2_PARA_MIN = 1;
+    int ARGON2_PARA_MAX = 8;
 
-	int PBKDF2_MIN = 600000;
-	int PBKDF2_MAX = 0x1000000;
+    int PBKDF2_ITER = 600000;
+    int PBKDF2_MIN_SHA256 = 600000;
+    int PBKDF2_MIN_SHA512 = 210000;
+    int PBKDF2_MAX = 0x1000000;
 
-	String alias = "secpwdman";
-	String messageDigest = "MessageDigest";
-	String signature = "Signature";
+    int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512, 1024 };
+    int SCRYPT_R = 8;
+    int SCRYPT_R_MIN = 8;
+    int SCRYPT_R_MAX = 32;
+    int SCRYPT_P_MIN = 1;
+    int SCRYPT_P_MAX = 10;
 
-	String keyStore = "KeyStore";
-	String pkcs12 = "PKCS12";
+    String alias = "secpwdman";
+    String cipher = "Cipher";
+    String keyStore = "KeyStore";
+    String mac = "Mac";
+    String messageDigest = "MessageDigest";
+    String pkcs12 = "PKCS12";
+    String signature = "Signature";
 
-	String cipher = "Cipher";
-	String keyAES = "AES";
-	String keyChaCha20 = "CHACHA20";
-	String cipherAES = "AES_256/GCM/NOPADDING";
-	String cipherChaCha20 = "CHACHA20-POLY1305";
+    String keyAES = "AES";
+    String keyChaCha20 = "CHACHA20";
+    String cipherAES = "AES_256/GCM/NOPADDING";
+    String cipherChaCha20 = "CHACHA20-POLY1305";
 
-	String mac = "Mac";
-	String pbkdf2 = "PBKDF2WithHmacSHA256";
-	String argon2id = "Argon2id";
-	String argon2d = "Argon2d";
+    String argon2 = "Argon2";
+    String argon2id = "Argon2id";
+    String argon2d = "Argon2d";
+    String pbkdf2 = "PBKDF2";
+    String SCRYPT = "scrypt";
 
-	String noCipher = "No encryption cipher available.";
-	String noSecureRandom = "No strong SecureRandom instance available.";
-	String keyStoreNull = "KeyStore password and data must not be null";
-	String noEntryFound = "No SecretKeyEntry found for alias";
+    String configNotSet = "CryptoConfig is not set.";
+    String configNull = "CryptoConfig is null.";
+    String kdfNotSet = "KeyDerivation is not set.";
+    String noCipher = "No encryption cipher available.";
+    String noSecureRandom = "No strong SecureRandom instance available.";
+    String noEntryFound = "No SecretKeyEntry found for alias.";
+    String secureKeyTransFailed = "Secure key transformation failed";
+    String secureSealedObjectFailed = "Secure sealed object generation failed";
+    String unexpectedValue = "Unexpected value: ";
 }

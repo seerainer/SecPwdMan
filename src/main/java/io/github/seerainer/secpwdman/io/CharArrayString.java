@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,37 +28,30 @@ import io.github.seerainer.secpwdman.util.Util;
  */
 public class CharArrayString {
 
-	private final CharArrayWriter caw;
+    private final CharArrayWriter caw;
 
-	/**
-	 * Instantiates a new CharArrayString.
-	 *
-	 * @param str the str
-	 */
-	public CharArrayString(final String str) {
-		this.caw = new CharArrayWriter();
-		this.caw.write(str, 0, str.length());
-	}
+    /**
+     * Instantiates a new CharArrayString.
+     *
+     * @param str the String
+     */
+    public CharArrayString(final String str) {
+	this.caw = new CharArrayWriter();
+	this.caw.write(str, 0, str.length());
+    }
 
-	/**
-	 * Clear.
-	 */
-	public void clear() {
-		Util.clear(toCharArray());
-		caw.reset();
-	}
+    /**
+     * Clear.
+     */
+    public void clear() {
+	Util.clear(toCharArray());
+	caw.reset();
+    }
 
-	/**
-	 * @return the length
-	 */
-	public int length() {
-		return caw.size();
-	}
-
-	/**
-	 * @return the char array
-	 */
-	public char[] toCharArray() {
-		return caw.toCharArray();
-	}
+    /**
+     * @return the char array
+     */
+    public char[] toCharArray() {
+	return caw.toCharArray();
+    }
 }

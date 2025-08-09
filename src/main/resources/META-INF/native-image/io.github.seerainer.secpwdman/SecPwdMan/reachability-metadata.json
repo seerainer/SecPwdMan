@@ -1,21 +1,6 @@
 {
   "reflection": [
     {
-      "type": "[B"
-    },
-    {
-      "type": "[Ljava.lang.String;"
-    },
-    {
-      "type": "com.sun.crypto.provider.AESCipher$General",
-      "methods": [
-        {
-          "name": "<init>",
-          "parameterTypes": []
-        }
-      ]
-    },
-    {
       "type": "com.sun.crypto.provider.AESKeyGenerator",
       "methods": [
         {
@@ -43,7 +28,7 @@
       ]
     },
     {
-      "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
       "methods": [
         {
           "name": "<init>",
@@ -52,7 +37,7 @@
       ]
     },
     {
-      "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA512",
       "methods": [
         {
           "name": "<init>",
@@ -115,44 +100,7 @@
       ]
     },
     {
-      "type": "java.lang.String"
-    },
-    {
-      "type": "java.security.AlgorithmParametersSpi"
-    },
-    {
-      "type": "java.security.KeyStoreSpi"
-    },
-    {
-      "type": "java.security.SecureRandomParameters"
-    },
-    {
-      "type": "java.util.concurrent.atomic.AtomicBoolean",
-      "fields": [
-        {
-          "name": "value"
-        }
-      ]
-    },
-    {
-      "type": "java.util.concurrent.atomic.AtomicReference",
-      "fields": [
-        {
-          "name": "value"
-        }
-      ]
-    },
-    {
-      "type": "jdk.internal.misc.Unsafe"
-    },
-    {
-      "type": "org.eclipse.swt.internal.image.GIFFileFormat"
-    },
-    {
-      "type": "org.eclipse.swt.internal.image.JPEGFileFormat"
-    },
-    {
-      "type": "org.eclipse.swt.internal.image.PNGFileFormat",
+      "type": "com.sun.crypto.provider.PBKDF2Core$HmacSHA512",
       "methods": [
         {
           "name": "<init>",
@@ -161,10 +109,10 @@
       ]
     },
     {
-      "type": "org.eclipse.swt.internal.image.WinBMPFileFormat"
+      "type": "java.security.AlgorithmParametersSpi"
     },
     {
-      "type": "org.eclipse.swt.internal.image.WinICOFileFormat"
+      "type": "java.security.KeyStoreSpi"
     },
     {
       "type": "org.eclipse.swt.widgets.Display"
@@ -212,6 +160,15 @@
     },
     {
       "type": "sun.security.provider.SHA2$SHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA5$SHA512",
       "methods": [
         {
           "name": "<init>",
@@ -294,6 +251,9 @@
       "glob": "messages_de.properties"
     },
     {
+      "glob": "org/eclipse/swt/internal/Library.class"
+    },
+    {
       "glob": "org/eclipse/swt/internal/SWTMessages.properties"
     },
     {
@@ -304,7 +264,7 @@
     },
     {
       "module": "java.base",
-      "glob": "jdk/internal/icu/impl/data/icudt74b/nfc.nrm"
+      "glob": "jdk/internal/icu/impl/data/icudt76b/nfc.nrm"
     },
     {
       "module": "java.logging",
@@ -340,6 +300,9 @@
     },
     {
       "type": "java.lang.String"
+    },
+    {
+      "type": "javax.crypto.SealedObject"
     }
   ],
   "jni": [
@@ -1049,6 +1012,47 @@
         },
         {
           "name": "itemState"
+        },
+        {
+          "name": "left"
+        },
+        {
+          "name": "right"
+        },
+        {
+          "name": "top"
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.swt.internal.win32.GUITHREADINFO",
+      "fields": [
+        {
+          "name": "bottom"
+        },
+        {
+          "name": "cbSize"
+        },
+        {
+          "name": "flags"
+        },
+        {
+          "name": "hwndActive"
+        },
+        {
+          "name": "hwndCapture"
+        },
+        {
+          "name": "hwndCaret"
+        },
+        {
+          "name": "hwndFocus"
+        },
+        {
+          "name": "hwndMenuOwner"
+        },
+        {
+          "name": "hwndMoveSize"
         },
         {
           "name": "left"
@@ -2460,6 +2464,44 @@
         },
         {
           "name": "style"
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.swt.internal.win32.version.OSVERSIONINFOEX",
+      "fields": [
+        {
+          "name": "dwBuildNumber"
+        },
+        {
+          "name": "dwMajorVersion"
+        },
+        {
+          "name": "dwMinorVersion"
+        },
+        {
+          "name": "dwOSVersionInfoSize"
+        },
+        {
+          "name": "dwPlatformId"
+        },
+        {
+          "name": "szCSDVersion"
+        },
+        {
+          "name": "wProductType"
+        },
+        {
+          "name": "wReserved"
+        },
+        {
+          "name": "wServicePackMajor"
+        },
+        {
+          "name": "wServicePackMinor"
+        },
+        {
+          "name": "wSuiteMask"
         }
       ]
     },

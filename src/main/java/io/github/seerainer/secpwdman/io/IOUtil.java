@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +19,17 @@
  */
 package io.github.seerainer.secpwdman.io;
 
+import static io.github.seerainer.secpwdman.ui.Widgets.msg;
+import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
-import static io.github.seerainer.secpwdman.widgets.Widgets.msg;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import org.eclipse.swt.SWT;
 import org.slf4j.Logger;
@@ -32,109 +37,165 @@ import org.slf4j.Logger;
 import com.grack.nanojson.JsonParserException;
 
 import io.github.seerainer.secpwdman.action.Action;
+import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The class IOUtil.
  */
-public class IOUtil implements StringConstants {
+public class IOUtil implements PrimitiveConstants, StringConstants {
 
-	private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog();
 
-	private static String getConfigFilePath() {
-		final var appDir = new File(System.getProperty(userHome), fstop + APP_NAME);
-		if (!appDir.exists()) {
-			appDir.mkdir();
-		}
-		return appDir.getAbsolutePath() + File.separator + confFile;
+    private IOUtil() {
+    }
+
+    static byte[] deflate(final byte[] input) {
+	final var deflater = new Deflater();
+	deflater.setInput(input);
+	deflater.setLevel(Deflater.BEST_COMPRESSION);
+	deflater.finish();
+
+	final var outputStream = new ByteArrayOutputStream();
+	final var buffer = new byte[MEMORY_SIZE];
+
+	while (!deflater.finished()) {
+	    outputStream.write(buffer, 0, deflater.deflate(buffer));
 	}
+	deflater.end();
+	clear(input);
+	return outputStream.toByteArray();
+    }
 
-	/**
-	 * Get the absolute pathname.
-	 *
-	 * @param file the string file
-	 * @return absolutePath
-	 */
-	public static String getFilePath(final String file) {
-		return new File(file).getAbsolutePath();
+    private static String getConfigFilePath() {
+	final var userDir = getPath(System.getProperty(userHome), fstop + APP_NAME);
+	if (!Files.exists(userDir)) {
+	    try {
+		Files.createDirectory(userDir);
+	    } catch (final IOException e) {
+		LOG.error(ERROR, e);
+		return confFile;
+	    }
 	}
+	return userDir.resolve(confFile).toAbsolutePath().toString();
+    }
 
-	/**
-	 * Checks if a file is not empty and readable.
-	 *
-	 * @param filePath the file path
-	 * @return true if the file is ready, false otherwise
-	 */
-	public static boolean isFileReady(final String filePath) {
-		return !isBlank(filePath) && isReadable(filePath);
-	}
+    /**
+     * Get the absolute pathname.
+     *
+     * @param file the string file
+     * @return absolutePath
+     */
+    public static String getFilePath(final String file) {
+	return getPath(file).toAbsolutePath().toString();
+    }
 
-	/**
-	 * Opens the file to test if it's a password file.
-	 *
-	 * @param file the file
-	 * @return true if the file has the correct format
-	 */
-	public static boolean isPasswordFile(final String file) {
-		try (final var is = IO.open(file)) {
-			return JsonUtil.hasCorrectFileFormat(is);
-		} catch (final IllegalArgumentException | IOException | JsonParserException e) {
-			LOG.warn(warning, e);
-			return false;
-		}
-	}
+    /**
+     * Get the path from the file.
+     *
+     * @param file the file
+     * @return the path
+     */
+    public static Path getPath(final String... file) {
+	return switch (file.length) {
+	case 1 -> Path.of(file[0]);
+	default -> Path.of(file[0], file[1]);
+	};
+    }
 
-	/**
-	 * Checks if a file is readable.
-	 *
-	 * @param filePath the file path
-	 * @return true if the file is readable, false otherwise
-	 */
-	public static boolean isReadable(final String filePath) {
-		final var file = new File(filePath);
-		return (file.exists() && file.canRead() && file.canWrite() && file.isFile());
-	}
+    static byte[] inflate(final byte[] input) {
+	final var inflater = new Inflater();
+	inflater.setInput(input);
 
-	/**
-	 * Opens the configuration file.
-	 *
-	 * @param action the action
-	 */
-	public static void openConfig(final Action action) {
-		final var conf = getConfigFilePath();
-		if (!isReadable(conf)) {
-			LOG.info(noSettingsFile);
-			return;
-		}
-		var exMsg = empty;
-		try (final var is = IO.open(conf)) {
-			JsonUtil.setJsonConfig(action, is);
-			return;
-		} catch (final IOException e) {
-			LOG.error(error, e);
-			exMsg = errorFil.formatted(conf);
-		} catch (final JsonParserException e) {
-			LOG.warn(warning, e);
-			exMsg = errorImp.formatted(conf);
-		}
-		msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, exMsg);
+	final var outputStream = new ByteArrayOutputStream();
+	final var buffer = new byte[MEMORY_SIZE];
+	try {
+	    while (!inflater.finished()) {
+		outputStream.write(buffer, 0, inflater.inflate(buffer));
+	    }
+	    return outputStream.toByteArray();
+	} catch (final DataFormatException e) {
+	    LOG.error(ERROR, e);
+	    return input;
+	} finally {
+	    inflater.end();
+	    clear(input);
 	}
+    }
 
-	/**
-	 * Saves the configuration file.
-	 *
-	 * @param action the action
-	 */
-	public static void saveConfig(final Action action) {
-		try {
-			IO.save(getConfigFilePath(), JsonUtil.getJsonConfig(action));
-		} catch (final IOException e) {
-			LOG.error(error, e);
-			msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, errorFil.formatted(confFile));
-		}
-	}
+    /**
+     * Checks if a file is not empty and readable.
+     *
+     * @param filePath the file path
+     * @return true if the file is ready, false otherwise
+     */
+    public static boolean isFileReady(final String filePath) {
+	return !isBlank(filePath) && isReadable(filePath);
+    }
 
-	private IOUtil() {
+    /**
+     * Opens the file to test if it's a password file.
+     *
+     * @param file the file
+     * @return true if the file has the correct format
+     */
+    public static boolean isPasswordFile(final String file) {
+	try (final var is = IO.open(file)) {
+	    return JsonUtil.hasCorrectFileFormat(is);
+	} catch (final IllegalArgumentException | IOException | JsonParserException e) {
+	    LOG.warn(WARN, e);
+	    return false;
 	}
+    }
+
+    /**
+     * Checks if a file is readable.
+     *
+     * @param filePath the file path
+     * @return true if the file is readable, false otherwise
+     */
+    public static boolean isReadable(final String filePath) {
+	final var f = getPath(filePath);
+	return Files.exists(f) && Files.isReadable(f) && Files.isRegularFile(f) && Files.isWritable(f);
+    }
+
+    /**
+     * Opens the configuration file.
+     *
+     * @param action the action
+     */
+    public static void openConfig(final Action action) {
+	final var conf = getConfigFilePath();
+	if (!isReadable(conf)) {
+	    LOG.info(NO_SETTINGS_FILE);
+	    return;
+	}
+	var exMsg = empty;
+	try (final var is = IO.open(conf)) {
+	    JsonUtil.setJsonConfig(action, is);
+	    return;
+	} catch (final IOException e) {
+	    LOG.error(ERROR, e);
+	    exMsg = errorInp.formatted(conf);
+	} catch (final JsonParserException e) {
+	    LOG.warn(WARN, e);
+	    exMsg = errorImp.formatted(conf);
+	}
+	msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, exMsg);
+    }
+
+    /**
+     * Saves the configuration file.
+     *
+     * @param action the action
+     */
+    public static void saveConfig(final Action action) {
+	try {
+	    IO.save(getConfigFilePath(), JsonUtil.getJsonConfig(action));
+	} catch (final IOException e) {
+	    LOG.error(ERROR, e);
+	    msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, errorInp.formatted(confFile));
+	}
+    }
 }

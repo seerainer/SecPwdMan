@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,31 +28,31 @@ import io.github.seerainer.secpwdman.util.Util;
  */
 public class ByteContainer implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	private final byte[] data;
+    private static final long serialVersionUID = 1L;
+    private final byte[] data;
 
-	/**
-	 * Instantiates a new ByteContainer.
-	 *
-	 * @param data the data
-	 */
-	public ByteContainer(final byte[] data) {
-		this.data = data.clone(); // Create defensive copy
-	}
+    /**
+     * Instantiates a new ByteContainer.
+     *
+     * @param data the data
+     */
+    public ByteContainer(final byte[] data) {
+	this.data = data.clone(); // Create defensive copy
+    }
 
-	/**
-	 * Clear the data.
-	 */
-	public void clear() {
-		Util.clear(data);
-	}
+    /**
+     * Clear the data.
+     */
+    public void clear() {
+	Util.clear(data);
+    }
 
-	/**
-	 * Gets the data.
-	 *
-	 * @return the data
-	 */
-	public byte[] getData() {
-		return data.clone(); // Return defensive copy
-	}
+    /**
+     * Gets the data.
+     *
+     * @return the data
+     */
+    public byte[] getData() {
+	return data.clone(); // Return defensive copy
+    }
 }

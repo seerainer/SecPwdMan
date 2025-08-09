@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,17 +29,17 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 class Messages implements StringConstants {
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 
-	static String getString(final String key) {
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (final MissingResourceException e) {
-			LogFactory.getLog().error(missingResource, key);
-			return '!' + key + '!';
-		}
-	}
+    private Messages() {
+    }
 
-	private Messages() {
+    static String getString(final String key) {
+	try {
+	    return RESOURCE_BUNDLE.getString(key);
+	} catch (final MissingResourceException e) {
+	    LogFactory.getLog().error(MISSING_RESOURCE, key);
+	    return new StringBuilder().append('!').append(key).append('!').toString();
 	}
+    }
 }

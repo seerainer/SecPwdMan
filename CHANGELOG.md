@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-08-09
+
+### Added
+
+- Automatic lock
+- Own simple CSV parser
+- scrypt key derivation function
+- PBKDF2 with Hmac SHA-512
+- Deflate compression
+- Password generator dialog
+- An option to add custom character for random password generation
+- Feature to securely delete exported files
+- Internal password encryption
+- Secure memory management
+- Screenshot protection on Windows
+- Unit and Integration Tests
+
+### Changed
+
+- Upgrade: Gradle from 8.13 to 9.0.0
+- Upgrade dependencies: Eclipse SWT 4.36, nanojson 1.10, password4j 1.8.4
+- Storing the current key derivation function in the password file replacing the isArgon2 value
+- The icon of "Change Master Password" in the file menu
+- Coloring all straight lines
+
+### Fixed
+
+- Some small bugs were fixed
+
+### Removed
+
+- sesseltjonna-csv
+
 ## [1.0.0] - 2025-02-25
 
 ### Changed

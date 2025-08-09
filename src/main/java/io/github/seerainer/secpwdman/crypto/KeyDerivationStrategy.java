@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,5 +29,5 @@ import javax.crypto.SecretKey;
  */
 interface KeyDerivationStrategy {
 
-	SecretKey deriveKey(byte[] password, byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException;
+    SecretKey deriveKey(byte[] password, byte[] salt) throws InvalidKeySpecException, NoSuchAlgorithmException;
 }

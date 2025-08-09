@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,258 +26,301 @@ import static io.github.seerainer.secpwdman.config.Messages.getString;
  */
 public interface StringConstants {
 
-	// Application strings
-	String APP_NAME = "SecPwdMan";
-	String APP_VERS = "1.0.0";
-	String APP_INFO = getString("APP.Info");
+    // Application strings
+    String APP_NAME = "SecPwdMan";
+    String APP_VERS = "1.1.0";
+    String APP_INFO = getString("APP.Info");
 
-	// Regular expressions for URL validation
-	String DOMAIN_PATTERN = """
-			^(https?:\\/\\/)\
-			(([a-zA-Z0-9_-]+):([a-zA-Z0-9_-]+)@)?\
-			([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\
-			(:\\d+)?\
-			(\\/[^\\s]*)?\
-			$""";
+    // Regular expressions for URL validation
+    String DOMAIN_PATTERN = """
+    	^(https?:\\/\\/)\
+    	(([a-zA-Z0-9_-]+):([a-zA-Z0-9_-]+)@)?\
+    	([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})\
+    	(:\\d+)?\
+    	(\\/[^\\s]*)?\
+    	$""";
 
-	// SWT
-	String useSystemTheme = "org.eclipse.swt.display.useSystemTheme";
-	String darkModeExplorerTheme = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme";
-	String shellTitleColoring = "org.eclipse.swt.internal.win32.useShellTitleColoring";
-	String menuBarBackgroundColor = "org.eclipse.swt.internal.win32.menuBarBackgroundColor";
-	String menuBarForegroundColor = "org.eclipse.swt.internal.win32.menuBarForegroundColor";
-	String menuBarBorderColor = "org.eclipse.swt.internal.win32.menuBarBorderColor";
-	String use_WS_BORDER = "org.eclipse.swt.internal.win32.all.use_WS_BORDER";
-	String useDarkTheme = "org.eclipse.swt.internal.win32.Combo.useDarkTheme";
-	String useDarkThemeIcons = "org.eclipse.swt.internal.win32.Text.useDarkThemeIcons";
+    // SWT
+    String useSystemTheme = "org.eclipse.swt.display.useSystemTheme";
+    String darkModeExplorerTheme = "org.eclipse.swt.internal.win32.useDarkModeExplorerTheme";
+    String shellTitleColoring = "org.eclipse.swt.internal.win32.useShellTitleColoring";
+    String menuBarBackgroundColor = "org.eclipse.swt.internal.win32.menuBarBackgroundColor";
+    String menuBarForegroundColor = "org.eclipse.swt.internal.win32.menuBarForegroundColor";
+    String menuBarBorderColor = "org.eclipse.swt.internal.win32.menuBarBorderColor";
+    String use_WS_BORDER = "org.eclipse.swt.internal.win32.all.use_WS_BORDER";
+    String useDarkTheme = "org.eclipse.swt.internal.win32.Combo.useDarkTheme";
+    String useDarkThemeIcons = "org.eclipse.swt.internal.win32.Text.useDarkThemeIcons";
 
-	// Links
-	String appLink = "<a>SecPwdMan</a>";
-	String appAddress = "https://github.com/seerainer/SecPwdMan";
-	String slfLink = "<a>slf4j</a>";
-	String slfAddress = "https://github.com/qos-ch/slf4j";
-	String slfLicense = "https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt";
-	String zxcLink = "<a>zxcvbn4j</a>";
-	String zxcAddress = "https://github.com/nulab/zxcvbn4j";
-	String zxcLicense = "https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt";
-	String mitLink = "(<a>MIT license</a>)";
-	String apaLink = "(<a>Apache 2 license</a>)";
-	String apaAddress = "https://www.apache.org/licenses/LICENSE-2.0";
-	String csvLink = "<a>sesseltjonna-csv</a>";
-	String csvAddress = "https://github.com/skjolber/sesseltjonna-csv";
-	String jsnLink = "<a>nanojson</a>";
-	String jsnAddress = "https://github.com/mmastrac/nanojson";
-	String p4jLink = "<a>password4j</a>";
-	String p4jAddress = "https://github.com/Password4j/password4j";
-	String swtLink = "<a>eclipse.platform.swt</a>";
-	String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt";
-	String eplLink = "(<a>EPL 2 license</a>)";
-	String eplAddress = "https://www.eclipse.org/legal/epl-2.0";
-	String owaLink = "<a>Info</a>";
-	String owaAddress = "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet";
+    // Links
+    String appLink = "<a>SecPwdMan</a>";
+    String appAddress = "https://github.com/seerainer/SecPwdMan";
+    String slfLink = "<a>slf4j</a>";
+    String slfAddress = "https://github.com/qos-ch/slf4j";
+    String slfLicense = "https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt";
+    String zxcLink = "<a>zxcvbn4j</a>";
+    String zxcAddress = "https://github.com/nulab/zxcvbn4j";
+    String zxcLicense = "https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt";
+    String mitLink = "(<a>MIT license</a>)";
+    String apaLink = "(<a>Apache 2 license</a>)";
+    String apaAddress = "https://www.apache.org/licenses/LICENSE-2.0";
+    String jsnLink = "<a>nanojson</a>";
+    String jsnAddress = "https://github.com/mmastrac/nanojson";
+    String jsnLicense = "https://github.com/mmastrac/nanojson?tab=readme-ov-file#license";
+    String p4jLink = "<a>password4j</a>";
+    String p4jAddress = "https://github.com/Password4j/password4j";
+    String swtLink = "<a>eclipse.platform.swt</a>";
+    String swtAddress = "https://github.com/eclipse-platform/eclipse.platform.swt";
+    String eplLink = "(<a>EPL 2 license</a>)";
+    String eplAddress = "https://www.eclipse.org/legal/epl-2.0";
 
-	// General strings
-	String empty = "";
-	String quote = "\"";
-	String space = "\s";
-	String tabul = "\t";
-	String escap = "\u001B";
-	String comma = "\u002C";
-	String fstop = "\u002E";
-	String newLine = "\n";
-	String nullStr = "\0";
-	String lineBrk = "\\R";
+    // General strings
+    String empty = "";
+    String quote = "\"";
+    String space = "\s";
+    String tabul = "\t";
+    String fstop = "\u002E";
+    String newLine = "\n";
+    String nullStr = "\0";
+    String lineBrk = "\\R";
+    String logical = "&&";
 
-	// Title strings
-	String titlePH = " - ";
-	String titleMD = " - *";
+    // Title strings
+    String titlePH = " - ";
+    String titleMD = " - *";
 
-	// Random characters
-	String rTextLoC = "abcdefghijklmnopqrstuvwxyz";
-	String rTextUpC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	String rNumbers = "1234567890";
-	String rSpecia1 = "+-=_@#$%^&&";
-	String rSpecia2 = ";:,.<>/~\\[](){}?!|*";
+    // Random characters
+    String rTextLoC = "abcdefghijklmnopqrstuvwxyz";
+    String rTextUpC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String rNumbers = "1234567890";
+    String rSpecia1 = "+-=_@#$%^&&";
+    String rSpecia2 = ";:,.<>/~\\[](){}?!|*";
 
-	// Log messages
-	String error = "Error occurred";
-	String warning = "Warning occurred";
-	String customHeader = "Custom header created";
-	String dataNull = "Data must not be null";
-	String divNotComma = "Divider is not a comma";
-	String fileError = "File error: {}{}{}";
-	String fileNull = "File must not be null";
-	String missingResource = "Missing resource for key: {}";
-	String noSettingsFile = "No settings file found, using default settings";
-	String timeCrypto = "Encrypted: {} ms, Decrypted: {} ms";
-	String timeOpen = "Time to open: {} ms";
-	String timeSave = "Time to save: {} ms";
-	String timeSort = "Time to sort: {} ms";
-	String timeStart = "{} - Time to start: {} ms";
-	String timeTotal = "{} - Execution time: {} seconds";
+    // Log messages
+    String ERROR = "Error occurred";
+    String WARN = "Warning occurred";
+    String AFFINITY_FAILED = "Failed to set window display affinity";
+    String CUSTOM_HEADER = "Custom header created";
+    String DATA_NOT_NULL = "Data must not be null";
+    String FILE_ERR = "File error: {}{}{}";
+    String FILE_NOT_NULL = "File must not be null";
+    String FILE_TOO_LARGE = "File too large: {}";
+    String MAX_ENTRY = "Data exceeds 100.000 entries";
+    String MISSING_RESOURCE = "Missing resource for key: {}";
+    String NO_SETTINGS_FILE = "No settings file found, using default settings";
+    String TIME_CRYPTO = "Cipher: {}, KDF: {}\nEncrypted: {} ms, Decrypted: {} ms";
+    String TIME_TO_OPEN = "Time to open: {} ms";
+    String TIME_TO_SAVE = "Time to save: {} ms";
+    String TIME_TO_SHRED = "Time to shred file: {} ms";
+    String TIME_TO_SORT = "Time to sort: {} ms";
+    String START_TIME = "{} - Time to start: {} ms";
+    String TOTAL_TIME = "{} - Execution time: {} seconds";
+    String DESERIAL_FAILED = "Deserialization failed";
+    String SERIAL_FAILED = "Serialization failed";
+    String SERIAL_OBJ_FAILED = "Secure serialization failed for object: {}";
+    
+    // SecureMemory strings
+    String ERR_SECRET_NULL_OR_EMPTY = "Secret data must not be null or empty";
+    String ERR_SECURE_MEMORY_OP = "Error in secure memory operation";
+    String ERR_SECURE_MEMORY_FAILED = "Secure memory operation failed";
+    String WARN_ZERO_NATIVE_MEMORY = "Failed to zero native memory";
+    String SECURE_CHARSET_CONVERSION_FAILED = "Secure charset conversion failed";
 
-	// System information
-	String securityProvider = "Security provider";
-	String systemEnvi = "System environment variables";
-	String systemProp = "System properties";
+    // CSV strings
+    String csvException = "Line %d, Position %d: %s";
+    String fieldSizeMax = "Field size exceeds maximum, max allowed: ";
+    String unexpectedQuote = "Unexpected quote in unquoted field at position ";
+    String invalidParserState = "Invalid parser state";
+    String invalidCharAfterQuote = "Invalid character after quoted field at position ";
+    String invalidCharAfterClose = "Invalid character after closing quote at position ";
+    String fieldIndex = "Field index ";
+    String outOfBounds = " out of bounds";
+    String csvField = "CSVField{value='%s', quoted=%s, empty=%s, null=%s, pos=%d-%d, col=%d}";
+    String csvRecord = "CSVRecord{fields=%d, line=%d, length=%d, errors=%s}";
 
-	// Configuration values
-	String BUNDLE_NAME = "messages";
-	String UTF8 = "UTF-8";
-	String confFile = "config.json";
-	String imexExte = "*.csv; *.txt";
-	String passExte = "*.aes; *.json";
-	String safeFont = "Arial";
-	String consFont = "Courier New";
-	String logFileP = "%h/." + APP_NAME + "/" + APP_NAME + ".log.%g.txt";
-	String userHome = "user.home";
-	String linuxGTK = "gtk";
-	String macCocoa = "cocoa";
-	String windows = "win32";
-	String trueStr = "true";
+    // System information
+    String securityProvider = "Security provider";
+    String systemEnvi = "System environment variables";
+    String systemProp = "System properties";
 
-	// Configuration keys
-	String appName = "appName";
-	String appVers = "appVersion";
-	String argon2I = "argon2Iter";
-	String argon2M = "argon2Memo";
-	String argon2P = "argon2Para";
-	String argon2T = "argon2Type";
-	String base64E = "base64Encode";
-	String buffLen = "bufferLength";
-	String cipALGO = "cipherALGO";
-	String clearPw = "clearPassword";
-	String coWidth = "columnWidth";
-	String divider = "divider";
-	String encData = "encryptedData";
-	String isArgon = "isArgon2";
-	String keyALGO = "keyALGO";
-	String pwdMinL = "passwordMinLength";
-	String pbkdf2I = "PBKDF2Iter";
-	String resizeC = "resizeColumns";
-	String shelMax = "shellMax";
-	String shellFo = "shellFont";
-	String shellPX = "shellPosX";
-	String shellPY = "shellPosY";
-	String shellSX = "shellSizeX";
-	String shellSY = "shellSizeY";
-	String shwPass = "showPasswords";
-	String tableFo = "tableFont";
+    // Configuration values
+    String BUNDLE_NAME = "messages";
+    String confFile = "config.json";
+    String allFExte = "*.*";
+    String imexExte = "*.csv; *.txt";
+    String passExte = "*.aes; *.json";
+    String safeFont = "Arial";
+    String consFont = "Courier New";
+    String logFileP = new StringBuilder().append("%h/.").append(APP_NAME).append("/").append(APP_NAME)
+	    .append(".log.%g.txt").toString();
+    String userHome = "user.home";
+    String linuxGTK = "gtk";
+    String macCocoa = "cocoa";
+    String windows = "win32";
+    String fileMode = "rws";
+    String trueStr = "true";
+    String user32 = "user32";
+    String setAffinity = "my_SetWindowDisplayAffinity";
 
-	// Messages
-	String imexFile = getString("File.ImpExp.Text");
-	String passFile = getString("File.Password.Text");
-	String menuFile = getString("Menu.File");
-	String menuClea = getString("Menu.File.Clear");
-	String menuOpen = getString("Menu.File.Open");
-	String menuSave = getString("Menu.File.Save");
-	String menuChaP = getString("Menu.File.ChangeKey");
-	String menuLock = getString("Menu.File.Lock");
-	String menuUnlo = getString("Menu.File.Unlock");
-	String menuImpo = getString("Menu.File.Import");
-	String menuExpo = getString("Menu.File.Export");
-	String menuExit = getString("Menu.File.Exit");
-	String menuEdit = getString("Menu.Edit");
-	String menuNent = getString("Menu.Edit.NewEntry");
-	String menuEent = getString("Menu.Edit.EditEntry");
-	String menuVent = getString("Menu.Edit.ViewEntry");
-	String menuSela = getString("Menu.Edit.SelectAll");
-	String menuDels = getString("Menu.Edit.DeleteSelected");
-	String menuCurl = getString("Menu.Edit.CopyURL");
-	String menuCusr = getString("Menu.Edit.CopyUsername");
-	String menuCpwd = getString("Menu.Edit.CopyPassword");
-	String menuCnot = getString("Menu.Edit.CopyNotes");
-	String menuClCb = getString("Menu.Edit.ClearClipboard");
-	String menuOurl = getString("Menu.Edit.OpenURL");
-	String menuSear = getString("Menu.Search");
-	String menuFind = getString("Menu.Search.Find");
-	String menuView = getString("Menu.View");
-	String menuReaO = getString("Menu.View.ReadOnly");
-	String menuGrou = getString("Menu.View.Group");
-	String menuPcol = getString("Menu.View.ResizeColumns");
-	String menuSpwd = getString("Menu.View.ShowPassword");
-	String menuHpwd = getString("Menu.View.HidePassword");
-	String menuFont = getString("Menu.View.Font");
-	String menuFoSh = getString("Menu.View.FontShell");
-	String menuFoTa = getString("Menu.View.FontTable");
-	String menuText = getString("Menu.View.TextView");
-	String menuPref = getString("Menu.View.Preferences");
-	String menuInfo = getString("Menu.Help");
-	String menuAbou = getString("Menu.Help.About");
-	String menuSysI = getString("Menu.Help.System");
-	String cfgTitle = getString("Dialog.Config.Title");
-	String cfgEnTab = getString("Dialog.Config.EncTab");
-	String cfgOpTab = getString("Dialog.Config.OptTab");
-	String cfgEncry = getString("Dialog.Config.Encryption");
-	String cfgAESGC = getString("Dialog.Config.AES");
-	String cfgCHA20 = getString("Dialog.Config.ChaCha20");
-	String cfgKeyDF = getString("Dialog.Config.KeyDF");
-	String cfgRecAr = getString("Dialog.Config.ArgonRec");
-	String cfgArgon = getString("Dialog.Config.Argon");
-	String cfgBuffL = getString("Dialog.Config.BufferLength");
-	String cfgDivid = getString("Dialog.Config.Divider");
-	String cfgColWh = getString("Dialog.Config.ColW");
-	String cfgClPwd = getString("Dialog.Config.ClearPwd");
-	String cfgPIter = getString("Dialog.Config.Iter");
-	String cfgMinPl = getString("Dialog.Config.MinPwdLength");
-	String cfgLoMin = getString("Dialog.Config.LockOnMin");
-	String cfgTestB = getString("Dialog.Config.Test");
-	String cfgDWarn = getString("Dialog.Config.Warn");
-	String cfgBase6 = getString("Dialog.Config.Base64");
-	String cfgShPwd = getString("Dialog.Config.ShowPass");
-	String cfgShPTt = getString("Dialog.Config.ShowPassTooltip");
-	String entrNewe = getString("Dialog.Entry.New");
-	String entrEdit = getString("Dialog.Entry.Edit");
-	String entrView = getString("Dialog.Entry.View");
-	String entrGrou = getString("Dialog.Entry.Group");
-	String entrTitl = getString("Dialog.Entry.Title");
-	String entrLink = getString("Dialog.Entry.URL");
-	String entrUser = getString("Dialog.Entry.Username");
-	String entrPass = getString("Dialog.Entry.Password");
-	String entrNote = getString("Dialog.Entry.Notes");
-	String entrPInd = getString("Dialog.Entry.Indicator");
-	String entrRand = getString("Dialog.Entry.Random");
-	String entrLgth = getString("Dialog.Entry.Length");
-	String entrGene = getString("Dialog.Entry.Generate");
-	String entrShow = getString("Dialog.Entry.ShowPass");
-	String entrSpac = getString("Dialog.Entry.Space");
-	String entrOkay = getString("Dialog.Entry.OK");
-	String entrCanc = getString("Dialog.Entry.Cancel");
-	String infoDepe = getString("Dialog.Info.Dependencies");
-	String passTitl = getString("Dialog.Password.Title");
-	String passWord = getString("Dialog.Password.Password");
-	String passConf = getString("Dialog.Password.Confirm");
-	String passFair = getString("Dialog.Password.Weak");
-	String passNoMa = getString("Dialog.Password.NoMatch");
-	String passStro = getString("Dialog.Password.Strong");
-	String passShor = getString("Dialog.Password.TooShort");
-	String passSecu = getString("Dialog.Password.VeryStrong");
-	String passWeak = getString("Dialog.Password.VeryWeak");
-	String searTitl = getString("Dialog.Search.Title");
-	String searText = getString("Dialog.Search.Text");
-	String textView = getString("Dialog.TextView");
-	String textWarn = getString("Dialog.TextWarning");
-	String systInfo = getString("Dialog.SystemInfo");
-	String titleErr = getString("MessageBox.Title.Error");
-	String titleInf = getString("MessageBox.Title.Info");
-	String titleWar = getString("MessageBox.Title.Warning");
-	String cfgTestI = getString("MessageBox.Config.Testinfo");
-	String errorImp = getString("MessageBox.Error.Import");
-	String errorFil = getString("MessageBox.Error.IO");
-	String errorLen = getString("MessageBox.Error.Length");
-	String errorPwd = getString("MessageBox.Error.Password");
-	String errorSev = getString("MessageBox.Error.Severe");
-	String infoImpo = getString("MessageBox.Info.Import");
-	String searMess = getString("MessageBox.Search.NotFound");
-	String warnNewF = getString("MessageBox.Warning.Changes");
-	String warnExit = getString("MessageBox.Warning.Exit");
-	String warnPass = getString("MessageBox.Warning.ShowPass");
-	String warnExpo = getString("MessageBox.Warning.Export");
-	String warnUPeq = getString("MessageBox.Warning.UserPassEqual");
-	String headerOp = getString("Header.Title.open");
-	String listFirs = getString("List.All");
+    // Configuration keys
+    String appName = "appName";
+    String appVers = "appVersion";
+    String argon2I = "argon2Iter";
+    String argon2M = "argon2Memo";
+    String argon2P = "argon2Para";
+    String argon2T = "argon2Type";
+    String autoLoc = "autoLockTime";
+    String buffLen = "bufferLength";
+    String cipALGO = "cipherALGO";
+    String clearPw = "clearPassword";
+    String coWidth = "columnWidth";
+    String deflate = "deflate";
+    String divider = "divider";
+    String encData = "encryptedData";
+    String hmacSHA = "HmacSHA2";
+    String keyALGO = "keyALGO";
+    String keyderf = "keydf";
+    String pwdMinL = "passwordMinLength";
+    String pbkdf2I = "PBKDF2Iter";
+    String resizeC = "resizeColumns";
+    String scryptN = "scryptN";
+    String scryptP = "scryptP";
+    String scryptR = "scryptR";
+    String shelMax = "shellMax";
+    String shellFo = "shellFont";
+    String shellPX = "shellPosX";
+    String shellPY = "shellPosY";
+    String shellSX = "shellSizeX";
+    String shellSY = "shellSizeY";
+    String tableFo = "tableFont";
 
-	String[] csvHeader = { "uuid", "group", "title", "url", "user", "password", "notes" };
-	String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), getString("Header.URL"),
-			getString("Header.User"), getString("Header.Pass"), getString("Header.Notes") };
+    // Messages
+    String allFiles = getString("File.All.Text");
+    String imexFile = getString("File.ImpExp.Text");
+    String passFile = getString("File.Password.Text");
+    String menuFile = getString("Menu.File");
+    String menuClea = getString("Menu.File.Clear");
+    String menuOpen = getString("Menu.File.Open");
+    String menuSave = getString("Menu.File.Save");
+    String menuClos = getString("Menu.File.Close");
+    String menuChaP = getString("Menu.File.ChangeKey");
+    String menuLock = getString("Menu.File.Lock");
+    String menuUnlo = getString("Menu.File.Unlock");
+    String menuImpo = getString("Menu.File.Import");
+    String menuExpo = getString("Menu.File.Export");
+    String menuExit = getString("Menu.File.Exit");
+    String menuEdit = getString("Menu.Edit");
+    String menuNent = getString("Menu.Edit.NewEntry");
+    String menuEent = getString("Menu.Edit.EditEntry");
+    String menuVent = getString("Menu.Edit.ViewEntry");
+    String menuSela = getString("Menu.Edit.SelectAll");
+    String menuDels = getString("Menu.Edit.DeleteSelected");
+    String menuCurl = getString("Menu.Edit.CopyURL");
+    String menuCusr = getString("Menu.Edit.CopyUsername");
+    String menuCpwd = getString("Menu.Edit.CopyPassword");
+    String menuCnot = getString("Menu.Edit.CopyNotes");
+    String menuClCb = getString("Menu.Edit.ClearClipboard");
+    String menuOurl = getString("Menu.Edit.OpenURL");
+    String menuSear = getString("Menu.Search");
+    String menuFind = getString("Menu.Search.Find");
+    String menuView = getString("Menu.View");
+    String menuReaO = getString("Menu.View.ReadOnly");
+    String menuGrou = getString("Menu.View.Group");
+    String menuPcol = getString("Menu.View.ResizeColumns");
+    String menuSpwd = getString("Menu.View.ShowPassword");
+    String menuHpwd = getString("Menu.View.HidePassword");
+    String menuFont = getString("Menu.View.Font");
+    String menuFoSh = getString("Menu.View.FontShell");
+    String menuFoTa = getString("Menu.View.FontTable");
+    String menuText = getString("Menu.View.TextView");
+    String menuTool = getString("Menu.Tool");
+    String menuPGen = getString("Menu.Tool.PasswordGenerator");
+    String menuSecD = getString("Menu.Tool.SecureDelete");
+    String menuPref = getString("Menu.Tool.Preferences");
+    String menuHelp = getString("Menu.Help");
+    String menuAbou = getString("Menu.Help.About");
+    String menuSysI = getString("Menu.Help.System");
+    String diaCancl = getString("Dialog.Cancel");
+    String diaClose = getString("Dialog.Close");
+    String dialOkay = getString("Dialog.OK");
+    String cfgTitle = getString("Dialog.Config.Title");
+    String cfgEnTab = getString("Dialog.Config.EncTab");
+    String cfgOpTab = getString("Dialog.Config.OptTab");
+    String cfgEncry = getString("Dialog.Config.Encryption");
+    String cfgAESGC = getString("Dialog.Config.AES");
+    String cfgCHA20 = getString("Dialog.Config.ChaCha20");
+    String cfgRecAr = getString("Dialog.Config.ArgonRec");
+    String cfgArgon = getString("Dialog.Config.Argon");
+    String cfgScryp = getString("Dialog.Config.Scrypt");
+    String cfgBuffL = getString("Dialog.Config.BufferLength");
+    String cfgDivid = getString("Dialog.Config.Divider");
+    String cfgColWh = getString("Dialog.Config.ColW");
+    String cfgAutoL = getString("Dialog.Config.AutoLock");
+    String cfgClPwd = getString("Dialog.Config.ClearPwd");
+    String cfgPIter = getString("Dialog.Config.Iter");
+    String cfgMinPl = getString("Dialog.Config.MinPwdLength");
+    String cfgLoMin = getString("Dialog.Config.LockOnMin");
+    String cfgTestB = getString("Dialog.Config.Test");
+    String cfgDefla = getString("Dialog.Config.Deflate");
+    String entrNewe = getString("Dialog.Entry.New");
+    String entrEdit = getString("Dialog.Entry.Edit");
+    String entrView = getString("Dialog.Entry.View");
+    String entrGrou = getString("Dialog.Entry.Group");
+    String entrTitl = getString("Dialog.Entry.Title");
+    String entrLink = getString("Dialog.Entry.URL");
+    String entrUser = getString("Dialog.Entry.Username");
+    String entrPass = getString("Dialog.Entry.Password");
+    String entrNote = getString("Dialog.Entry.Notes");
+    String entrPInd = getString("Dialog.Entry.Indicator");
+    String entrRand = getString("Dialog.Entry.Random");
+    String entrLgth = getString("Dialog.Entry.Length");
+    String entrGene = getString("Dialog.Entry.Generate");
+    String entrShow = getString("Dialog.Entry.ShowPass");
+    String entrSpac = getString("Dialog.Entry.Space");
+    String entrCust = getString("Dialog.Entry.CustomValues");
+    String infoDepe = getString("Dialog.Info.Dependencies");
+    String passTitl = getString("Dialog.Password.Title");
+    String passWord = getString("Dialog.Password.Password");
+    String passConf = getString("Dialog.Password.Confirm");
+    String passFair = getString("Dialog.Password.Weak");
+    String passNoMa = getString("Dialog.Password.NoMatch");
+    String passStro = getString("Dialog.Password.Strong");
+    String passShor = getString("Dialog.Password.TooShort");
+    String passSecu = getString("Dialog.Password.VeryStrong");
+    String passWeak = getString("Dialog.Password.VeryWeak");
+    String passCopy = getString("Dialog.PasswordGenerator.Copy");
+    String passCoun = getString("Dialog.PasswordGenerator.Count");
+    String passEmpt = getString("Dialog.PasswordGenerator.Empty");
+    String searTitl = getString("Dialog.Search.Title");
+    String searText = getString("Dialog.Search.Text");
+    String textView = getString("Dialog.TextView");
+    String textWarn = getString("Dialog.TextWarning");
+    String toolPGen = getString("Dialog.Tool.PasswordGenerator");
+    String shredFil = getString("Dialog.Tool.ShredFile");
+    String systInfo = getString("Dialog.SystemInfo");
+    String titleErr = getString("MessageBox.Title.Error");
+    String titleInf = getString("MessageBox.Title.Info");
+    String titleWar = getString("MessageBox.Title.Warning");
+    String cfgTestI = getString("MessageBox.Config.Testinfo");
+    String errorFil = getString("MessageBox.Error.FileTooLarge");
+    String errorImp = getString("MessageBox.Error.Import");
+    String errorInp = getString("MessageBox.Error.Input");
+    String errorLen = getString("MessageBox.Error.Length");
+    String errorOut = getString("MessageBox.Error.Output");
+    String errorPwd = getString("MessageBox.Error.Password");
+    String errorSev = getString("MessageBox.Error.Severe");
+    String errorShr = getString("MessageBox.Error.Shred");
+    String infoImpo = getString("MessageBox.Info.Import");
+    String infoNewF = getString("MessageBox.Info.NewFile");
+    String searMess = getString("MessageBox.Search.NotFound");
+    String warnNewF = getString("MessageBox.Warning.Changes");
+    String warnExit = getString("MessageBox.Warning.Exit");
+    String warnMaxE = getString("MessageBox.Warning.MaxEntries");
+    String warnShre = getString("MessageBox.Warning.Shred");
+    String warnUPeq = getString("MessageBox.Warning.UserPassEqual");
+    String headerOp = getString("Header.Title.open");
+    String listFirs = getString("List.All");
+
+    String[] csvHeader = { "uuid", "group", "title", "url", "user", "password", "notes" };
+    String[] tableHeader = { "UUID", "Group", getString("Header.Title.closed"), getString("Header.URL"),
+	    getString("Header.User"), getString("Header.Pass"), getString("Header.Notes") };
 }

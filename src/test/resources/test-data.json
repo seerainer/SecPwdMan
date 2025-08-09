@@ -1,0 +1,59 @@
+{
+  "appName": "SecPwdMan",
+  "version": "1.1.0",
+  "testEntries": [
+    {
+      "title": "Test Gmail Account",
+      "username": "testuser@gmail.com",
+      "password": "TestPassword123!",
+      "url": "https://mail.google.com",
+      "notes": "Test email account for automated testing"
+    },
+    {
+      "title": "Test GitHub Account",
+      "username": "testuser",
+      "password": "GitHubP@ssw0rd456",
+      "url": "https://github.com",
+      "notes": "Test GitHub account for development"
+    },
+    {
+      "title": "Test Banking Site",
+      "username": "12345678",
+      "password": "B@nk1ng!Secure789",
+      "url": "https://bank.example.com",
+      "notes": "Test banking credentials - NOT REAL"
+    },
+    {
+      "title": "Test WiFi Network",
+      "username": "WiFi-5GHz",
+      "password": "WiFi_P@ssw0rd_2023!",
+      "url": "",
+      "notes": "Test wireless network credentials"
+    },
+    {
+      "title": "Test Server Login",
+      "username": "root",
+      "password": "S3rv3r_R00t_P@ss!",
+      "url": "ssh://server.example.com:22",
+      "notes": "Test server SSH credentials"
+    }
+  ],
+  "testCategories": [
+    "Email",
+    "Development",
+    "Banking",
+    "Network",
+    "Servers",
+    "Social Media",
+    "Shopping",
+    "Education"
+  ],
+  "testTags": [
+    "work",
+    "personal",
+    "testing",
+    "development",
+    "production",
+    "staging"
+  ]
+}

@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,39 +22,46 @@ package io.github.seerainer.secpwdman.crypto;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-
-import io.github.seerainer.secpwdman.config.ConfigData;
+import javax.crypto.spec.IvParameterSpec;
 
 /**
  * The record ChaCha20EncryptionStrategy.
  */
-record ChaCha20EncryptionStrategy(ConfigData cData) implements CryptoConstants, EncryptionStrategy {
+record ChaCha20EncryptionStrategy(CryptoConfig cConf) implements CryptoConstants, EncryptionStrategy {
 
-	@Override
-	public byte[] encrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = Crypto.getCipher(cipherChaCha20);
-		final var nonce = Crypto.getRandomValue(IV_LENGTH);
-		final var salt = Crypto.getRandomValue(SALT_LENGTH);
-		final var cipherText = Crypto.initCipherCHA(instance, Cipher.ENCRYPT_MODE, password, salt, nonce, cData);
-		return Crypto.appendValues(nonce, salt, cipherText.doFinal(data));
-	}
+    @Override
+    public byte[] encrypt(final byte[] data, final byte[] password)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var instance = Cipher.getInstance(cipherChaCha20);
+	final var nonce = Crypto.getRandomValue(IV_LENGTH);
+	final var salt = Crypto.getRandomValue(SALT_LENGTH);
+	final var key = Crypto.getKeyTransformation(password, salt, cConf);
+	instance.init(Cipher.ENCRYPT_MODE, key, getParams(nonce));
+	return Crypto.appendValues(nonce, salt, instance.doFinal(data));
+    }
 
-	@Override
-	public byte[] decrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		final var instance = Crypto.getCipher(cipherChaCha20);
-		final var nonce = Crypto.getValueFromData(data, 0, IV_LENGTH);
-		final var salt = Crypto.getValueFromData(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
-		final var cipherText = Crypto.initCipherCHA(instance, Cipher.DECRYPT_MODE, password, salt, nonce, cData);
-		return cipherText.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
-	}
+    @Override
+    public byte[] decrypt(final byte[] data, final byte[] password)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var instance = Cipher.getInstance(cipherChaCha20);
+	final var nonce = Arrays.copyOfRange(data, 0, IV_LENGTH);
+	final var salt = Arrays.copyOfRange(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
+	final var key = Crypto.getKeyTransformation(password, salt, cConf);
+	instance.init(Cipher.DECRYPT_MODE, key, getParams(nonce));
+	return instance.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
+    }
+
+    private static AlgorithmParameterSpec getParams(final byte[] nonce) {
+	return new IvParameterSpec(nonce);
+    }
 }

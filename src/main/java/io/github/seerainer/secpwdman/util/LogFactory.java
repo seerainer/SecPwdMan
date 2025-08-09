@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,37 +36,33 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  */
 public class LogFactory implements PrimitiveConstants, StringConstants {
 
-	private static final Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(LogFactory.class.getName());
 
-	static {
-		logger = LoggerFactory.getLogger(LogFactory.class.getName());
+    private LogFactory() {
+    }
+
+    /**
+     * Configures the logging.
+     */
+    public static void configureLogging() {
+	final var rootLogger = LogManager.getLogManager().getLogger(empty);
+	rootLogger.setLevel(Level.INFO);
+
+	try {
+	    final var fileHandler = new FileHandler(logFileP, LOG_FILE_SIZE, LOG_FILES, true);
+	    fileHandler.setFormatter(new SimpleFormatter());
+	    rootLogger.addHandler(fileHandler);
+	} catch (final IOException e) {
+	    logger.error(ERROR, e);
 	}
+    }
 
-	/**
-	 * Configures the logging.
-	 */
-	public static void configureLogging() {
-		final var rootLogger = LogManager.getLogManager().getLogger(empty);
-		rootLogger.setLevel(Level.INFO);
-
-		try {
-			final var fileHandler = new FileHandler(logFileP, LOG_FILE_SIZE, LOG_FILES, true);
-			fileHandler.setFormatter(new SimpleFormatter());
-			rootLogger.addHandler(fileHandler);
-		} catch (final IOException e) {
-			logger.error(error, e);
-		}
-	}
-
-	/**
-	 * Gets the logger of the calling class.
-	 *
-	 * @return the logger
-	 */
-	public static Logger getLog() {
-		return logger;
-	}
-
-	private LogFactory() {
-	}
+    /**
+     * Gets the logger of the calling class.
+     *
+     * @return the logger
+     */
+    public static Logger getLog() {
+	return logger;
+    }
 }

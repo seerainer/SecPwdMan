@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,13 +21,9 @@ package io.github.seerainer.secpwdman.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStore.PasswordProtection;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 
 import javax.security.auth.DestroyFailedException;
 
@@ -36,85 +31,89 @@ import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
+import io.github.seerainer.secpwdman.util.SecureMemory;
+import io.github.seerainer.secpwdman.util.Util;
 
 /**
  * The class KeyStoreManager.
  */
 public class KeyStoreManager implements CryptoConstants, StringConstants {
 
-	private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog();
 
-	private static void destroyProtParam(final PasswordProtection protParam) {
-		try {
-			protParam.destroy();
-		} catch (final DestroyFailedException e) {
-			LOG.error(error, e);
-		}
+    private KeyStoreManager() {
+    }
+
+    private static void destroyProtParam(final PasswordProtection protParam) {
+	try {
+	    protParam.destroy();
+	} catch (final DestroyFailedException e) {
+	    LOG.error(ERROR, e);
 	}
+    }
 
-	private static KeyStore getInstance() throws KeyStoreException {
-		return KeyStore.getInstance(pkcs12);
-	}
-
-	/**
-	 * Gets the password from the key store.
-	 *
-	 * @param keyStorePassword the key store password
-	 * @param keyStoreData     the key store data
-	 * @return the password from key store
-	 */
-	public static byte[] getPasswordFromKeyStore(final char[] keyStorePassword, final byte[] keyStoreData) {
-		if (keyStorePassword == null || keyStoreData == null) {
-			throw new IllegalArgumentException(keyStoreNull);
-		}
-		final var protParam = getPasswordProtection(keyStorePassword);
-		try (var bais = new ByteArrayInputStream(keyStoreData)) {
-			final var keyStoreInstance = getInstance();
-			keyStoreInstance.load(bais, keyStorePassword);
-			final var entry = keyStoreInstance.getEntry(alias, protParam);
-			if (entry instanceof KeyStore.SecretKeyEntry) {
-				return ((KeyStore.SecretKeyEntry) entry).getSecretKey().getEncoded();
-			}
-			throw new KeyStoreException(noEntryFound);
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException
-				| UnrecoverableEntryException e) {
-			LOG.error(error, e);
-			return null;
+    /**
+     * Gets the password from the key store using secure native memory.
+     *
+     * @param keyStorePassword the key store password
+     * @param keyStoreData     the key store data
+     * @return the password from key store
+     */
+    public static byte[] getPasswordFromKeyStore(final char[] keyStorePassword, final byte[] keyStoreData) {
+	return SecureMemory.withSecretMemory(keyStoreData.clone(), dataSegment -> {
+	    final var protParam = new KeyStore.PasswordProtection(keyStorePassword);
+	    try {
+		final var data = SecureMemory.readFromNative(dataSegment);
+		try (var bais = new ByteArrayInputStream(data)) {
+		    final var keyStoreInstance = KeyStore.getInstance(pkcs12);
+		    keyStoreInstance.load(bais, keyStorePassword);
+		    final var entry = keyStoreInstance.getEntry(alias, protParam);
+		    if (entry instanceof KeyStore.SecretKeyEntry) {
+			return ((KeyStore.SecretKeyEntry) entry).getSecretKey().getEncoded();
+		    }
+		    throw new KeyStoreException(noEntryFound);
 		} finally {
-			destroyProtParam(protParam);
+		    Util.clear(data);
 		}
-	}
+	    } catch (final Exception e) {
+		LOG.error(ERROR, e);
+		return null;
+	    } finally {
+		destroyProtParam(protParam);
+	    }
+	});
+    }
 
-	private static PasswordProtection getPasswordProtection(final char[] keyStorePassword) {
-		return new KeyStore.PasswordProtection(keyStorePassword);
-	}
-
-	/**
-	 * Puts the password in the key store.
-	 *
-	 * @param keyStorePassword the key store password
-	 * @param passwordToStore  the password to store
-	 * @return the byte array of the key store
-	 */
-	public static byte[] putPasswordInKeyStore(final char[] keyStorePassword, final byte[] passwordToStore) {
-		final var protParam = getPasswordProtection(keyStorePassword);
+    /**
+     * Puts the password in the key store using secure native memory.
+     *
+     * @param keyStorePassword the key store password
+     * @param passwordToStore  the password to store
+     * @return the byte array of the key store
+     */
+    public static byte[] putPasswordInKeyStore(final char[] keyStorePassword, final byte[] passwordToStore) {
+	return SecureMemory.withSecretMemory(passwordToStore.clone(), passwordSegment -> {
+	    final var protParam = new KeyStore.PasswordProtection(keyStorePassword);
+	    try {
+		final var password = SecureMemory.readFromNative(passwordSegment);
 		try {
-			final var keyStoreInstance = getInstance();
-			keyStoreInstance.load(null, keyStorePassword);
-			final var secretKey = Crypto.getSecretKey(passwordToStore, keyAES);
-			final var entry = new KeyStore.SecretKeyEntry(secretKey);
-			keyStoreInstance.setEntry(alias, entry, protParam);
-			final var baos = new ByteArrayOutputStream();
-			keyStoreInstance.store(baos, keyStorePassword);
-			return baos.toByteArray();
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			LOG.error(error, e);
-			return null;
+		    final var keyStoreInstance = KeyStore.getInstance(pkcs12);
+		    keyStoreInstance.load(null, keyStorePassword);
+		    final var secretKey = Crypto.getSecretKey(password, keyAES);
+		    final var entry = new KeyStore.SecretKeyEntry(secretKey);
+		    keyStoreInstance.setEntry(alias, entry, protParam);
+		    final var baos = new ByteArrayOutputStream();
+		    keyStoreInstance.store(baos, keyStorePassword);
+		    return baos.toByteArray();
 		} finally {
-			destroyProtParam(protParam);
+		    Util.clear(password);
 		}
-	}
-
-	private KeyStoreManager() {
-	}
+	    } catch (final Exception e) {
+		LOG.error(ERROR, e);
+		return null;
+	    } finally {
+		destroyProtParam(protParam);
+	    }
+	});
+    }
 }

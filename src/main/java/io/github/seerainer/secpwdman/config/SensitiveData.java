@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,81 +19,72 @@
  */
 package io.github.seerainer.secpwdman.config;
 
-import javax.crypto.SealedObject;
-
 /**
  * The class SensitiveData.
  */
 public class SensitiveData {
 
-	private transient byte[] dataKey;
-	private transient byte[] keyStoreData;
-	private transient char[] keyStorePassword;
-	private transient SealedObject sealedData;
+    private transient byte[] dataKey;
+    private transient byte[] keyStoreData;
+    private transient byte[] sealedData;
+    private transient char[] keyStorePassword;
 
-	/**
-	 * Instantiates a new sensitive data.
-	 */
-	public SensitiveData() {
-		this.dataKey = null;
-		this.keyStoreData = null;
-		this.keyStorePassword = null;
-		this.sealedData = null;
-	}
+    SensitiveData() {
+    }
 
-	/**
-	 * @return the dataKey
-	 */
-	public byte[] getDataKey() {
-		return dataKey;
-	}
+    /**
+     * @return the dataKey
+     */
+    public byte[] getDataKey() {
+	return dataKey;
+    }
 
-	/**
-	 * @return the keyStoreData
-	 */
-	public byte[] getKeyStoreData() {
-		return keyStoreData;
-	}
+    /**
+     * @return the keyStoreData
+     */
+    public byte[] getKeyStoreData() {
+	return keyStoreData;
+    }
 
-	/**
-	 * @return the keyStorePassword
-	 */
-	public char[] getKeyStorePassword() {
-		return keyStorePassword;
-	}
+    /**
+     * @return the keyStorePassword
+     */
+    public char[] getKeyStorePassword() {
+	return keyStorePassword;
+    }
 
-	/**
-	 * @return the sealedData
-	 */
-	public SealedObject getSealedData() {
-		return sealedData;
-	}
+    /**
+     * @return the sealedData
+     */
+    public byte[] getSealedData() {
+	return sealedData;
+    }
 
-	/**
-	 * @param dataKey the dataKey to set
-	 */
-	public void setDataKey(final byte[] dataKey) {
-		this.dataKey = dataKey;
-	}
+    /**
+     * @param dataKey the dataKey to set
+     */
+    public void setDataKey(final byte[] dataKey) {
+	this.dataKey = dataKey;
+    }
 
-	/**
-	 * @param keyStoreData the keyStoreData to set
-	 */
-	public void setKeyStoreData(final byte[] keyStoreData) {
-		this.keyStoreData = keyStoreData;
-	}
+    /**
+     * @param keyStoreData the keyStoreData to set
+     */
+    public void setKeyStoreData(final byte[] keyStoreData) {
+	this.keyStoreData = keyStoreData;
+    }
 
-	/**
-	 * @param keyStorePassword the keyStorePassword to set
-	 */
-	public void setKeyStorePassword(final char[] keyStorePassword) {
-		this.keyStorePassword = keyStorePassword;
-	}
+    /**
+     * @param keyStorePassword the keyStorePassword to set
+     */
+    public void setKeyStorePassword(final char[] keyStorePassword) {
+	this.keyStorePassword = keyStorePassword;
+    }
 
-	/**
-	 * @param sealedData the sealedData to set
-	 */
-	public void setSealedData(final SealedObject sealedData) {
-		this.sealedData = sealedData;
-	}
+    /**
+     * @param sealedData the sealedData to set
+     */
+    public void setSealedData(final byte[] sealedData) {
+	this.sealedData = sealedData;
+    }
 }

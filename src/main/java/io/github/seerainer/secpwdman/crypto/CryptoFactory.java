@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +19,25 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
-
 /**
  * The class CryptoFactory.
  */
 public class CryptoFactory implements CryptoConstants {
 
-	/**
-	 * Instantiates a new crypto.
-	 *
-	 * @param cData the cdata
-	 */
-	public static EncryptionContext crypto(final ConfigData cData) {
-		return new EncryptionContext(keyAES.equals(cData.getKeyALGO()) ? new AESEncryptionStrategy(cData)
-				: new ChaCha20EncryptionStrategy(cData));
-	}
+    private CryptoFactory() {
+    }
 
-	private CryptoFactory() {
-	}
+    /**
+     * Instantiates a new crypto.
+     *
+     * @param cConf the crypto config
+     */
+    public static EncryptionContext crypto(final CryptoConfig cConf) {
+	Crypto.checkCryptoConfig(cConf);
+	return switch (cConf.getKeyALGO()) {
+	case keyAES -> new EncryptionContext(new AESEncryptionStrategy(cConf));
+	case keyChaCha20 -> new EncryptionContext(new ChaCha20EncryptionStrategy(cConf));
+	default -> throw new IllegalArgumentException(unexpectedValue + cConf.getKeyALGO());
+	};
+    }
 }

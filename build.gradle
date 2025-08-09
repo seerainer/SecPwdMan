@@ -2,74 +2,110 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '0.11.0'
 }
 
 group = 'io.github.seerainer.secpwdman'
-version = '1.0.0'
+version = '1.1.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 ext {
+    swtVersion = '3.130.0'
     swtArtifact = 'org.eclipse.swt.'
     os = System.getProperty("os.name").toLowerCase()
-    arch = System.getProperty("os.arch")
+    arch = System.getProperty("os.arch").toLowerCase()
+    normalizedArch = arch
+    swtWS = 'unknown'
+    swtOS = 'unknown'
 }
 
-switch (os) {
-    case 'linux':
-        swtArtifact += 'gtk.linux.'
-        break
-    case 'mac os x':
+def detectSwtArtifact() {
+    if (os.contains("win")) {
+        swtArtifact += 'win32.win32.'
+        swtWS = 'win32'
+        swtOS = 'win32'
+    } else if (osName.contains("mac")) {
         swtArtifact += 'cocoa.macosx.'
-        break
-    default:
-        if (os.startsWith("win")) {
-            swtArtifact += 'win32.win32.'
-        }
-}
-
-switch (arch) {
-    case ['amd64', 'x86_64']:
+        swtWS = 'cocoa'
+        swtOS = 'macosx'
+    } else if (osName.contains("linux")) {
+        swtArtifact += 'gtk.linux.'
+        swtWS = 'gtk'
+        swtOS = 'linux'
+    }
+    else {
+        throw new GradleException("Unsupported OS: ${os}")
+    }
+    
+    if (arch == 'x86_64' || arch == 'amd64') {
         swtArtifact += 'x86_64'
-        break
-    case 'aarch64':
+        normalizedArch = 'x86_64'
+    } else if (arch == 'aarch64') {
         swtArtifact += 'aarch64'
-        break
+        normalizedArch = 'aarch64'
+    }
+    else {
+        throw new GradleException("Unsupported architecture: ${arch}")
+    }
+    
+    return "org.eclipse.platform:${swtArtifact}:${swtVersion}"
 }
 
 dependencies {
-    implementation 'com.github.skjolber.sesseltjonna-csv:parser:1.0.26'
     implementation 'com.grack:nanojson:1.10'
     implementation 'com.nulab-inc:zxcvbn:1.9.0'
     implementation 'com.password4j:password4j:1.8.4'
-    implementation("org.eclipse.platform:${swtArtifact}:3.128.0") {
+    implementation(detectSwtArtifact()) {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }
     implementation 'org.slf4j:slf4j-jdk14:2.0.17'
+    
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testImplementation 'org.assertj:assertj-core:3.27.4'
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-        // vendor = JvmVendorSpec.GRAAL_VM
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
     }
 }
 
 application {
-    mainClass = 'io.github.seerainer.secpwdman.Main'
+    mainClass.set('io.github.seerainer.secpwdman.Main')
 }
 
 run {
-    if (os.equals("mac os x")) {
+    if (os.contains("mac")) {
         jvmArgs += '-XstartOnFirstThread'
     }
+    jvmArgs += '--enable-native-access=ALL-UNNAMED'
 }
 
 graalvmNative {
-    testSupport = false
+    testSupport = true
     toolchainDetection = true
 
     binaries {
@@ -78,28 +114,49 @@ graalvmNative {
             mainClass = application.mainClass
             buildArgs.add('-march=compatibility')
             buildArgs.add('-Ob')
+            buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
             buildArgs.add('--no-fallback')
+            buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            buildArgs.add('-H:+ForeignAPISupport')
             buildArgs.add('-R:MinHeapSize=256m')
             buildArgs.add('-R:MaxHeapSize=1g')
             buildArgs.add('-R:MaxNewSize=512m')
             // buildArgs.add('-Dfile.encoding=UTF-8')
             // buildArgs.add('-Djava.util.logging.config.file=logging.properties')
-            // buildArgs.add('-Djdk.graal.OptimizeLongJumps=true')
             // buildArgs.add('-Duser.country=US')
             // buildArgs.add('-Duser.language=en')
             // buildArgs.add('-Duser.variant')
             // buildArgs.add('-J-XstartOnFirstThread')
+            // buildArgs.add('--color=always')
             // buildArgs.add('--emit build-report')
-            // buildArgs.add('--enable-native-access=ALL-UNNAMED')
             // buildArgs.add('--enable-sbom')
             // buildArgs.add('--gc=G1')
+            // buildArgs.add('--initialize-at-build-time=org.slf4j')
             // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil')
             // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil$AutoScaleMethod')
             // buildArgs.add('--pgo=default.iprof')
             // buildArgs.add('--static-nolibc')
-            // buildArgs.add('-H:+UnlockExperimentalVMOptions')
+            // buildArgs.add('--verbose')
+            // buildArgs.add('-H:NativeLinkerOption=window_affinity.obj')
+            // buildArgs.add('-H:NativeLinkerOption=/SDL')
+            // buildArgs.add('-H:NativeLinkerOption=/GS')
+            // buildArgs.add('-H:NativeLinkerOption=/DYNAMICBASE')
+            // buildArgs.add('-H:NativeLinkerOption=/NXCOMPAT')
+            // buildArgs.add('-H:NativeLinkerOption=/HIGHENTROPYVA')
+            // buildArgs.add('-H:NativeLinkerOption=/GUARD:CF')
+            // buildArgs.add('-H:NativeLinkerOption=/INCREMENTAL:NO')
+            // buildArgs.add('-H:+RemoveUnusedSymbols')
+            // buildArgs.add('-H:+DeleteLocalSymbols')
+            // buildArgs.add('-H:+StripDebugInfo')
             // buildArgs.add('-H:+PGOPrintProfileQuality')
             // buildArgs.add('-H:+GenerateEmbeddedResourcesFile')
+            // buildArgs.add('-H:+TrackPrimitiveValues')
+            // buildArgs.add('-H:+UsePredicates')
+            // buildArgs.add('-R:MaxDirectMemorySize=32G')
+
+            // A fat jar is required for GraalVM native image to ensure all dependencies are bundled and accessible during the native image build process.
+            // See: https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html#fat-jar-support
             useFatJar = true
         }
     }
@@ -109,6 +166,7 @@ tasks.withType(Jar).configureEach {
     exclude(
         'META-INF/ECLIPSE*',
     	'META-INF/maven/**/**/*',
+    	'META-INF/versions/9/*',
     	'META-INF/*.txt',
         'about_files/*',
         'version.txt',
@@ -119,46 +177,89 @@ tasks.withType(Jar).configureEach {
         'libswt*.so',
         'swt*.dll',
         'WebView2Loader.dll',
+        'module-info.class',
         'org/eclipse/swt/awt/*',
-        'org/eclipse/swt/browser/*',
-        'org/eclipse/swt/dnd/HTMLTransfer*',
-        'org/eclipse/swt/dnd/ImageTransfer*',
-        'org/eclipse/swt/dnd/RTFTransfer*',
-        'org/eclipse/swt/dnd/URLTransfer*',
-        'org/eclipse/swt/internal/image/GIF*',
-        'org/eclipse/swt/internal/image/JPEG*',
-        'org/eclipse/swt/internal/image/LZW*',
-        'org/eclipse/swt/internal/image/OS2*',
-        'org/eclipse/swt/internal/image/TIFF*',
-        'org/eclipse/swt/internal/image/Win*',
-        'org/eclipse/swt/internal/SWTMessages_a*',
-        'org/eclipse/swt/internal/SWTMessages_b*',
-        'org/eclipse/swt/internal/SWTMessages_c*',
-        'org/eclipse/swt/internal/SWTMessages_da*',
-        'org/eclipse/swt/internal/SWTMessages_e*',
-        'org/eclipse/swt/internal/SWTMessages_f*',
-        'org/eclipse/swt/internal/SWTMessages_h*',
-        'org/eclipse/swt/internal/SWTMessages_i*',
-        'org/eclipse/swt/internal/SWTMessages_j*',
-        'org/eclipse/swt/internal/SWTMessages_k*',
-        'org/eclipse/swt/internal/SWTMessages_l*',
-        'org/eclipse/swt/internal/SWTMessages_m*',
-        'org/eclipse/swt/internal/SWTMessages_n*',
-        'org/eclipse/swt/internal/SWTMessages_p*',
-        'org/eclipse/swt/internal/SWTMessages_r*',
-        'org/eclipse/swt/internal/SWTMessages_s*',
-        'org/eclipse/swt/internal/SWTMessages_t*',
-        'org/eclipse/swt/internal/SWTMessages_u*',
-        'org/eclipse/swt/internal/SWTMessages_z*',
-        'org/eclipse/swt/layout/Border*',
-        'org/eclipse/swt/layout/Fill*',
-        'org/eclipse/swt/layout/Form*',
-        'org/eclipse/swt/layout/Row*',
-        'org/eclipse/swt/layout/Tab*',
-        'org/eclipse/swt/opengl/*',
-        'org/eclipse/swt/printing/*'
+        'org/eclipse/swt/opengl/*'
     )
     manifest {
         attributes 'Main-Class': application.mainClass
+        attributes 'SWT-WS': swtWS
+        attributes 'SWT-OS': swtOS
+        attributes 'SWT-Arch': normalizedArch
     }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+test {
+    useJUnitPlatform {
+        includeTags 'unit', 'integration'
+    }
+
+    maxHeapSize = '4g'
+
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
+    testLogging {
+        events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        showStandardStreams = true
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        exceptionFormat = 'full'
+    }
+
+    systemProperties = [
+        'junit.jupiter.execution.parallel.enabled': 'true',
+        'junit.jupiter.execution.parallel.mode.default': 'concurrent',
+        'junit.jupiter.execution.parallel.mode.classes.default': 'concurrent',
+        'java.awt.headless': 'true'
+    ]
+
+    jvmArgs = [
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.security=ALL-UNNAMED',
+        '--add-opens', 'java.base/javax.crypto=ALL-UNNAMED',
+        '--enable-native-access=ALL-UNNAMED'
+    ]
+}
+
+task unitTest(type: Test) {
+    description = 'Runs unit tests'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeTags 'unit'
+    }
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs integration tests'
+    group = 'verification'
+
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    timeout = Duration.ofMinutes(10)
+}
+
+check.dependsOn unitTest, integrationTest
+build.dependsOn check
+
+task allTests {
+    description = 'Runs all test suites in sequence'
+    group = 'verification'
+
+    dependsOn unitTest, integrationTest
+
+    tasks.findByName('integrationTest').mustRunAfter 'unitTest'
 }

@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,53 +35,49 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  */
 public class PasswordStrength implements PrimitiveConstants, StringConstants {
 
-	private static final Zxcvbn zxcvbn;
+    private static final Zxcvbn zxcvbn = new Zxcvbn();
 
-	static {
-		zxcvbn = new Zxcvbn();
-	}
+    private PasswordStrength() {
+    }
 
-	/**
-	 * Evaluate the password strength.
-	 *
-	 * @param cData the cdata
-	 * @param label the label
-	 * @param pwd   the text
-	 */
-	public static void evalPasswordStrength(final ConfigData cData, final Label label, final char[] pwd) {
-		final var display = label.getDisplay();
-		if (pwd.length < PWD_MIN_LENGTH) {
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-			label.setText(passShor);
-			label.setToolTipText(empty);
-			return;
-		}
-		final var charBuffer = CharBuffer.wrap(pwd);
-		final var strength = zxcvbn.measure(charBuffer);
-		Util.clear(charBuffer.array());
-		var text = passWeak;
-		switch (strength.getScore()) {
-		case 2 -> text = passFair;
-		case 3 -> text = passStro;
-		case 4 -> text = passSecu;
-		default -> {
-			break;
-		}
-		}
-		if (text.equals(passWeak) || text.equals(passFair)) {
-			label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-		} else if (SWTUtil.DARK) {
-			label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
-		} else {
-			label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
-		}
-		label.setText(text);
-		final var feedback = strength.getFeedback();
-		final var sb = new StringBuilder();
-		feedback.getSuggestions().forEach((final var s) -> sb.append(s).append(newLine));
-		label.setToolTipText(sb.toString() + feedback.getWarning());
+    /**
+     * Evaluate the password strength.
+     *
+     * @param cData the cdata
+     * @param label the label
+     * @param pwd   the text
+     */
+    public static void evalPasswordStrength(final ConfigData cData, final Label label, final char[] pwd) {
+	final var display = label.getDisplay();
+	if (pwd.length < PWD_MIN_LENGTH) {
+	    label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+	    label.setText(passShor);
+	    label.setToolTipText(empty);
+	    return;
 	}
-
-	private PasswordStrength() {
+	final var charBuffer = CharBuffer.wrap(pwd);
+	final var strength = zxcvbn.measure(charBuffer);
+	Util.clear(charBuffer.array());
+	var text = passWeak;
+	switch (strength.getScore()) {
+	case 2 -> text = passFair;
+	case 3 -> text = passStro;
+	case 4 -> text = passSecu;
+	default -> {
+	    break;
 	}
+	}
+	if (text.equals(passWeak) || text.equals(passFair)) {
+	    label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+	} else if (SWTUtil.DARK) {
+	    label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
+	} else {
+	    label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
+	}
+	label.setText(text);
+	final var feedback = strength.getFeedback();
+	final var sb = new StringBuilder();
+	feedback.getSuggestions().forEach((final var s) -> sb.append(s).append(newLine));
+	label.setToolTipText(sb.toString() + feedback.getWarning());
+    }
 }

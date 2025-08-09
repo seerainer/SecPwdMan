@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@
  */
 package io.github.seerainer.secpwdman.action;
 
-import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
+import java.util.Objects;
 
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionEvent;
@@ -39,87 +38,82 @@ import io.github.seerainer.secpwdman.config.ConfigData;
  */
 public class ViewAction extends Action {
 
-	private static FontData[] getFontData(final Control control) {
-		return control.getFont().getFontData();
-	}
+    /**
+     * Instantiates a new view action.
+     *
+     * @param cData the cdata
+     * @param shell the shell
+     * @param table the table
+     */
+    public ViewAction(final ConfigData cData, final Shell shell, final Table table) {
+	super(cData, shell, table);
+    }
 
-	/**
-	 * Instantiates a new view action.
-	 *
-	 * @param cData the cdata
-	 * @param shell the shell
-	 * @param table the table
-	 */
-	public ViewAction(final ConfigData cData, final Shell shell, final Table table) {
-		super(cData, shell, table);
-	}
+    private static FontData[] getFontData(final Control control) {
+	return control.getFont().getFontData();
+    }
 
-	/**
-	 * Changes the font of the table or the dialogs.
-	 *
-	 * @param if true change the font of the shell otherwise the table
-	 */
-	public void changeFont(final boolean isShell) {
-		final var fontDialog = new FontDialog(shell);
-		fontDialog.setFontList(isShell ? getFontData(shell) : getFontData(table));
-		final var fontData = fontDialog.open();
-		if (fontData == null) {
-			return;
-		}
-
-		final var font = new Font(shell.getDisplay(), fontData);
-		if (isShell) {
-			shell.setFont(font);
-		} else {
-			table.setFont(font);
-			getList().setFont(font);
-		}
+    /**
+     * Changes the font of the table or the dialogs.
+     *
+     * @param if true change the font of the shell otherwise the table
+     */
+    public void changeFont(final boolean isShell) {
+	final var fontDialog = new FontDialog(shell);
+	fontDialog.setFontList(isShell ? getFontData(shell) : getFontData(table));
+	final var fontData = fontDialog.open();
+	if (Objects.isNull(fontData)) {
+	    return;
 	}
-
-	/**
-	 * Opens the group list.
-	 */
-	public void openGroupList() {
-		final var form = (SashForm) shell.getChildren()[1];
-		final var list = getList();
-		if (list.isVisible()) {
-			resetGroupList();
-			list.setVisible(false);
-		} else {
-			list.setVisible(true);
-			fillGroupList();
-		}
-		form.requestLayout();
+	final var font = new Font(shell.getDisplay(), fontData);
+	if (isShell) {
+	    shell.setFont(font);
+	} else {
+	    table.setFont(font);
+	    getList().setFont(font);
 	}
+    }
 
-	/**
-	 * Read only switch.
-	 */
-	public void readOnlySwitch() {
-		cData.setReadOnly(!cData.isReadOnly());
-		updateUI();
+    /**
+     * Opens the group list.
+     */
+    public void openGroupList() {
+	final var form = (SashForm) shell.getChildren()[1];
+	final var list = getList();
+	if (list.isVisible()) {
+	    resetGroupList();
+	    list.setVisible(false);
+	} else {
+	    list.setVisible(true);
+	    fillGroupList();
 	}
+	form.requestLayout();
+    }
 
-	/**
-	 * Shows or hides the password column.
-	 *
-	 * @param e the SelectionEvent
-	 */
-	public void showPasswordColumn(final SelectionEvent e) {
-		final var viewMenu = shell.getMenuBar().getItem(3).getMenu();
-		if (viewMenu.getItem(7).getSelection()) {
-			hidePasswordColumn();
-		} else if (((MenuItem) e.widget).getSelection()) {
-			if (msgYesNo(cData, shell, warnPass)) {
-				final var map = cData.getColumnMap();
-				table.getColumn(map.get(csvHeader[5]).intValue()).setResizable(true);
-				resizeColumns();
-				table.getColumn(map.get(csvHeader[2]).intValue()).setText(headerOp);
-				table.redraw();
-			} else {
-				viewMenu.getItem(6).setSelection(false);
-				viewMenu.getItem(7).setSelection(true);
-			}
-		}
+    /**
+     * Read only switch.
+     */
+    public void readOnlySwitch() {
+	cData.setReadOnly(!cData.isReadOnly());
+	updateUI();
+    }
+
+    /**
+     * Shows or hides the password column.
+     *
+     * @param e the SelectionEvent
+     */
+    public void showPasswordColumn(final SelectionEvent e) {
+	final var viewMenu = getMenu().getItem(3).getMenu();
+	if (viewMenu.getItem(7).getSelection()) {
+	    hidePasswordColumn();
+	} else if (((MenuItem) e.widget).getSelection()) {
+	    final var map = cData.getColumnMap();
+	    final var passwordColumn = table.getColumn(map.get(csvHeader[5]).intValue());
+	    passwordColumn.setResizable(true);
+	    resizeColumns();
+	    table.getColumn(map.get(csvHeader[2]).intValue()).setText(headerOp);
+	    table.redraw();
 	}
+    }
 }

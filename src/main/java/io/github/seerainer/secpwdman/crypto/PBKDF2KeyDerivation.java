@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,22 +23,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.util.CharsetUtil;
+import com.password4j.PBKDF2Function;
+import com.password4j.Password;
 
 /**
  * The record PBKDF2KeyDerivation.
  */
-record PBKDF2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDerivationStrategy {
+record PBKDF2KeyDerivation(CryptoConfig cConf) implements CryptoConstants, KeyDerivationStrategy {
 
-	@Override
-	public SecretKey deriveKey(final byte[] password, final byte[] salt)
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
-		final var keySpec = new PBEKeySpec(CharsetUtil.toChars(password), salt, cData.getPBKDF2Iter(), KEY_LENGTH);
-		return Crypto.getSecretKey(SecretKeyFactory.getInstance(pbkdf2).generateSecret(keySpec).getEncoded(),
-				cData.getKeyALGO());
-	}
+    @Override
+    public SecretKey deriveKey(final byte[] password, final byte[] salt)
+	    throws InvalidKeySpecException, NoSuchAlgorithmException {
+	final var hashingFunction = PBKDF2Function.getInstance(cConf.getHmac(), cConf.getPBKDF2Iter(), KEY_LENGTH);
+	return Crypto.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
+		cConf.getKeyALGO());
+    }
 }

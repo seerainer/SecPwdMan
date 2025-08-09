@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,24 +29,24 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * The class CryptoContext.
+ * The class EncryptionContext.
  */
 public class EncryptionContext {
-	private final EncryptionStrategy strategy;
+    private final EncryptionStrategy strategy;
 
-	EncryptionContext(final EncryptionStrategy strategy) {
-		this.strategy = strategy;
-	}
+    EncryptionContext(final EncryptionStrategy strategy) {
+	this.strategy = strategy;
+    }
 
-	public byte[] decrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		return strategy.decrypt(data, password);
-	}
+    public byte[] decrypt(final byte[] data, final byte[] password)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	return strategy.decrypt(data, password);
+    }
 
-	public byte[] encrypt(final byte[] data, final byte[] password)
-			throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
-			InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
-		return strategy.encrypt(data, password);
-	}
+    public byte[] encrypt(final byte[] data, final byte[] password)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	return strategy.encrypt(data, password);
+    }
 }

@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +19,7 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Table;
@@ -33,30 +33,30 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  */
 public class URLUtil implements PrimitiveConstants, StringConstants {
 
-	/**
-	 * Checks if is url.
-	 *
-	 * @param cData the cData
-	 * @param table the table
-	 * @return true, if is url
-	 */
-	public static boolean isUrl(final ConfigData cData, final Table table) {
-		return isUrl(table.getSelection()[0].getText(cData.getColumnMap().get(csvHeader[3]).intValue()));
-	}
+    private URLUtil() {
+    }
 
-	/**
-	 * Checks if is url.
-	 *
-	 * @param url the string url
-	 * @return true, if is url
-	 */
-	public static boolean isUrl(final String url) {
-		if (url == null || url.length() > MAX_URL_LENGTH) {
-			return false;
-		}
-		return Pattern.compile(DOMAIN_PATTERN).matcher(url).matches();
-	}
+    /**
+     * Checks if is url.
+     *
+     * @param cData the cData
+     * @param table the table
+     * @return true, if is url
+     */
+    public static boolean isUrl(final ConfigData cData, final Table table) {
+	return isUrl(table.getSelection()[0].getText(cData.getColumnMap().get(csvHeader[3]).intValue()));
+    }
 
-	private URLUtil() {
+    /**
+     * Checks if is url.
+     *
+     * @param url the string url
+     * @return true, if is url
+     */
+    public static boolean isUrl(final String url) {
+	if (Objects.isNull(url) || url.length() > MAX_URL_LENGTH) {
+	    return false;
 	}
+	return Pattern.compile(DOMAIN_PATTERN).matcher(url).matches();
+    }
 }

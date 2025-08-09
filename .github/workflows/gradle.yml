@@ -9,9 +9,9 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1.3.4
+      - uses: graalvm/setup-graalvm@v1.3.5
         with:
-          java-version: '21'
+          java-version: '23'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'

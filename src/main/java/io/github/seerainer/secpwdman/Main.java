@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +20,11 @@
 package io.github.seerainer.secpwdman;
 
 import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
-import io.github.seerainer.secpwdman.gui.MainWindow;
+import io.github.seerainer.secpwdman.ui.MainWindow;
 import io.github.seerainer.secpwdman.util.LogFactory;
 import io.github.seerainer.secpwdman.util.SWTUtil;
 
@@ -36,49 +36,56 @@ import io.github.seerainer.secpwdman.util.SWTUtil;
  */
 public class Main implements PrimitiveConstants, StringConstants {
 
-	private static final long startTime = System.currentTimeMillis();
+    private static final long startTime = System.currentTimeMillis();
 
-	private static Display getDisplay() {
-		final var display = new Display();
-		if (SWTUtil.DARK && SWTUtil.WIN32) {
-			setDarkMode(display);
+    private static final Logger LOG = LogFactory.getLog();
+
+    private static Display display;
+
+    /**
+     * The main method that initializes the display and starts the main window. It
+     * measures and logs the time taken to start the application and the total
+     * execution time.
+     *
+     * @param args The command line arguments.
+     */
+    public static void main(final String[] args) {
+	try {
+	    Display.setAppName(APP_NAME);
+	    Display.setAppVersion(APP_VERS);
+	    LogFactory.configureLogging();
+	    System.setProperty(useSystemTheme, trueStr);
+
+	    display = new Display();
+	    if (SWTUtil.WIN32 && SWTUtil.DARK) {
+		setDarkMode(display);
+	    }
+	    final var mainUI = new MainWindow(args);
+	    final var shell = mainUI.open(display);
+	    LOG.info(START_TIME, APP_NAME, Long.valueOf(System.currentTimeMillis() - startTime));
+	    while (!shell.isDisposed()) {
+		if (!display.readAndDispatch()) {
+		    display.sleep();
 		}
-		return display;
-	}
-
-	/**
-	 * The main method that initializes the display and starts the main window. It
-	 * measures and logs the time taken to start the application and the total
-	 * execution time.
-	 *
-	 * @param args The command line arguments.
-	 */
-	public static void main(final String[] args) {
-		Display.setAppName(APP_NAME);
-		Display.setAppVersion(APP_VERS);
-		LogFactory.configureLogging();
-		System.setProperty(useSystemTheme, trueStr);
-
-		final var display = getDisplay();
-		final var shell = new MainWindow(args).open(display);
-		LogFactory.getLog().info(timeStart, APP_NAME, Long.valueOf(System.currentTimeMillis() - startTime));
-		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		LogFactory.getLog().info(timeTotal, APP_NAME, Long.valueOf((System.currentTimeMillis() - startTime) / SECONDS));
+	    }
+	} catch (final Exception e) {
+	    LOG.error(ERROR, e);
+	} finally {
+	    if (display != null && !display.isDisposed()) {
 		display.dispose();
+	    }
+	    LOG.info(TOTAL_TIME, APP_NAME, Long.valueOf((System.currentTimeMillis() - startTime) / SECONDS));
 	}
+    }
 
-	private static void setDarkMode(final Display display) {
-		display.setData(darkModeExplorerTheme, Boolean.TRUE);
-		display.setData(shellTitleColoring, Boolean.TRUE);
-		display.setData(menuBarBackgroundColor, SWTUtil.getColor(MENU_BACK, MENU_BACK, MENU_BACK));
-		display.setData(menuBarForegroundColor, SWTUtil.getColor(MENU_FORE, MENU_FORE, MENU_FORE));
-		display.setData(menuBarBorderColor, SWTUtil.getColor(MENU_BORD, MENU_BORD, MENU_BORD));
-		display.setData(use_WS_BORDER, Boolean.TRUE);
-		display.setData(useDarkTheme, Boolean.TRUE);
-		display.setData(useDarkThemeIcons, Boolean.TRUE);
-	}
+    private static void setDarkMode(final Display display) {
+	display.setData(darkModeExplorerTheme, Boolean.TRUE);
+	display.setData(shellTitleColoring, Boolean.TRUE);
+	display.setData(menuBarBackgroundColor, SWTUtil.getColor(MENU_BACK, MENU_BACK, MENU_BACK));
+	display.setData(menuBarForegroundColor, SWTUtil.getColor(MENU_FORE, MENU_FORE, MENU_FORE));
+	display.setData(menuBarBorderColor, SWTUtil.getColor(MENU_BORD, MENU_BORD, MENU_BORD));
+	display.setData(use_WS_BORDER, Boolean.TRUE);
+	display.setData(useDarkTheme, Boolean.TRUE);
+	display.setData(useDarkThemeIcons, Boolean.TRUE);
+    }
 }

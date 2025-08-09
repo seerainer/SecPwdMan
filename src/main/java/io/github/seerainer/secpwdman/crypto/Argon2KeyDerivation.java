@@ -1,8 +1,7 @@
 /*
- * Secure Password Manager
+ * SecPwdMan
  * Copyright (C) 2025  Philipp Seerainer
  * philipp@seerainer.com
- * https://www.seerainer.com/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,18 +24,16 @@ import javax.crypto.SecretKey;
 import com.password4j.Argon2Function;
 import com.password4j.Password;
 
-import io.github.seerainer.secpwdman.config.ConfigData;
-
 /**
  * The record Argon2KeyDerivation.
  */
-record Argon2KeyDerivation(ConfigData cData) implements CryptoConstants, KeyDerivationStrategy {
+record Argon2KeyDerivation(CryptoConfig cConf) implements CryptoConstants, KeyDerivationStrategy {
 
-	@Override
-	public SecretKey deriveKey(final byte[] password, final byte[] salt) {
-		final var hashingFunction = Argon2Function.getInstance(cData.getArgon2Memo() * MEM_SIZE, cData.getArgon2Iter(),
-				cData.getArgon2Para(), OUT_LENGTH, cData.getArgon2Type());
-		return Crypto.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
-				cData.getKeyALGO());
-	}
+    @Override
+    public SecretKey deriveKey(final byte[] password, final byte[] salt) {
+	final var hashingFunction = Argon2Function.getInstance(cConf.getArgon2Memo() * MEM_SIZE, cConf.getArgon2Iter(),
+		cConf.getArgon2Para(), OUT_LENGTH, cConf.getArgon2Type());
+	return Crypto.getSecretKey(Password.hash(password).addSalt(salt).with(hashingFunction).getBytes(),
+		cConf.getKeyALGO());
+    }
 }

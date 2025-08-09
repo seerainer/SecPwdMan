@@ -17,39 +17,172 @@
 
 ---
 
+## Table of Contents
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Security](#security)
+- [Testing](#testing)
+- [Build & Development](#build)
+- [Dependencies](#dependencies)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
 ## Features
+- **Encryption:** AES/GCM (256-bit) or ChaCha20-Poly1305 (256-bit)
+- **Key Derivation:** Argon2 (recommended), scrypt or PBKDF2
+- **Password Strength Measurement:** Integrated zxcvbn4j
+- **Random Password Generator:** Customizable, supports custom characters
+- **Automatic Lock:** Locks after inactivity
+- **Deflate Compression:** For password file storage
+- **Secure File Deletion:** Shreds exported files
+- **Screenshot Protection:** Prevents screen capture on Windows
+- **Cross-Platform:** Linux, Mac, Windows
+- **Modern UI:** Built with Eclipse SWT
+- **Import/Export:** CSV support
+- **Configurable Table & Dialog Fonts**
+- **Theming:** Dark mode
+- **Unit & Integration Tests:** Comprehensive test coverage
+- **Secure Native Memory:** All sensitive data (passwords, keys) are handled using off-heap native memory (Java Foreign Memory API) via the `SecureMemory` utility, ensuring automatic zeroing and minimizing heap exposure.
 
-- **Encryption**: AES/GCM (256-bit) or ChaCha20-Poly1305 (256-bit)
-- **Key Transformation**: Argon2 (Recommended) or PBKDF2-HMAC-SHA256
-- **Password Strength Measurement**
-- **Random Password Generator**
-- **Cross-Platform**: Linux, Mac & Windows
+---
 
-## Dependencies
+## Screenshots
+![SecPwdMan Screenshot](https://github.com/seerainer/SecPwdMan/assets/50533219/3651e148-d5a7-4f5c-b288-3df4a21ca774)
 
-- [slf4j](https://github.com/qos-ch/slf4j) ([MIT license](https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt))
-- [zxcvbn4j](https://github.com/nulab/zxcvbn4j) ([MIT license](https://github.com/nulab/zxcvbn4j/blob/main/LICENSE.txt))
-- [eclipse/swt](https://github.com/eclipse-platform/eclipse.platform.swt) ([EPL 2 license](https://www.eclipse.org/legal/epl-2.0/))
-- [nanojson](https://github.com/mmastrac/nanojson) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [password4j](https://github.com/Password4j/password4j) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
-- [sesseltjonna-csv](https://github.com/skjolber/sesseltjonna-csv) ([Apache 2 license](https://www.apache.org/licenses/LICENSE-2.0))
+---
 
 ## Installation
 
-Clone the repository:
+### Prerequisites
+- **Java 24** (GraalVM recommended for native image)
+- **Gradle 8.14+**
+- **Git**
 
-~~~ sh
+### Clone the Repository
+```sh
 git clone https://github.com/seerainer/SecPwdMan.git
-~~~
+cd SecPwdMan
+```
+
+### Build & Run
+```sh
+./gradlew build
+./gradlew run
+```
+
+#### Native Image (GraalVM)
+```sh
+./gradlew nativeCompile
+./build/native/nativeCompile/SecPwdMan
+```
+
+---
 
 ## Usage
 
-To run the application, use the following command:
-
-~~~ sh
+### Start the Application
+```sh
 ./gradlew run
-~~~
+```
 
-## Bugs and Feedback
+### Main Features
+- Add, edit and delete password entries
+- Organize passwords in groups
+- Generate strong random passwords
+- Import/export as CSV
+- Change master password and key derivation settings
+- Lock/unlock the application
 
-For bugs, questions, and discussions, please use the [GitHub Issues](https://github.com/seerainer/SecPwdMan/issues).
+### Command-Line Arguments
+- You can pass a password file as an argument to open it directly:
+  ```sh
+  ./gradlew run --args='my-passwords.json'
+  ```
+
+---
+
+## Configuration
+- All configuration and log files are stored in your home directory
+- Settings include:
+  - Key derivation function (Argon2, scrypt, PBKDF2)
+  - Encryption algorithm (AES, ChaCha20)
+  - Auto-lock timeout
+  - Table and dialog font
+  - Window size and position
+
+---
+
+## Security
+- **Encryption:** All passwords are encrypted with a strong symmetric cipher
+- **Key Derivation:** Uses Argon2, scrypt or PBKDF2 for master password transformation
+- **SecureRandom:** Cryptographically secure random number generation
+- **Screenshot Protection:** Prevents screen capture on Windows
+- **Secure File Deletion:** Shreds exported files to prevent recovery
+- **Password Strength:** Integrated zxcvbn4j for strength feedback
+- **No Cloud Storage:** All data is local; no remote sync
+
+---
+
+## Testing
+- **Unit Tests:**
+  - Run with: `./gradlew unitTest`
+- **Integration Tests:**
+  - Run with: `./gradlew integrationTest`
+- **All Tests:**
+  - Run with: `./gradlew allTests`
+- **Test Reports:**
+  - See `build/reports/tests/`
+
+---
+
+## Build
+
+### Build Tasks
+- `./gradlew build` — Compile and package
+- `./gradlew run` — Run the application
+- `./gradlew nativeCompile` — Build native image (GraalVM)
+- `./gradlew unitTest` — Run unit tests
+- `./gradlew integrationTest` — Run integration tests
+
+### Directory Structure
+```
+SecPwdMan/
+├── src/
+│   ├── main/java/io/github/seerainer/secpwdman/   # Source code
+│   ├── main/resources/                            # Resource files
+│   ├── test/java/io/github/seerainer/secpwdman/   # Test code
+│   ├── test/resources/                            # Test resources
+├── build.gradle                                   # Build configuration
+├── README.md                                      # This file
+├── CHANGELOG.md                                   # Changelog
+```
+
+---
+
+## Dependencies
+- [slf4j](https://github.com/qos-ch/slf4j) — Logging
+- [zxcvbn4j](https://github.com/nulab/zxcvbn4j) — Password strength
+- [nanojson](https://github.com/mmastrac/nanojson) — JSON parsing
+- [password4j](https://github.com/Password4j/password4j) — Argon2
+- [Eclipse/SWT](https://github.com/eclipse-platform/eclipse.platform.swt) — GUI
+- [JUnit 5](https://junit.org/junit5/) — Testing
+- [AssertJ](https://assertj.github.io/doc/) — Fluent assertions
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+- [Open issues](https://github.com/seerainer/SecPwdMan/issues) for bugs, feature requests or questions
+- Fork the repository and submit pull requests
+
+---
+
+## License
+
+SecPwdMan is licensed under the GNU General Public License v3.0. See [LICENSE.txt](LICENSE.txt) for details.
