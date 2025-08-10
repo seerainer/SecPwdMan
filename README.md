@@ -40,7 +40,7 @@
 - **Random Password Generator:** Customizable, supports custom characters
 - **Automatic Lock:** Locks after inactivity
 - **Deflate Compression:** For password file storage
-- **Secure File Deletion:** Shreds exported files
+- **Secure File Deletion:** Shred exported files
 - **Screenshot Protection:** Prevents screen capture on Windows
 - **Cross-Platform:** Linux, Mac, Windows
 - **Modern UI:** Built with Eclipse SWT
@@ -123,7 +123,7 @@ cd SecPwdMan
 - **Key Derivation:** Uses Argon2, scrypt or PBKDF2 for master password transformation
 - **SecureRandom:** Cryptographically secure random number generation
 - **Screenshot Protection:** Prevents screen capture on Windows
-- **Secure File Deletion:** Shreds exported files to prevent recovery
+- **Secure File Deletion:** Shred exported files to prevent recovery
 - **Password Strength:** Integrated zxcvbn4j for strength feedback
 - **No Cloud Storage:** All data is local; no remote sync
 
