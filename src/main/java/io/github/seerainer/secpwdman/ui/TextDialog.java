@@ -34,7 +34,6 @@ import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.Icons;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.CharsetUtil;
-import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * The record TextDialog.
@@ -46,8 +45,7 @@ record TextDialog(Action action) implements Icons, StringConstants {
 
 	final var cData = action.getCData();
 	final var shell = action.getShell();
-	final var display = shell.getDisplay();
-	final var image = getImage(display, APP_ICON);
+	final var image = getImage(shell.getDisplay(), APP_ICON);
 	final var isWriteable = !cData.isReadOnly();
 	final var dialog = Widgets.shell(shell, SWT.SHELL_TRIM & ~SWT.MIN | SWT.APPLICATION_MODAL, image, getLayout(),
 		isWriteable ? textView + textWarn : textView);
@@ -75,7 +73,7 @@ record TextDialog(Action action) implements Icons, StringConstants {
 	setCenter(dialog);
 	image.dispose();
 	dialog.open();
-	display.asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(dialog));
+	action.setAffinity(dialog);
 	return dialog;
     }
 }

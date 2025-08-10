@@ -115,7 +115,18 @@
       "type": "java.security.KeyStoreSpi"
     },
     {
+      "type": "org.eclipse.swt.widgets.Control",
+      "fields": [
+        {
+          "name": "handle"
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.swt.widgets.Display"
+    },
+    {
+      "type": "org.eclipse.swt.widgets.Shell"
     },
     {
       "type": "org.slf4j.jul.JULServiceProvider"

@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '0.11.0'
 }
 
 group = 'io.github.seerainer.secpwdman'
-version = '1.1.0'
+version = '1.1.1'
 
 java {
     toolchain {
@@ -116,7 +116,9 @@ graalvmNative {
             buildArgs.add('-march=compatibility')
             buildArgs.add('-Ob')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
-            buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
+            if (os.contains('win')) {
+                buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
+            }
             buildArgs.add('--no-fallback')
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:+ForeignAPISupport')
@@ -164,6 +166,12 @@ graalvmNative {
 }
 
 tasks.withType(Jar).configureEach {
+    if (!os.contains('win')) {
+        exclude(
+            'io/github/seerainer/secpwdman/util/ForeignRegistrationFeature*',
+            'io/github/seerainer/secpwdman/util/Win32Affinity*',
+        )
+    }
     exclude(
         'META-INF/ECLIPSE*',
     	'META-INF/maven/**/**/*',

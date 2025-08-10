@@ -16,7 +16,7 @@ This project makes use of the following third-party software:
    - Project URL: https://github.com/eclipse-platform/eclipse.platform.swt
 
 4. nanojson
-   - License: Apache License 2.0
+   - License: dual-licensed under the MIT and Apache License 2.0
    - Project URL: https://github.com/mmastrac/nanojson
 
 5. password4j

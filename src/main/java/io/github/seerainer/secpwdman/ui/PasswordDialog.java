@@ -49,7 +49,6 @@ import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.io.IO;
 import io.github.seerainer.secpwdman.util.AutoLockManager;
-import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * The record PasswordDialog.
@@ -142,7 +141,6 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 
 	final var cData = action.getCData();
 	final var shell = action.getShell();
-	final var display = shell.getDisplay();
 	final var layout = getLayout(3, 5, 10, 10, 8, 8, 10);
 	final var dialog = shell(shell, SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.SYSTEM_MODAL, layout, passTitl);
 
@@ -184,7 +182,7 @@ record PasswordDialog(FileAction action) implements PrimitiveConstants, StringCo
 
 	setCenter(dialog);
 	dialog.open();
-	display.asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(dialog));
+	action.setAffinity(dialog);
 	return dialog;
     }
 }

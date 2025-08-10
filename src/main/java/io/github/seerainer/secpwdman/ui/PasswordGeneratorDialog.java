@@ -50,7 +50,6 @@ import io.github.seerainer.secpwdman.config.Icons;
 import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.RandomPassword;
-import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * The record PasswordGeneratorDialog.
@@ -140,7 +139,7 @@ record PasswordGeneratorDialog(Action action) implements Icons, PrimitiveConstan
 	genBtn.setFocus();
 	image.dispose();
 	dialog.open();
-	display.asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(dialog));
+	action.setAffinity(dialog);
 	return dialog;
     }
 

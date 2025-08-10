@@ -28,7 +28,7 @@ public interface StringConstants {
 
     // Application strings
     String APP_NAME = "SecPwdMan";
-    String APP_VERS = "1.1.0";
+    String APP_VERS = "1.1.1";
     String APP_INFO = getString("APP.Info");
 
     // Regular expressions for URL validation
@@ -117,7 +117,7 @@ public interface StringConstants {
     String DESERIAL_FAILED = "Deserialization failed";
     String SERIAL_FAILED = "Serialization failed";
     String SERIAL_OBJ_FAILED = "Secure serialization failed for object: {}";
-    
+
     // SecureMemory strings
     String ERR_SECRET_NULL_OR_EMPTY = "Secret data must not be null or empty";
     String ERR_SECURE_MEMORY_OP = "Error in secure memory operation";
@@ -160,6 +160,7 @@ public interface StringConstants {
     String trueStr = "true";
     String user32 = "user32";
     String setAffinity = "my_SetWindowDisplayAffinity";
+    String handle = "handle";
 
     // Configuration keys
     String appName = "appName";

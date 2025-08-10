@@ -77,7 +77,9 @@ import io.github.seerainer.secpwdman.io.ByteContainer;
 import io.github.seerainer.secpwdman.io.IOUtil;
 import io.github.seerainer.secpwdman.util.CharsetUtil;
 import io.github.seerainer.secpwdman.util.LogFactory;
+import io.github.seerainer.secpwdman.util.SWTUtil;
 import io.github.seerainer.secpwdman.util.SerializationUtils;
+import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * Abstract class for actions.
@@ -599,6 +601,18 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
     }
 
     /**
+     * Sets the display affinity of the shell.
+     *
+     * @param s the shell
+     */
+    public void setAffinity(final Shell s) {
+	if (!SWTUtil.WIN32) {
+	    return;
+	}
+	shell.getDisplay().asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(s));
+    }
+
+    /**
      * Fills the table with the selected group.
      */
     public void setGroupSelection() {
@@ -646,7 +660,7 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	final var menu = getMenu();
 	final var tool = getToolBar();
 	final var lockText = cData.isLocked() ? menuUnlo : menuLock;
-	menu.getItem(0).getMenu().getItem(6).setText(lockText);
+	menu.getItem(0).getMenu().getItem(7).setText(lockText);
 	tool.getItem(3).setToolTipText(lockText);
 
 	final var readOnly = cData.isReadOnly();

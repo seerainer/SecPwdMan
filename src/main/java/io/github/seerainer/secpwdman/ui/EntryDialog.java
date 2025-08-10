@@ -58,7 +58,6 @@ import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.io.CharArrayString;
 import io.github.seerainer.secpwdman.util.RandomPassword;
-import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * The record EntryDialog.
@@ -225,8 +224,8 @@ record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringCo
 
 	if (!MACOS) { // macOS does not support modification of the echo char
 	    emptyLabel(dialog, 1);
-	    final var echoChar = pwd.getEchoChar() == NULL_CHAR ? ECHO_CHAR : NULL_CHAR;
-	    button(dialog, SWT.CHECK, entrShow, widgetSelectedAdapter(_ -> pwd.setEchoChar(echoChar)));
+	    button(dialog, SWT.CHECK, entrShow, widgetSelectedAdapter(
+		    _ -> pwd.setEchoChar(pwd.getEchoChar() == NULL_CHAR ? ECHO_CHAR : NULL_CHAR)));
 	}
 
 	emptyLabel(dialog, 3);
@@ -293,7 +292,7 @@ record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringCo
 	user.selectAll();
 	pwd.selectAll();
 	title.setFocus();
-	display.asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(dialog));
+	action.setAffinity(dialog);
 	return dialog;
     }
 

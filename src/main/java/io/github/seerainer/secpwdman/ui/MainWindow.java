@@ -60,7 +60,6 @@ import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
 import io.github.seerainer.secpwdman.io.IOUtil;
-import io.github.seerainer.secpwdman.util.Win32Affinity;
 
 /**
  * The class MainWindow.
@@ -343,7 +342,7 @@ public class MainWindow implements Icons, PrimitiveConstants, StringConstants {
 
 	shell.open();
 	shell.forceActive();
-	display.asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(shell));
+	fileAction.setAffinity(shell);
 	fileAction.openFileArg();
 	fileAction.resizeColumns();
 	fileAction.updateUI();

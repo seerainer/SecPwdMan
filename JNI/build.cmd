@@ -5,4 +5,3 @@ call "%PROGRAMFILES%\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\v
 @REM gcc -c -Os -o window_affinity.o window_affinity.c
 
 cl /c /O1 window_affinity.c
-

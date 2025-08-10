@@ -9,17 +9,18 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/seerainer/SecPwdMan/releases"><img src="https://img.shields.io/github/v/release/seerainer/SecPwdMan?style=flat-square" alt="Release"></a>
-  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/seerainer/SecPwdMan?style=flat-square" alt="License"></a>
   <a href="https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml"><img src="https://github.com/seerainer/SecPwdMan/actions/workflows/gradle.yml/badge.svg" alt="Build Status"></a>
   <a href="https://github.com/seerainer/SecPwdMan/security/code-scanning"><img src="https://github.com/seerainer/SecPwdMan/workflows/CodeQL/badge.svg" alt="CodeQL"></a>
+  <br />
+  <a href="https://github.com/seerainer/SecPwdMan/releases"><img src="https://img.shields.io/github/v/release/seerainer/SecPwdMan?style=flat-square" alt="Release"></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/github/license/seerainer/SecPwdMan?style=flat-square" alt="License"></a>
 </p>
 
 ---
 
 ## Table of Contents
 - [Features](#features)
-- [Screenshots](#screenshots)
+- [Screenshot](#screenshot)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
@@ -51,7 +52,7 @@
 
 ---
 
-## Screenshots
+## Screenshot
 ![SecPwdMan Screenshot](https://github.com/seerainer/SecPwdMan/assets/50533219/3651e148-d5a7-4f5c-b288-3df4a21ca774)
 
 ---

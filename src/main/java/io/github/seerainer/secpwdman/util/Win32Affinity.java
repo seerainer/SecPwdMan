@@ -62,16 +62,14 @@ public class Win32Affinity implements PrimitiveConstants, StringConstants {
      * @return true if the display affinity was set successfully, false otherwise.
      */
     public static boolean setWindowDisplayAffinity(final Shell shell) {
-	if (!SWTUtil.WIN32) {
-	    return false;
-	}
 	try {
 	    final var isNative = ImageInfo.inImageCode();
 	    final var loader = isNative ? SYMBOL_LOOKUP : SymbolLookup.libraryLookup(user32, ARENA);
 	    final var address = loader.findOrThrow(isNative ? setAffinity : setAffinity.substring(3));
 	    final var fd = FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT);
 	    final var mh = LINKER.downcallHandle(address, fd);
-	    return (int) mh.invokeExact(shell.handle, WDA_EXCLUDEFROMCAPTURE) != 0;
+	    final var args0 = Long.class.cast(shell.getClass().getField(handle).get(shell)).longValue();
+	    return (int) mh.invokeExact(args0, WDA_EXCLUDEFROMCAPTURE) != 0;
 	} catch (final Throwable t) {
 	    LogFactory.getLog().error(AFFINITY_FAILED, t);
 	    return false;
