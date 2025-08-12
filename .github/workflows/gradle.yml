@@ -18,4 +18,5 @@ jobs:
       - name: Example step using Gradle plugin # https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
         run: |
           chmod +x gradlew
+          ./gradlew allTests
           ./gradlew nativeCompile
