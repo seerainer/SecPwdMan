@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.10.6'
+    id 'org.graalvm.buildtools.native' version '0.11.2'
 }
 
 group = 'io.github.seerainer.secpwdman'
@@ -10,7 +10,7 @@ version = '1.1.1'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
         vendor = JvmVendorSpec.GRAAL_VM
     }
 }
@@ -20,7 +20,7 @@ repositories {
 }
 
 ext {
-    swtVersion = '3.130.0'
+    swtVersion = '3.131.0'
     swtArtifact = 'org.eclipse.swt.'
     os = System.getProperty("os.name").toLowerCase()
     arch = System.getProperty("os.arch").toLowerCase()
@@ -70,7 +70,7 @@ dependencies {
     }
     implementation 'org.slf4j:slf4j-jdk14:2.0.17'
     
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.0'
     testImplementation 'org.assertj:assertj-core:3.27.6'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -116,6 +116,9 @@ graalvmNative {
             buildArgs.add('-march=compatibility')
             buildArgs.add('-Ob')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            if (os.contains('mac')) {
+                buildArgs.add('-J-XstartOnFirstThread')
+            }
             if (os.contains('win')) {
                 buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
             }
