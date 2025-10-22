@@ -6,16 +6,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest] # macos FFM support only on x64_86
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-      - uses: graalvm/setup-graalvm@v1.3.5
+      - uses: graalvm/setup-graalvm@v1.4.1
         with:
-          java-version: '24'
+          java-version: '25'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           native-image-job-reports: 'true'
-      - name: Example step using Gradle plugin # https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
+
+      - name: Setup Visual Studio Build Tools (Windows)
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Run all tests and build native image
         run: |
           chmod +x gradlew
-          ./gradlew nativeCompile
+          ./gradlew allTests
+          ./gradlew nativeCompile --info --stacktrace
+        env:
+          GRADLE_OPTS: -Djava.io.tmpdir=${{ runner.temp }}
+          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
+          JAVA_TOOL_OPTIONS: -Djava.io.tmpdir=${{ runner.temp }}

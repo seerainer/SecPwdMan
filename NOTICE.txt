@@ -23,4 +23,12 @@ This project makes use of the following third-party software:
    - License: Apache License 2.0
    - Project URL: https://github.com/Password4j/password4j
 
+6. junit
+   - License: Eclipse Public License 2.0 (EPL-2.0)
+   - Project URL: https://github.com/junit-team/junit-framework
+
+7. assertj
+   - License: Apache License 2.0
+   - Project URL: https://github.com/assertj/assertj
+
 Each of these libraries is used in this project in accordance with their respective licenses.

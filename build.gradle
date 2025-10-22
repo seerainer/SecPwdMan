@@ -2,15 +2,15 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'application'
-    id 'org.graalvm.buildtools.native' version '0.11.0'
+    id 'org.graalvm.buildtools.native' version '0.11.2'
 }
 
 group = 'io.github.seerainer.secpwdman'
-version = '1.1.1'
+version = '1.2.0'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
         vendor = JvmVendorSpec.GRAAL_VM
     }
 }
@@ -20,7 +20,7 @@ repositories {
 }
 
 ext {
-    swtVersion = '3.130.0'
+    swtVersion = '3.131.0'
     swtArtifact = 'org.eclipse.swt.'
     os = System.getProperty("os.name").toLowerCase()
     arch = System.getProperty("os.arch").toLowerCase()
@@ -69,9 +69,9 @@ dependencies {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }
     implementation 'org.slf4j:slf4j-jdk14:2.0.17'
-    
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
-    testImplementation 'org.assertj:assertj-core:3.27.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
+    testImplementation 'org.assertj:assertj-core:3.27.6'
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -113,9 +113,18 @@ graalvmNative {
         main {
             imageName = 'SecPwdMan'
             mainClass = application.mainClass
+            // debug         = true
+            // verbose       = true
+            // fallback      = true
+            // sharedLibrary = false
+            // quickBuild    = false
+            // richOutput    = false
             buildArgs.add('-march=compatibility')
             buildArgs.add('-Ob')
             buildArgs.add('--enable-native-access=ALL-UNNAMED')
+            if (os.contains('mac')) {
+                buildArgs.add('-J-XstartOnFirstThread')
+            }
             if (os.contains('win')) {
                 buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
             }
@@ -130,14 +139,14 @@ graalvmNative {
             // buildArgs.add('-Duser.country=US')
             // buildArgs.add('-Duser.language=en')
             // buildArgs.add('-Duser.variant')
-            // buildArgs.add('-J-XstartOnFirstThread')
             // buildArgs.add('--color=always')
             // buildArgs.add('--emit build-report')
-            // buildArgs.add('--enable-sbom')
+            // buildArgs.add('--enable-sbom=export')
             // buildArgs.add('--gc=G1')
             // buildArgs.add('--initialize-at-build-time=org.slf4j')
             // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil')
             // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil$AutoScaleMethod')
+            // buildArgs.add('--initialize-at-build-time=org.eclipse.swt.internal.DPIUtil$UseSmoothScalingProvider')
             // buildArgs.add('--pgo=default.iprof')
             // buildArgs.add('--static-nolibc')
             // buildArgs.add('--verbose')
@@ -156,10 +165,11 @@ graalvmNative {
             // buildArgs.add('-H:+GenerateEmbeddedResourcesFile')
             // buildArgs.add('-H:+TrackPrimitiveValues')
             // buildArgs.add('-H:+UsePredicates')
+            // buildArgs.add('-H:+RelativeCodePointers')
             // buildArgs.add('-R:MaxDirectMemorySize=32G')
 
-            // A fat jar is required for GraalVM native image to ensure all dependencies are bundled and accessible during the native image build process.
-            // See: https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html#fat-jar-support
+            // A fat jar is required for GraalVM native image to ensure all dependencies
+            // are bundled and accessible during the native image build process.
             useFatJar = true
         }
     }
@@ -174,9 +184,9 @@ tasks.withType(Jar).configureEach {
     }
     exclude(
         'META-INF/ECLIPSE*',
-    	'META-INF/maven/**/**/*',
-    	'META-INF/versions/9/*',
-    	'META-INF/*.txt',
+        'META-INF/maven/**/**/*',
+        'META-INF/versions/9/*',
+        'META-INF/*.txt',
         'about_files/*',
         'version.txt',
         '.api_description',

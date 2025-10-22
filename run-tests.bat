@@ -2,14 +2,14 @@
 setlocal enabledelayedexpansion
 
 REM SecPwdMan Test Runner Script for Windows
-REM This script runs all categories of tests for SecPwdMan
+REM This script runs unit and integration tests for SecPwdMan
 
 echo =========================================
-echo SecPwdMan Comprehensive Test Suite
+echo SecPwdMan Test Suite
 echo =========================================
 
 REM Function to print status messages
-call :print_status "Starting comprehensive test suite..."
+call :print_status "Starting test suite..."
 
 REM Check if gradlew.bat exists
 if not exist "gradlew.bat" (
@@ -68,18 +68,6 @@ if !INTEGRATION_RESULT! equ 0 (
     call :print_warning "Integration tests failed or had issues"
 )
 
-REM Run code coverage analysis
-call :print_status "Generating code coverage report..."
-call gradlew.bat jacocoTestReport
-set COVERAGE_RESULT=!errorlevel!
-
-if !COVERAGE_RESULT! equ 0 (
-    call :print_success "Code coverage analysis completed"
-    call :print_status "Coverage report available at: build\reports\jacoco\test\html\index.html"
-) else (
-    call :print_warning "Code coverage analysis failed"
-)
-
 REM Generate test summary
 echo.
 echo =========================================
@@ -98,12 +86,6 @@ if !INTEGRATION_RESULT! equ 0 (
     call :print_error "✗ Integration Tests"
 )
 
-if !COVERAGE_RESULT! equ 0 (
-    call :print_success "✓ Code Coverage Analysis"
-) else (
-    call :print_error "✗ Code Coverage Analysis"
-)
-
 REM Calculate total failures
 set /a TOTAL_FAILURES=0
 if !UNIT_RESULT! neq 0 set /a TOTAL_FAILURES+=1
@@ -111,11 +93,9 @@ if !INTEGRATION_RESULT! neq 0 set /a TOTAL_FAILURES+=1
 
 echo.
 if !TOTAL_FAILURES! equ 0 (
-    call :print_success "All core tests passed! ✓"
+    call :print_success "All tests passed! ✓"
     echo.
-    call :print_status "Reports generated:"
-    call :print_status "  - Test results: build\reports\tests\"
-    call :print_status "  - Coverage: build\reports\jacoco\test\html\index.html"
+    call :print_status "Test results available at: build\reports\tests\"
     echo.
     exit /b 0
 ) else (

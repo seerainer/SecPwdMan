@@ -60,7 +60,7 @@
 ## Installation
 
 ### Prerequisites
-- **Java 24** (GraalVM recommended for native image)
+- **Java 25** (GraalVM recommended for native image)
 - **Gradle 8.14+**
 - **Git**
 
