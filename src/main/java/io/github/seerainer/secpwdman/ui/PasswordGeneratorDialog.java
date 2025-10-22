@@ -134,7 +134,7 @@ record PasswordGeneratorDialog(Action action) implements Icons, PrimitiveConstan
 
 	final var point = getPrefSize(dialog);
 	final var size = 50;
-	dialog.setSize(point.x + size, point.y + size * 4);
+	dialog.setSize(point.x + size, point.y + size * 5);
 	dialog.setDefaultButton(genBtn);
 	genBtn.setFocus();
 	image.dispose();

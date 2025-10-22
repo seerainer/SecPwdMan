@@ -45,7 +45,6 @@ import java.util.Objects;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -107,8 +106,16 @@ record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringCo
 	}
 	if (!isBlank(textFields[2]) || !isBlank(textFields[4])) {
 	    final var groupChildren = ((Group) child[16]).getChildren();
+	    final var selection = Arrays.stream(groupChildren)
+		    .map(control -> Boolean.valueOf(control instanceof Button && !((Button) control).getSelection()))
+		    .toArray(Boolean[]::new);
+	    if (Arrays.stream(selection).allMatch(Boolean::booleanValue)) {
+		for (var i = 0; i < selection.length - 1; i++) {
+		    ((Button) groupChildren[i]).setSelection(true);
+		}
+	    }
 	    editEntry(password.length > 0 ? password : RandomPassword.generate(action, groupChildren), tableItem,
-		    textFields, groupChildren);
+		    textFields);
 	    clear(password);
 	    dialog.close();
 	} else {
@@ -117,16 +124,7 @@ record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringCo
 	}
     }
 
-    private void editEntry(final char[] password, final TableItem tableItem, final String[] textFields,
-	    final Control[] groupChildren) {
-	final var selection = Arrays.stream(groupChildren)
-		.map(control -> Boolean.valueOf(control instanceof Button && !((Button) control).getSelection()))
-		.toArray(Boolean[]::new);
-	if (Arrays.stream(selection).allMatch(Boolean::booleanValue)) {
-	    for (var i = 0; i < selection.length - 1; i++) {
-		((Button) groupChildren[i]).setSelection(true);
-	    }
-	}
+    private void editEntry(final char[] password, final TableItem tableItem, final String[] textFields) {
 	if (isEqual(textFields[4].toCharArray(), password)) {
 	    msg(action.getShell(), SWT.ICON_WARNING | SWT.OK, titleWar, warnUPeq);
 	}

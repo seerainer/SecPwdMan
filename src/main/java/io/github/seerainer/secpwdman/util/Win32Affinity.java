@@ -48,6 +48,8 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 public class Win32Affinity implements PrimitiveConstants, StringConstants {
 
     private static final Arena ARENA = Arena.global();
+    private static final FunctionDescriptor FUNCTION_DESCRIPTOR = FunctionDescriptor.of(ValueLayout.JAVA_INT,
+	    ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT);
     private static final Linker LINKER = Linker.nativeLinker();
     private static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup().or(LINKER.defaultLookup());
 
@@ -61,18 +63,18 @@ public class Win32Affinity implements PrimitiveConstants, StringConstants {
      * @param shell The shell whose display affinity is to be set.
      * @return true if the display affinity was set successfully, false otherwise.
      */
-    public static boolean setWindowDisplayAffinity(final Shell shell) {
+    public static void setWindowDisplayAffinity(final Shell shell) {
 	try {
 	    final var isNative = ImageInfo.inImageCode();
 	    final var loader = isNative ? SYMBOL_LOOKUP : SymbolLookup.libraryLookup(user32, ARENA);
 	    final var address = loader.findOrThrow(isNative ? setAffinity : setAffinity.substring(3));
-	    final var fd = FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT);
-	    final var mh = LINKER.downcallHandle(address, fd);
+	    final var mh = LINKER.downcallHandle(address, FUNCTION_DESCRIPTOR);
 	    final var args0 = Long.class.cast(shell.getClass().getField(handle).get(shell)).longValue();
-	    return (int) mh.invokeExact(args0, WDA_EXCLUDEFROMCAPTURE) != 0;
+	    if ((int) mh.invokeExact(args0, WDA_EXCLUDEFROMCAPTURE) == 0) {
+		LogFactory.getLog().error(AFFINITY_FAILED);
+	    }
 	} catch (final Throwable t) {
 	    LogFactory.getLog().error(AFFINITY_FAILED, t);
-	    return false;
 	}
     }
 }

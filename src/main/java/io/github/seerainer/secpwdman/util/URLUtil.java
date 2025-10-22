@@ -33,6 +33,8 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  */
 public class URLUtil implements PrimitiveConstants, StringConstants {
 
+    private static final Pattern PATTERN = Pattern.compile(DOMAIN_PATTERN);
+
     private URLUtil() {
     }
 
@@ -57,6 +59,6 @@ public class URLUtil implements PrimitiveConstants, StringConstants {
 	if (Objects.isNull(url) || url.length() > MAX_URL_LENGTH) {
 	    return false;
 	}
-	return Pattern.compile(DOMAIN_PATTERN).matcher(url).matches();
+	return PATTERN.matcher(url).matches();
     }
 }

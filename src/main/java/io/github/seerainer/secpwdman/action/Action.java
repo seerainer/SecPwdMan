@@ -603,13 +603,13 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
     /**
      * Sets the display affinity of the shell.
      *
-     * @param s the shell
+     * @param shellAffinity the shell
      */
-    public void setAffinity(final Shell s) {
+    public void setAffinity(final Shell shellAffinity) {
 	if (!SWTUtil.WIN32) {
 	    return;
 	}
-	shell.getDisplay().asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(s));
+	shell.getDisplay().asyncExec(() -> Win32Affinity.setWindowDisplayAffinity(shellAffinity));
     }
 
     /**
@@ -627,9 +627,6 @@ public abstract class Action implements CryptoConstants, PrimitiveConstants, Str
 	if (nonNull(sealedData) && nonNull(dataKey)) {
 	    try {
 		final var obj = SerializationUtils.deserialize(sealedData.clone());
-		if (!(obj instanceof SealedObject)) {
-		    throw new ClassCastException(obj.getClass().getName());
-		}
 		final var so = SealedObject.class.cast(obj);
 		final var key = Crypto.getSecretKey(dataKey, keyAES);
 		bytes = ((ByteContainer) so.getObject(key)).getData();

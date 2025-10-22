@@ -52,20 +52,22 @@ public class IOUtil implements PrimitiveConstants, StringConstants {
     }
 
     static byte[] deflate(final byte[] input) {
-	final var deflater = new Deflater();
-	deflater.setInput(input);
-	deflater.setLevel(Deflater.BEST_COMPRESSION);
-	deflater.finish();
+	try (var deflater = new Deflater()) {
+	    deflater.setInput(input);
+	    deflater.setLevel(Deflater.BEST_COMPRESSION);
+	    deflater.finish();
 
-	final var outputStream = new ByteArrayOutputStream();
-	final var buffer = new byte[MEMORY_SIZE];
+	    final var outputStream = new ByteArrayOutputStream();
+	    final var buffer = new byte[MEMORY_SIZE];
 
-	while (!deflater.finished()) {
-	    outputStream.write(buffer, 0, deflater.deflate(buffer));
+	    while (!deflater.finished()) {
+		outputStream.write(buffer, 0, deflater.deflate(buffer));
+	    }
+	    deflater.end();
+	    return outputStream.toByteArray();
+	} finally {
+	    clear(input);
 	}
-	deflater.end();
-	clear(input);
-	return outputStream.toByteArray();
     }
 
     private static String getConfigFilePath() {
@@ -105,21 +107,23 @@ public class IOUtil implements PrimitiveConstants, StringConstants {
     }
 
     static byte[] inflate(final byte[] input) {
-	final var inflater = new Inflater();
-	inflater.setInput(input);
+	try (var inflater = new Inflater()) {
+	    inflater.setInput(input);
 
-	final var outputStream = new ByteArrayOutputStream();
-	final var buffer = new byte[MEMORY_SIZE];
-	try {
-	    while (!inflater.finished()) {
-		outputStream.write(buffer, 0, inflater.inflate(buffer));
+	    final var outputStream = new ByteArrayOutputStream();
+	    final var buffer = new byte[MEMORY_SIZE];
+	    try {
+		while (!inflater.finished()) {
+		    outputStream.write(buffer, 0, inflater.inflate(buffer));
+		}
+		return outputStream.toByteArray();
+	    } catch (final DataFormatException e) {
+		LOG.error(ERROR, e);
+		return input;
+	    } finally {
+		inflater.end();
 	    }
-	    return outputStream.toByteArray();
-	} catch (final DataFormatException e) {
-	    LOG.error(ERROR, e);
-	    return input;
 	} finally {
-	    inflater.end();
 	    clear(input);
 	}
     }

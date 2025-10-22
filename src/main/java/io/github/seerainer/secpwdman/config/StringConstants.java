@@ -28,7 +28,7 @@ public interface StringConstants {
 
     // Application strings
     String APP_NAME = "SecPwdMan";
-    String APP_VERS = "1.1.1";
+    String APP_VERS = "1.2.0";
     String APP_INFO = getString("APP.Info");
 
     // Regular expressions for URL validation
@@ -75,14 +75,17 @@ public interface StringConstants {
 
     // General strings
     String empty = "";
+    String minus = "-";
     String quote = "\"";
     String space = "\s";
     String tabul = "\t";
+    String redot = "\\.";
     String fstop = "\u002E";
     String newLine = "\n";
     String nullStr = "\0";
     String lineBrk = "\\R";
     String logical = "&&";
+    String replus = "\\+";
 
     // Title strings
     String titlePH = " - ";
@@ -161,6 +164,7 @@ public interface StringConstants {
     String user32 = "user32";
     String setAffinity = "my_SetWindowDisplayAffinity";
     String handle = "handle";
+    String MAJOR_VERSION = "1.0.0";
 
     // Configuration keys
     String appName = "appName";

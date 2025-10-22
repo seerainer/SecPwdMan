@@ -104,9 +104,6 @@ record ConfigDialog(Action action) implements CryptoConstants, Icons, PrimitiveC
 	case 128 -> 4;
 	case 256 -> 5;
 	case 512 -> 6;
-	case 1024 -> 7;
-	case 2048 -> 8;
-	case 4096 -> 9;
 	default -> 4;
 	};
     }
@@ -263,7 +260,7 @@ record ConfigDialog(Action action) implements CryptoConstants, Icons, PrimitiveC
 	final var comboPBKDF2 = combo(groupPBKDF2, SWT.READ_ONLY);
 	comboPBKDF2.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	comboPBKDF2.setItems(Hmac.SHA256.toString(), Hmac.SHA512.toString());
-	final var spinPBKDF2 = spinner(groupPBKDF2, cConf.getPBKDF2Iter(), PBKDF2_MIN_SHA512, PBKDF2_MAX, 0, 1, 10000);
+	final var spinPBKDF2 = spinner(groupPBKDF2, cConf.getPBKDF2Iter(), PBKDF2_MIN_SHA256, PBKDF2_MAX, 0, 1, 10000);
 	spinPBKDF2.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	comboPBKDF2.addSelectionListener(widgetSelectedAdapter(_ -> spinPBKDF2
 		.setMinimum(comboPBKDF2.getSelectionIndex() == 0 ? PBKDF2_MIN_SHA256 : PBKDF2_MIN_SHA512)));
@@ -274,7 +271,7 @@ record ConfigDialog(Action action) implements CryptoConstants, Icons, PrimitiveC
 	final var comboScrypt = combo(groupScrypt, SWT.READ_ONLY);
 	comboScrypt.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	comboScrypt.setItems(Arrays.stream(SCRYPT_N).mapToObj(String::valueOf).toArray(String[]::new));
-	final var spinScryptR = spinner(groupScrypt, cConf.getScryptR(), SCRYPT_R_MIN, SCRYPT_R_MAX, 0, 1, 2);
+	final var spinScryptR = spinner(groupScrypt, cConf.getScryptR(), SCRYPT_R, SCRYPT_R, 0, 1, 2);
 	final var spinScryptP = spinner(groupScrypt, cConf.getScryptP(), SCRYPT_P_MIN, SCRYPT_P_MAX, 0, 1, 2);
 	spinScryptR.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	spinScryptP.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));

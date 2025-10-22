@@ -19,14 +19,17 @@
  */
 package io.github.seerainer.secpwdman;
 
+import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
+import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
+
 import org.eclipse.swt.widgets.Display;
-import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.ui.MainWindow;
 import io.github.seerainer.secpwdman.util.LogFactory;
-import io.github.seerainer.secpwdman.util.SWTUtil;
+import io.github.seerainer.secpwdman.util.SingleInstanceManager;
 
 /**
  * The main class.<br>
@@ -34,13 +37,31 @@ import io.github.seerainer.secpwdman.util.SWTUtil;
  *
  * @author <a href="mailto:philipp@seerainer.com">Philipp Seerainer</a>
  */
-public class Main implements PrimitiveConstants, StringConstants {
+class Main implements PrimitiveConstants, StringConstants {
 
     private static final long startTime = System.currentTimeMillis();
 
-    private static final Logger LOG = LogFactory.getLog();
-
     private static Display display;
+
+    private static Display getDisplay() {
+	display = Display.getDefault();
+	if (!WIN32 || !DARK) {
+	    return display;
+	}
+	display.setData(darkModeExplorerTheme, Boolean.TRUE);
+	display.setData(shellTitleColoring, Boolean.TRUE);
+	display.setData(menuBarBackgroundColor, getColor(MENU_BACK, MENU_BACK, MENU_BACK));
+	display.setData(menuBarForegroundColor, getColor(MENU_FORE, MENU_FORE, MENU_FORE));
+	display.setData(menuBarBorderColor, getColor(MENU_BORD, MENU_BORD, MENU_BORD));
+	display.setData(use_WS_BORDER, Boolean.TRUE);
+	display.setData(useDarkTheme, Boolean.TRUE);
+	display.setData(useDarkThemeIcons, Boolean.TRUE);
+	return display;
+    }
+
+    private static long getTime() {
+	return System.currentTimeMillis() - startTime;
+    }
 
     /**
      * The main method that initializes the display and starts the main window. It
@@ -49,43 +70,32 @@ public class Main implements PrimitiveConstants, StringConstants {
      *
      * @param args The command line arguments.
      */
-    public static void main(final String[] args) {
+    static void main(final String[] args) {
+	if (!SingleInstanceManager.acquire(APP_NAME)) {
+	    System.exit(1);
+	}
+
 	try {
+	    System.setProperty(useSystemTheme, trueStr);
 	    Display.setAppName(APP_NAME);
 	    Display.setAppVersion(APP_VERS);
 	    LogFactory.configureLogging();
-	    System.setProperty(useSystemTheme, trueStr);
 
-	    display = new Display();
-	    if (SWTUtil.WIN32 && SWTUtil.DARK) {
-		setDarkMode(display);
-	    }
-	    final var mainUI = new MainWindow(args);
-	    final var shell = mainUI.open(display);
-	    LOG.info(START_TIME, APP_NAME, Long.valueOf(System.currentTimeMillis() - startTime));
-	    while (!shell.isDisposed()) {
+	    display = getDisplay();
+	    final var mainUI = new MainWindow(display, args);
+	    LogFactory.getLog().info(START_TIME, APP_NAME, Long.valueOf(getTime()));
+	    while (!mainUI.getShell().isDisposed()) {
 		if (!display.readAndDispatch()) {
 		    display.sleep();
 		}
 	    }
 	} catch (final Exception e) {
-	    LOG.error(ERROR, e);
+	    LogFactory.getLog().error(ERROR, e);
 	} finally {
 	    if (display != null && !display.isDisposed()) {
 		display.dispose();
 	    }
-	    LOG.info(TOTAL_TIME, APP_NAME, Long.valueOf((System.currentTimeMillis() - startTime) / SECONDS));
+	    LogFactory.getLog().info(TOTAL_TIME, APP_NAME, Long.valueOf(getTime() / SECONDS));
 	}
-    }
-
-    private static void setDarkMode(final Display display) {
-	display.setData(darkModeExplorerTheme, Boolean.TRUE);
-	display.setData(shellTitleColoring, Boolean.TRUE);
-	display.setData(menuBarBackgroundColor, SWTUtil.getColor(MENU_BACK, MENU_BACK, MENU_BACK));
-	display.setData(menuBarForegroundColor, SWTUtil.getColor(MENU_FORE, MENU_FORE, MENU_FORE));
-	display.setData(menuBarBorderColor, SWTUtil.getColor(MENU_BORD, MENU_BORD, MENU_BORD));
-	display.setData(use_WS_BORDER, Boolean.TRUE);
-	display.setData(useDarkTheme, Boolean.TRUE);
-	display.setData(useDarkThemeIcons, Boolean.TRUE);
     }
 }

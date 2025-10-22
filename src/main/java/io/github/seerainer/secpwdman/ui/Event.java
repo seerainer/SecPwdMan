@@ -58,9 +58,11 @@ import io.github.seerainer.secpwdman.config.StringConstants;
 class Event implements StringConstants {
 
     private final ConfigData cData = new ConfigData();
+
     private EditAction editAction;
     private FileAction fileAction;
     private ViewAction viewAction;
+
     DisposeListener dispose = _ -> {
 	final var shell = fileAction.getShell();
 	if (Objects.nonNull(shell) && !shell.isDisposed()) {

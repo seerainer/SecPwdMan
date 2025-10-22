@@ -45,10 +45,8 @@ public interface CryptoConstants {
     int PBKDF2_MIN_SHA512 = 210000;
     int PBKDF2_MAX = 0x1000000;
 
-    int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512, 1024 };
+    int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512 };
     int SCRYPT_R = 8;
-    int SCRYPT_R_MIN = 8;
-    int SCRYPT_R_MAX = 32;
     int SCRYPT_P_MIN = 1;
     int SCRYPT_P_MAX = 10;
 

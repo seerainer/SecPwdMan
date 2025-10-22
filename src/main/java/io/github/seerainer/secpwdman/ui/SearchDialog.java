@@ -40,7 +40,7 @@ public record SearchDialog(Action action) implements StringConstants {
 	final var dialog = Widgets.shell(action.getShell(), SWT.DIALOG_TRIM | SWT.TOOL, layout, searTitl);
 
 	Widgets.label(dialog, SWT.HORIZONTAL, searText);
-	final var text = Widgets.text(dialog, SWT.BORDER | SWT.SINGLE);
+	final var text = Widgets.text(dialog, SWT.BORDER | SWT.SEARCH | SWT.ICON_SEARCH);
 	text.setFocus();
 	text.setTextLimit(128);
 

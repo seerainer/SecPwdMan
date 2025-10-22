@@ -76,16 +76,37 @@ public class MainWindow implements Icons, PrimitiveConstants, StringConstants {
     private Table table;
 
     /**
-     * Instantiates a new MainWindow.
+     * Opens the main window. Initializes the shell, its listeners, layout, UI
+     * components, actions and UI values. Also sets up the drop target and tray item
+     * if applicable.
      *
-     * @param args the arguments
+     * @param display the display used to create the shell and other UI components
+     * @param args    the arguments
      */
-    public MainWindow(final String[] args) {
+    public MainWindow(final Display display, final String[] args) {
 	this.event = new Event();
 	this.cData = event.getConfigData();
+
 	if (args.length > 0) {
 	    cData.setTempFile(args[0]);
 	}
+
+	final var image = getImage(display, APP_ICON);
+	initializeShell(display, image);
+	initializeShellActions();
+	initializeShellValues(display);
+	initializeDropTarget(table);
+	initializeTrayItem(display, image);
+
+	shell.open();
+	shell.forceActive();
+
+	Crypto.selfTest(cData.getCryptoConfig());
+
+	fileAction.setAffinity(shell);
+	fileAction.openFileArg();
+	fileAction.resizeColumns();
+	fileAction.updateUI();
     }
 
     private void createEditMenu() {
@@ -223,6 +244,15 @@ public class MainWindow implements Icons, PrimitiveConstants, StringConstants {
 	menuItem(view, SWT.PUSH, event.textDialog, menuText);
     }
 
+    /**
+     * Gets the shell.
+     *
+     * @return the shell
+     */
+    public Shell getShell() {
+	return shell;
+    }
+
     private void initializeDropTarget(final Control control) {
 	final var dropTarget = new DropTarget(control, DND.DROP_COPY | DND.DROP_DEFAULT);
 	dropTarget.setTransfer(FileTransfer.getInstance());
@@ -321,33 +351,5 @@ public class MainWindow implements Icons, PrimitiveConstants, StringConstants {
 	});
 	trayItem.setImage(image);
 	trayItem.setVisible(false);
-    }
-
-    /**
-     * Opens the main window. Initializes the shell, its listeners, layout, UI
-     * components, actions and UI values. Also sets up the drop target and tray item
-     * if applicable.
-     *
-     * @param display the display used to create the shell and other UI components
-     * @return the shell instance representing the main window
-     */
-    public Shell open(final Display display) {
-	final var image = getImage(display, APP_ICON);
-
-	initializeShell(display, image);
-	initializeShellActions();
-	initializeShellValues(display);
-	initializeDropTarget(table);
-	initializeTrayItem(display, image);
-
-	shell.open();
-	shell.forceActive();
-	fileAction.setAffinity(shell);
-	fileAction.openFileArg();
-	fileAction.resizeColumns();
-	fileAction.updateUI();
-	Crypto.selfTest(cData.getCryptoConfig());
-
-	return shell;
     }
 }

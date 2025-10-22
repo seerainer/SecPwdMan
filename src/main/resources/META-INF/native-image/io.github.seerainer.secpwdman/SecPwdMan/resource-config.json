@@ -1,0 +1,113 @@
+{
+    "resources": {
+        "includes": []
+    },
+    "bundles": [
+        {
+            "name": "com/nulabinc/zxcvbn/messages",
+            "locales": [
+                "de"
+            ]
+        },
+        {
+            "name": "messages",
+            "locales": [
+                "de"
+            ]
+        },
+        {
+            "name": "org.eclipse.swt.internal.SWTMessages",
+            "locales": [
+                "de"
+            ]
+        },
+        {
+            "name": "sun.util.logging.resources.logging"
+        }
+    ],
+    "globs": [
+        {
+            "glob": "/psw4j.properties"
+        },
+        {
+            "glob": "META-INF/services/java.lang.System$LoggerFinder"
+        },
+        {
+            "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
+        },
+        {
+            "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+        },
+        {
+            "glob": "META-INF/services/java.util.spi.ResourceBundleControlProvider"
+        },
+        {
+            "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/english_wikipedia.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/female_names.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/male_names.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/passwords.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/surnames.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/dictionaries/us_tv_and_film.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/keyboards/dvorak.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/keyboards/jis.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/keyboards/keypad.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/keyboards/mac_keypad.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/matchers/keyboards/qwerty.txt"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/messages.properties"
+        },
+        {
+            "glob": "com/nulabinc/zxcvbn/messages_de.properties"
+        },
+        {
+            "glob": "messages.properties"
+        },
+        {
+            "glob": "messages_de.properties"
+        },
+        {
+            "glob": "org/eclipse/swt/internal/Library.class"
+        },
+        {
+            "glob": "org/eclipse/swt/internal/SWTMessages.properties"
+        },
+        {
+            "glob": "org/eclipse/swt/internal/SWTMessages_de.properties"
+        },
+        {
+            "glob": "psw4j.properties"
+        },
+        {
+            "module": "java.base",
+            "glob": "jdk/internal/icu/impl/data/icudt76b/nfc.nrm"
+        },
+        {
+            "module": "java.logging",
+            "glob": "sun/util/logging/resources/logging.properties"
+        }
+    ]
+}
