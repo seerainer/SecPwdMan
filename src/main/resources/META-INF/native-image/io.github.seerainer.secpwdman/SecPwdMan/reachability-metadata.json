@@ -194,6 +194,42 @@
       "jniAccessible": true
     },
     {
+      "type": "org.eclipse.swt.internal.gdip.GdiplusStartupInput",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "DebugEventCallback"
+        },
+        {
+          "name": "GdiplusVersion"
+        },
+        {
+          "name": "SuppressBackgroundThread"
+        },
+        {
+          "name": "SuppressExternalCodecs"
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.swt.internal.gdip.Rect",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "Height"
+        },
+        {
+          "name": "Width"
+        },
+        {
+          "name": "X"
+        },
+        {
+          "name": "Y"
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.swt.internal.ole.win32.COMObject",
       "jniAccessible": true,
       "methods": [

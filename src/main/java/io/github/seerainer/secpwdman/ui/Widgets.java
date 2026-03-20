@@ -1,6 +1,6 @@
 /*
  * SecPwdMan
- * Copyright (C) 2025  Philipp Seerainer
+ * Copyright (C) 2026  Philipp Seerainer
  * philipp@seerainer.com
  *
  * This program is free software; you can redistribute it and/or modify
@@ -134,8 +134,8 @@ public class Widgets implements PrimitiveConstants {
     public static String fileDialog(final Shell parent, final int style, final String filterName,
 	    final String filterExte) {
 	final var dialog = new FileDialog(parent, style);
-	dialog.setFilterNames(new String[] { filterName });
-	dialog.setFilterExtensions(new String[] { filterExte });
+	dialog.setFilterNames(filterName);
+	dialog.setFilterExtensions(filterExte);
 	dialog.setOverwrite(true);
 	return dialog.open();
     }

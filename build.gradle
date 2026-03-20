@@ -11,7 +11,7 @@ version = '1.2.0'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.GRAAL_VM
+        // vendor = JvmVendorSpec.GRAAL_VM
     }
 }
 
@@ -20,13 +20,18 @@ repositories {
 }
 
 ext {
-    swtVersion = '3.131.0'
+    swtVersion = '3.133.0'
     swtArtifact = 'org.eclipse.swt.'
     os = System.getProperty("os.name").toLowerCase()
     arch = System.getProperty("os.arch").toLowerCase()
     normalizedArch = arch
     swtWS = 'unknown'
     swtOS = 'unknown'
+
+    // https://github.com/graalvm/native-build-tools/issues/754
+    // if (os.contains("win")) {
+    //     System.setProperty("java.io.tmpdir", "D:/tmp")
+    // }
 }
 
 def detectSwtArtifact() {
@@ -42,8 +47,7 @@ def detectSwtArtifact() {
         swtArtifact += 'gtk.linux.'
         swtWS = 'gtk'
         swtOS = 'linux'
-    }
-    else {
+    } else {
         throw new GradleException("Unsupported OS: ${os}")
     }
     
@@ -53,8 +57,7 @@ def detectSwtArtifact() {
     } else if (arch == 'aarch64') {
         swtArtifact += 'aarch64'
         normalizedArch = 'aarch64'
-    }
-    else {
+    } else {
         throw new GradleException("Unsupported architecture: ${arch}")
     }
     

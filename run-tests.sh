@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # SecPwdMan Test Runner Script
-# This script runs all categories of tests for SecPwdMan
+# This script runs unit and integration tests for SecPwdMan
 
 echo "========================================="
-echo "SecPwdMan Comprehensive Test Suite"
+echo "SecPwdMan Test Suite"
 echo "========================================="
 
 # Colors for output
@@ -40,7 +40,7 @@ fi
 # Make gradlew executable
 chmod +x ./gradlew
 
-print_status "Starting comprehensive test suite..."
+print_status "Starting test suite..."
 
 # Clean build first
 print_status "Cleaning previous build..."
@@ -93,18 +93,6 @@ else
     print_warning "Integration tests failed or had issues"
 fi
 
-# Run code coverage analysis
-print_status "Generating code coverage report..."
-./gradlew jacocoTestReport
-
-COVERAGE_RESULT=$?
-if [ $COVERAGE_RESULT -eq 0 ]; then
-    print_success "Code coverage analysis completed"
-    print_status "Coverage report available at: build/reports/jacoco/test/html/index.html"
-else
-    print_warning "Code coverage analysis failed"
-fi
-
 # Generate test summary
 echo ""
 echo "========================================="
@@ -123,12 +111,6 @@ else
     print_error "✗ Integration Tests"
 fi
 
-if [ $COVERAGE_RESULT -eq 0 ]; then
-    print_success "✓ Code Coverage Analysis"
-else
-    print_error "✗ Code Coverage Analysis"
-fi
-
 # Overall result
 TOTAL_FAILURES=$((
     $([ $UNIT_RESULT -ne 0 ] && echo 1 || echo 0) +
@@ -137,11 +119,9 @@ TOTAL_FAILURES=$((
 
 echo ""
 if [ $TOTAL_FAILURES -eq 0 ]; then
-    print_success "All core tests passed! ✓"
+    print_success "All tests passed! ✓"
     echo ""
-    print_status "Reports generated:"
-    print_status "  - Test results: build/reports/tests/"
-    print_status "  - Coverage: build/reports/jacoco/test/html/index.html"
+    print_status "Test results available at: build/reports/tests/"
     echo ""
     exit 0
 else

@@ -1,6 +1,6 @@
 /*
  * SecPwdMan
- * Copyright (C) 2025  Philipp Seerainer
+ * Copyright (C) 2026  Philipp Seerainer
  * philipp@seerainer.com
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ import org.graalvm.nativeimage.hosted.RuntimeForeignAccess;
 public class ForeignRegistrationFeature implements Feature {
 
     @Override
-    public void duringSetup(DuringSetupAccess access) {
+    public void duringSetup(final DuringSetupAccess access) {
 	// Register SetWindowDisplayAffinity for downcall
 	RuntimeForeignAccess.registerForDowncall(
 		FunctionDescriptor.of(ValueLayout.JAVA_INT, ValueLayout.JAVA_LONG, ValueLayout.JAVA_INT));

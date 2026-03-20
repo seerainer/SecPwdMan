@@ -1,6 +1,6 @@
 /*
  * SecPwdMan
- * Copyright (C) 2025  Philipp Seerainer
+ * Copyright (C) 2026  Philipp Seerainer
  * philipp@seerainer.com
  *
  * This program is free software; you can redistribute it and/or modify
@@ -151,6 +151,7 @@ class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
 	final var cConf = cData.getCryptoConfig();
 	final var obj = getJsonObject(is);
 	final var sha2 = Hmac.SHA256.toString();
+	cData.setImport(Util.isOldVersion(obj.getString(appVers, MAJOR_VERSION)));
 	cConf.setKeyALGO(obj.getString(keyALGO, cConf.getKeyALGO()));
 	cConf.setCipherALGO(obj.getString(cipALGO, cConf.getCipherALGO()));
 	cConf.setKeyDerivation(getKeyDerivation(obj));

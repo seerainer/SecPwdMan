@@ -1,6 +1,6 @@
 /*
  * SecPwdMan
- * Copyright (C) 2025  Philipp Seerainer
+ * Copyright (C) 2026  Philipp Seerainer
  * philipp@seerainer.com
  *
  * This program is free software; you can redistribute it and/or modify
@@ -146,6 +146,7 @@ public interface StringConstants {
     String systemProp = "System properties";
 
     // Configuration values
+    String CLASS_NOT_INSTANTIABLE = "Class not instantiable";
     String BUNDLE_NAME = "messages";
     String confFile = "config.json";
     String allFExte = "*.*";

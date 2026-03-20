@@ -1,6 +1,6 @@
 /*
  * SecPwdMan
- * Copyright (C) 2025  Philipp Seerainer
+ * Copyright (C) 2026  Philipp Seerainer
  * philipp@seerainer.com
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,10 @@ class Main implements PrimitiveConstants, StringConstants {
     private static final long startTime = System.currentTimeMillis();
 
     private static Display display;
+
+    private Main() {
+	throw new IllegalStateException(CLASS_NOT_INSTANTIABLE);
+    }
 
     private static Display getDisplay() {
 	display = Display.getDefault();
