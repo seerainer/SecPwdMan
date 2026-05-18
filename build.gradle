@@ -71,7 +71,7 @@ dependencies {
     implementation(detectSwtArtifact()) {
         exclude group: 'org.eclipse.platform', module: 'org.eclipse.swt'
     }
-    implementation 'org.slf4j:slf4j-jdk14:2.0.17'
+    implementation 'org.slf4j:slf4j-jdk14:2.0.18'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
     testImplementation 'org.assertj:assertj-core:3.27.7'
