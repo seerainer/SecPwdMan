@@ -19,6 +19,12 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.WDA_EXCLUDEFROMCAPTURE;
+import static io.github.seerainer.secpwdman.config.StringConstants.AFFINITY_FAILED;
+import static io.github.seerainer.secpwdman.config.StringConstants.handle;
+import static io.github.seerainer.secpwdman.config.StringConstants.setAffinity;
+import static io.github.seerainer.secpwdman.config.StringConstants.user32;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
@@ -27,9 +33,6 @@ import java.lang.foreign.ValueLayout;
 
 import org.eclipse.swt.widgets.Shell;
 import org.graalvm.nativeimage.ImageInfo;
-
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * This class provides a method to set the display affinity of a window on
@@ -45,7 +48,7 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  * screen recording software.
  * </p>
  */
-public class Win32Affinity implements PrimitiveConstants, StringConstants {
+public class Win32Affinity {
 
     private static final Arena ARENA = Arena.global();
     private static final FunctionDescriptor FUNCTION_DESCRIPTOR = FunctionDescriptor.of(ValueLayout.JAVA_INT,

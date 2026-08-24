@@ -19,14 +19,14 @@
  */
 package io.github.seerainer.secpwdman.csv;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvException;
 
 /**
  * CSVParseException is an exception class that represents errors encountered
  * during the parsing of CSV data. It includes information about the line number
  * and position in the CSV file where the error occurred.
  */
-public class CSVParseException extends Exception implements StringConstants {
+public class CSVParseException extends Exception {
 
     private static final long serialVersionUID = 1L;
 

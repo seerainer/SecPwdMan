@@ -27,6 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 /**
  * The interface EncryptionStrategy.
@@ -40,4 +41,17 @@ interface EncryptionStrategy {
     byte[] encrypt(byte[] data, byte[] password)
 	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException;
+
+    /**
+     * Encrypts {@code data} using the supplied pre-built {@link SecretKey} (DEK).
+     * No KDF is invoked; the key material comes directly from envelope encryption.
+     */
+    byte[] encryptWithKey(byte[] data, SecretKey key) throws BadPaddingException, IllegalBlockSizeException,
+	    InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException;
+
+    /**
+     * Decrypts {@code data} using the supplied pre-built {@link SecretKey} (DEK).
+     */
+    byte[] decryptWithKey(byte[] data, SecretKey key) throws BadPaddingException, IllegalBlockSizeException,
+	    InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException;
 }

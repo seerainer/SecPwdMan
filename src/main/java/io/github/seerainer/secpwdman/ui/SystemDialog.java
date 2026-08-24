@@ -19,9 +19,19 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.securityProvider;
+import static io.github.seerainer.secpwdman.config.StringConstants.systInfo;
+import static io.github.seerainer.secpwdman.config.StringConstants.systemEnvi;
+import static io.github.seerainer.secpwdman.config.StringConstants.systemProp;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipher;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyStore;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.mac;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.messageDigest;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.signature;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
-import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
 
 import java.security.Provider;
 import java.security.Security;
@@ -36,14 +46,11 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.Icons;
-import io.github.seerainer.secpwdman.config.StringConstants;
-import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 
 /**
  * The record SystemDialog.
  */
-record SystemDialog(Action action) implements CryptoConstants, Icons, StringConstants {
+record SystemDialog(Action action) {
 
     private static class TablePopulator {
 	private TablePopulator() {
@@ -98,7 +105,7 @@ record SystemDialog(Action action) implements CryptoConstants, Icons, StringCons
 	col1.pack();
 	col2.pack();
 
-	setCenter(dialog);
+	dialog.setMaximized(true);
 	image.dispose();
 	dialog.open();
 	return dialog;

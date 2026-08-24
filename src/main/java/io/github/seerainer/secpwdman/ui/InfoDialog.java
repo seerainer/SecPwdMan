@@ -19,6 +19,37 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_INFO;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_VERS;
+import static io.github.seerainer.secpwdman.config.StringConstants.apaAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.apaLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.appAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.appLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.consFont;
+import static io.github.seerainer.secpwdman.config.StringConstants.diaClose;
+import static io.github.seerainer.secpwdman.config.StringConstants.eplAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.eplLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.infoDepe;
+import static io.github.seerainer.secpwdman.config.StringConstants.jsnAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.jsnLicense;
+import static io.github.seerainer.secpwdman.config.StringConstants.jsnLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.logical;
+import static io.github.seerainer.secpwdman.config.StringConstants.mitLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.p4jAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.p4jLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.safeFont;
+import static io.github.seerainer.secpwdman.config.StringConstants.slfAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.slfLicense;
+import static io.github.seerainer.secpwdman.config.StringConstants.slfLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.space;
+import static io.github.seerainer.secpwdman.config.StringConstants.swtAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.swtLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleInf;
+import static io.github.seerainer.secpwdman.config.StringConstants.zxcAddress;
+import static io.github.seerainer.secpwdman.config.StringConstants.zxcLicense;
+import static io.github.seerainer.secpwdman.config.StringConstants.zxcLink;
 import static io.github.seerainer.secpwdman.ui.Widgets.button;
 import static io.github.seerainer.secpwdman.ui.Widgets.group;
 import static io.github.seerainer.secpwdman.ui.Widgets.label;
@@ -34,13 +65,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The record InfoDialog.
  */
-record InfoDialog(Action action) implements PrimitiveConstants, StringConstants {
+record InfoDialog(Action action) {
 
     Shell open() {
 	final var cData = action.getCData();

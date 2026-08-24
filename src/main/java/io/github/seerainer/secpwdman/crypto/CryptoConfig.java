@@ -19,13 +19,23 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_ITER;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_MEMO;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_PARA_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.PBKDF2_ITER;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_N;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+
 import com.password4j.types.Argon2;
 import com.password4j.types.Hmac;
 
 /**
  * The class CryptoConfig.
  */
-public class CryptoConfig implements CryptoConstants {
+public class CryptoConfig {
 
     private int argon2Memo = ARGON2_MEMO;
     private int argon2Iter = ARGON2_ITER;

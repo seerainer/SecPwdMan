@@ -27,6 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 /**
  * The class EncryptionContext.
@@ -48,5 +49,19 @@ public class EncryptionContext {
 	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
 	return strategy.encrypt(data, password);
+    }
+
+    /** Encrypts {@code data} using a pre-built DEK — no KDF invocation. */
+    public byte[] encryptWithKey(final byte[] data, final SecretKey key)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	return strategy.encryptWithKey(data, key);
+    }
+
+    /** Decrypts {@code data} using a pre-built DEK — no KDF invocation. */
+    public byte[] decryptWithKey(final byte[] data, final SecretKey key)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	return strategy.decryptWithKey(data, key);
     }
 }

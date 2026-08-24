@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.AUTOLOCK_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.SECONDS;
+
 import java.util.Objects;
 
 import org.eclipse.swt.SWT;
@@ -26,14 +29,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Listener;
 
 import io.github.seerainer.secpwdman.action.FileAction;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
 
 /**
  * The class AutoLockManager manages automatic locking of the application after
  * a period of inactivity. It listens for user activity and locks the
  * application if no activity is detected within a specified timeout.
  */
-public class AutoLockManager implements PrimitiveConstants {
+public class AutoLockManager {
 
     private static AutoLockManager instance;
 

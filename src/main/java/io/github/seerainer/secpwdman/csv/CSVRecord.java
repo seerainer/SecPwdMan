@@ -19,15 +19,17 @@
  */
 package io.github.seerainer.secpwdman.csv;
 
-import java.util.Arrays;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvRecord;
+import static io.github.seerainer.secpwdman.config.StringConstants.fieldIndex;
+import static io.github.seerainer.secpwdman.config.StringConstants.outOfBounds;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
+import java.util.Arrays;
 
 /**
  * CSVRecord represents a single record in a CSV file, containing an array of
  * fields and the line number where the record is located.
  */
-public class CSVRecord implements StringConstants {
+public class CSVRecord {
 
     private final CSVFieldInfo[] fields;
     private final int lineNumber;

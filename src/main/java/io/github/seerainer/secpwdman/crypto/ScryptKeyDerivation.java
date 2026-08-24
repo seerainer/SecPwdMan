@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.MEM_SIZE;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.OUT_LENGTH;
+
 import javax.crypto.SecretKey;
 
 import com.password4j.Password;
@@ -27,7 +30,7 @@ import com.password4j.ScryptFunction;
 /**
  * The record ScryptKeyDerivation.
  */
-record ScryptKeyDerivation(CryptoConfig cConf) implements CryptoConstants, KeyDerivationStrategy {
+record ScryptKeyDerivation(CryptoConfig cConf) implements KeyDerivationStrategy {
 
     @Override
     public SecretKey deriveKey(final byte[] password, final byte[] salt) {

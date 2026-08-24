@@ -19,13 +19,13 @@
  */
 package io.github.seerainer.secpwdman.csv;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvField;
 
 /**
  * Contains information about a parsed CSV field including its value and
  * metadata
  */
-class CSVFieldInfo implements StringConstants {
+class CSVFieldInfo {
 
     private final String value;
     private final boolean wasQuoted;

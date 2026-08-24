@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.config;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.BUNDLE_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.MISSING_RESOURCE;
+
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -27,7 +30,7 @@ import io.github.seerainer.secpwdman.util.LogFactory;
 /**
  * The class Messages.
  */
-class Messages implements StringConstants {
+class Messages {
 
     private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

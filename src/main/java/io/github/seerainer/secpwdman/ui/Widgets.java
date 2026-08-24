@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.HEAD_BACK;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.HEAD_FORE;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.LINUX;
 import static io.github.seerainer.secpwdman.util.SWTUtil.MACOS;
@@ -57,12 +60,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-
 /**
  * The class Widgets.
  */
-public class Widgets implements PrimitiveConstants {
+public class Widgets {
 
     private Widgets() {
     }

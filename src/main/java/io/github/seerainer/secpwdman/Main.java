@@ -19,14 +19,32 @@
  */
 package io.github.seerainer.secpwdman;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MENU_BACK;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MENU_BORD;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MENU_FORE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.SECONDS;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_VERS;
+import static io.github.seerainer.secpwdman.config.StringConstants.CLASS_NOT_INSTANTIABLE;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.START_TIME;
+import static io.github.seerainer.secpwdman.config.StringConstants.TOTAL_TIME;
+import static io.github.seerainer.secpwdman.config.StringConstants.darkModeExplorerTheme;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuBarBackgroundColor;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuBarBorderColor;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuBarForegroundColor;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellTitleColoring;
+import static io.github.seerainer.secpwdman.config.StringConstants.trueStr;
+import static io.github.seerainer.secpwdman.config.StringConstants.useDarkTheme;
+import static io.github.seerainer.secpwdman.config.StringConstants.useDarkThemeIcons;
+import static io.github.seerainer.secpwdman.config.StringConstants.useSystemTheme;
+import static io.github.seerainer.secpwdman.config.StringConstants.use_WS_BORDER;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
 
 import org.eclipse.swt.widgets.Display;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.ui.MainWindow;
 import io.github.seerainer.secpwdman.util.LogFactory;
 import io.github.seerainer.secpwdman.util.SingleInstanceManager;
@@ -37,7 +55,7 @@ import io.github.seerainer.secpwdman.util.SingleInstanceManager;
  *
  * @author <a href="mailto:philipp@seerainer.com">Philipp Seerainer</a>
  */
-class Main implements PrimitiveConstants, StringConstants {
+class Main {
 
     private static final long startTime = System.currentTimeMillis();
 

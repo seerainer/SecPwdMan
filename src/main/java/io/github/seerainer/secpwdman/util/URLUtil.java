@@ -19,19 +19,21 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_URL_LENGTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.DOMAIN_PATTERN;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Table;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The class URLUtil.
  */
-public class URLUtil implements PrimitiveConstants, StringConstants {
+public class URLUtil {
 
     private static final Pattern PATTERN = Pattern.compile(DOMAIN_PATTERN);
 

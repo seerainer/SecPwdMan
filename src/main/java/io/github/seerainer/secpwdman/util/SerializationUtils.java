@@ -19,6 +19,10 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.DATA_NOT_NULL;
+import static io.github.seerainer.secpwdman.config.StringConstants.DESERIAL_FAILED;
+import static io.github.seerainer.secpwdman.config.StringConstants.SERIAL_FAILED;
+import static io.github.seerainer.secpwdman.config.StringConstants.SERIAL_OBJ_FAILED;
 import static java.util.Objects.isNull;
 
 import java.io.ByteArrayInputStream;
@@ -30,14 +34,12 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
-
 /**
  * The class SerializationUtils - provides secure serialization utilities. This
  * class handles serialization and deserialization of objects with proper memory
  * cleanup and security considerations.
  */
-public class SerializationUtils implements StringConstants {
+public class SerializationUtils {
 
     private static final Logger LOG = LogFactory.getLog();
 

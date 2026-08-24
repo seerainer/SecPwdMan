@@ -19,6 +19,21 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.KEY_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipher;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherChaCha20;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.configNotSet;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.configNull;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.kdfNotSet;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyStore;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.noCipher;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.noSecureRandom;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pkcs12;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.secureKeyTransFailed;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.secureSealedObjectFailed;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.unexpectedValue;
 import static java.util.Objects.isNull;
 
 import java.io.IOException;
@@ -44,7 +59,7 @@ import io.github.seerainer.secpwdman.util.Util;
 /**
  * The class Crypto.
  */
-public class Crypto implements CryptoConstants {
+public class Crypto {
 
     private static final SecureRandom RANDOM_INSTANCE;
 

@@ -19,6 +19,51 @@
  */
 package io.github.seerainer.secpwdman.io;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_POS_XY;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_SIZE_Y;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_VERS;
+import static io.github.seerainer.secpwdman.config.StringConstants.MAJOR_VERSION;
+import static io.github.seerainer.secpwdman.config.StringConstants.appName;
+import static io.github.seerainer.secpwdman.config.StringConstants.appVers;
+import static io.github.seerainer.secpwdman.config.StringConstants.argon2I;
+import static io.github.seerainer.secpwdman.config.StringConstants.argon2M;
+import static io.github.seerainer.secpwdman.config.StringConstants.argon2P;
+import static io.github.seerainer.secpwdman.config.StringConstants.argon2T;
+import static io.github.seerainer.secpwdman.config.StringConstants.autoLoc;
+import static io.github.seerainer.secpwdman.config.StringConstants.buffLen;
+import static io.github.seerainer.secpwdman.config.StringConstants.cipALGO;
+import static io.github.seerainer.secpwdman.config.StringConstants.clearPw;
+import static io.github.seerainer.secpwdman.config.StringConstants.coWidth;
+import static io.github.seerainer.secpwdman.config.StringConstants.deflate;
+import static io.github.seerainer.secpwdman.config.StringConstants.dekSalt;
+import static io.github.seerainer.secpwdman.config.StringConstants.divider;
+import static io.github.seerainer.secpwdman.config.StringConstants.encData;
+import static io.github.seerainer.secpwdman.config.StringConstants.encDek;
+import static io.github.seerainer.secpwdman.config.StringConstants.hmacSHA;
+import static io.github.seerainer.secpwdman.config.StringConstants.keyALGO;
+import static io.github.seerainer.secpwdman.config.StringConstants.keyderf;
+import static io.github.seerainer.secpwdman.config.StringConstants.pbkdf2I;
+import static io.github.seerainer.secpwdman.config.StringConstants.pwdMinL;
+import static io.github.seerainer.secpwdman.config.StringConstants.resizeC;
+import static io.github.seerainer.secpwdman.config.StringConstants.safeFont;
+import static io.github.seerainer.secpwdman.config.StringConstants.scryptN;
+import static io.github.seerainer.secpwdman.config.StringConstants.scryptP;
+import static io.github.seerainer.secpwdman.config.StringConstants.scryptR;
+import static io.github.seerainer.secpwdman.config.StringConstants.shelMax;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellFo;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellPX;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellPY;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellSX;
+import static io.github.seerainer.secpwdman.config.StringConstants.shellSY;
+import static io.github.seerainer.secpwdman.config.StringConstants.tableFo;
+import static io.github.seerainer.secpwdman.config.StringConstants.tabul;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2d;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2id;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekMissing;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pbkdf2;
 import static java.lang.Boolean.valueOf;
 import static java.lang.Integer.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -41,17 +86,14 @@ import com.password4j.types.Hmac;
 
 import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.CryptoConfig;
-import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 import io.github.seerainer.secpwdman.util.SWTUtil;
 import io.github.seerainer.secpwdman.util.Util;
 
 /**
  * The class JsonUtil.
  */
-class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
+class JsonUtil {
 
     private JsonUtil() {
     }
@@ -99,9 +141,37 @@ class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
     	.done().getBytes(UTF_8);
     }
 
-    static byte[] getJsonFile(final ConfigData cData, final byte[] bytes) {
-    	final var encStr = new String(Util.getBase64Encode(bytes), UTF_8);
-    	return getEncryptionValues(cData).value(encData, encStr).end().done().getBytes(UTF_8);
+    /**
+     * Serializes the vault file JSON.
+     *
+     * <p>Layout:</p>
+     * <pre>
+     * {
+     *   "appName": "SecPwdMan",
+     *   "appVersion": "1.2.0",
+     *   "keyALGO": "AES",
+     *   "cipherALGO": "AES_256/GCM/NOPADDING",
+     *   ...KDF params...,
+     *   "encryptedData": "&lt;base64 ciphertext&gt;",
+     *   "encryptedDEK":  "&lt;base64 wrapped DEK&gt;",
+     *   "dekSalt":       "envelope"
+     * }
+     * </pre>
+     *
+     * @param cData      runtime configuration
+     * @param ciphertext encrypted vault data (DEK layer)
+     * @param wrappedDek encrypted DEK (KEK layer)
+     * @return JSON bytes
+     */
+    static byte[] getJsonFile(final ConfigData cData, final byte[] ciphertext, final byte[] wrappedDek) {
+    	final var encStr    = new String(Util.getBase64Encode(ciphertext), UTF_8);
+    	final var dekStr    = new String(Util.getBase64Encode(wrappedDek), UTF_8);
+    	return getEncryptionValues(cData)
+    			.value(encData, encStr)
+    			.value(encDek,  dekStr)
+    			.value(dekSalt, "envelope")
+    		.end()
+    	.done().getBytes(UTF_8);
     }
 
     private static JsonObject getJsonObject(final InputStream is) throws JsonParserException {
@@ -137,6 +207,11 @@ class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
     }
     //@formatter:on
 
+    /**
+     * Validates that the stream contains a well-formed SecPwdMan vault file.
+     * Accepts both new-format files (with {@code encryptedDEK}) and legacy files
+     * (without it, for backward compatibility during transition).
+     */
     static boolean hasCorrectFileFormat(final InputStream is) throws JsonParserException {
 	final var obj = getJsonObject(is);
 	final var data = obj.getString(encData);
@@ -187,8 +262,41 @@ class JsonUtil implements CryptoConstants, PrimitiveConstants, StringConstants {
 	cData.setTableFont(obj.getString(tableFo, fontString));
     }
 
-    static byte[] setJsonFile(final ConfigData cData, final InputStream is) throws JsonParserException {
-	final var dataStr = Util.getBase64Decode(setEncryptionValues(cData, is).getString(encData).getBytes(UTF_8));
-	return Objects.isNull(dataStr) ? new byte[0] : dataStr;
+    /**
+     * Reads vault file metadata and returns the two envelope-encryption artefacts.
+     *
+     * <p>
+     * New format: both {@code encryptedData} and {@code encryptedDEK} fields are
+     * present and base64-encoded.
+     * </p>
+     *
+     * @param cData ConfigData to populate with crypto settings
+     * @param is    stream pointing at the vault JSON
+     * @return {@link EncryptedFile} containing ciphertext and wrapped DEK
+     * @throws JsonParserException      if the JSON is malformed
+     * @throws IllegalArgumentException if {@code encryptedDEK} is absent
+     */
+    static EncryptedFile setJsonFile(final ConfigData cData, final InputStream is) throws JsonParserException {
+	final var obj = setEncryptionValues(cData, is);
+
+	final var dataStr = obj.getString(encData);
+	final var dekStr = obj.getString(encDek);
+
+	if (Util.isBlank(dekStr)) {
+	    throw new IllegalArgumentException(dekMissing);
+	}
+
+	final var ciphertext = Util.getBase64Decode(dataStr != null ? dataStr.getBytes(UTF_8) : new byte[0]);
+	final var wrappedDek = Util.getBase64Decode(dekStr.getBytes(UTF_8));
+
+	return new EncryptedFile(Objects.isNull(ciphertext) ? new byte[0] : ciphertext,
+		Objects.isNull(wrappedDek) ? new byte[0] : wrappedDek);
+    }
+
+    /**
+     * Carries the two envelope-encryption artefacts read from a vault file: the raw
+     * ciphertext and the wrapped DEK blob.
+     */
+    record EncryptedFile(byte[] encryptedData, byte[] wrappedDek) {
     }
 }

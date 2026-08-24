@@ -19,11 +19,18 @@
  */
 package io.github.seerainer.secpwdman.csv;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LF;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.fieldSizeMax;
+import static io.github.seerainer.secpwdman.config.StringConstants.invalidCharAfterClose;
+import static io.github.seerainer.secpwdman.config.StringConstants.invalidCharAfterQuote;
+import static io.github.seerainer.secpwdman.config.StringConstants.invalidParserState;
+import static io.github.seerainer.secpwdman.config.StringConstants.unexpectedQuote;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.CharsetUtil;
 
 /**
@@ -31,7 +38,7 @@ import io.github.seerainer.secpwdman.util.CharsetUtil;
  * character arrays. It supports various configurations and options for handling
  * CSV fields, records, and line endings.
  */
-public class CSVParser implements StringConstants, PrimitiveConstants {
+public class CSVParser {
 
     private final CSVConfiguration config;
 

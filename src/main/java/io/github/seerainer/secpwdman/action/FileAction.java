@@ -19,6 +19,26 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.FILE_ERR;
+import static io.github.seerainer.secpwdman.config.StringConstants.allFExte;
+import static io.github.seerainer.secpwdman.config.StringConstants.allFiles;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorImp;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorInp;
+import static io.github.seerainer.secpwdman.config.StringConstants.imexExte;
+import static io.github.seerainer.secpwdman.config.StringConstants.imexFile;
+import static io.github.seerainer.secpwdman.config.StringConstants.infoImpo;
+import static io.github.seerainer.secpwdman.config.StringConstants.infoNewF;
+import static io.github.seerainer.secpwdman.config.StringConstants.passExte;
+import static io.github.seerainer.secpwdman.config.StringConstants.passFile;
+import static io.github.seerainer.secpwdman.config.StringConstants.quote;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleInf;
+import static io.github.seerainer.secpwdman.config.StringConstants.titlePH;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleWar;
+import static io.github.seerainer.secpwdman.config.StringConstants.warnExit;
+import static io.github.seerainer.secpwdman.config.StringConstants.warnNewF;
+import static io.github.seerainer.secpwdman.config.StringConstants.warnShre;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.closeAllDialogs;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.closeSearchDialog;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.createPasswordDialog;
@@ -63,9 +83,12 @@ public class FileAction extends Action {
 
     private void clearConfidentialData() {
 	final var sensitiveData = cData.getSensitiveData();
+	clear(sensitiveData.getDek());
 	clear(sensitiveData.getDataKey());
 	clear(sensitiveData.getKeyStorePassword());
 	clear(sensitiveData.getKeyStoreData());
+	sensitiveData.setDek(null);
+	sensitiveData.setWrappedDek(null);
 	sensitiveData.setDataKey(null);
 	sensitiveData.setKeyStorePassword(null);
 	sensitiveData.setKeyStoreData(null);

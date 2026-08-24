@@ -19,6 +19,12 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LOG_FILES;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LOG_FILE_SIZE;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.logFileP;
+
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -28,13 +34,10 @@ import java.util.logging.SimpleFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
-
 /**
  * The class LogFactory.
  */
-public class LogFactory implements PrimitiveConstants, StringConstants {
+public class LogFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(LogFactory.class.getName());
 

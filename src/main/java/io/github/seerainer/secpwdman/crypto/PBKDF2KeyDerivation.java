@@ -19,6 +19,8 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.KEY_LENGTH;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -30,7 +32,7 @@ import com.password4j.Password;
 /**
  * The record PBKDF2KeyDerivation.
  */
-record PBKDF2KeyDerivation(CryptoConfig cConf) implements CryptoConstants, KeyDerivationStrategy {
+record PBKDF2KeyDerivation(CryptoConfig cConf) implements KeyDerivationStrategy {
 
     @Override
     public SecretKey deriveKey(final byte[] password, final byte[] salt)

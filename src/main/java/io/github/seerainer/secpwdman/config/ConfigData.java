@@ -19,6 +19,8 @@
  */
 package io.github.seerainer.secpwdman.config;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
+
 import java.util.HashMap;
 
 import org.eclipse.swt.graphics.Color;
@@ -29,7 +31,7 @@ import io.github.seerainer.secpwdman.crypto.CryptoConfig;
 /**
  * The class ConfigData.
  */
-public class ConfigData implements PrimitiveConstants {
+public class ConfigData {
 
     private boolean isClearAfterSave = false;
     private boolean isCompress = true;

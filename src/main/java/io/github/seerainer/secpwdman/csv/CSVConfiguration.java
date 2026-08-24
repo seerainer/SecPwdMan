@@ -19,14 +19,18 @@
  */
 package io.github.seerainer.secpwdman.csv;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.ESCAPE_CHAR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_FIELD_SIZE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MEMORY_SIZE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.QUOTE_CHAR;
 
 /**
  * CSVConfiguration is a configuration class for CSV parsing and writing. It
  * allows customization of various parameters such as delimiter, quote
  * character, escape character, and buffer sizes.
  */
-public class CSVConfiguration implements PrimitiveConstants {
+public class CSVConfiguration {
 
     private final char delimiter;
     private final char quote;

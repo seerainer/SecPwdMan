@@ -19,6 +19,70 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.Icons.GEAR;
+import static io.github.seerainer.secpwdman.config.Icons.KEY;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.AUTOLOCK_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.AUTOLOCK_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUFFER_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUFFER_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CLEAR_PWD_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CLEAR_PWD_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.COL_MAX_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.COL_MIN_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.TEST_SIZE;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.TIME_CRYPTO;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgAESGC;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgArgon;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgAutoL;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgBuffL;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgCHA20;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgClPwd;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgColWh;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgDefla;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgDivid;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgEnTab;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgEncry;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgMinPl;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgOpTab;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgPIter;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgRecAr;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgScryp;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgTestB;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgTestI;
+import static io.github.seerainer.secpwdman.config.StringConstants.cfgTitle;
+import static io.github.seerainer.secpwdman.config.StringConstants.diaCancl;
+import static io.github.seerainer.secpwdman.config.StringConstants.dialOkay;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorSev;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleInf;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_ITER_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_ITER_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_MEMO_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_MEMO_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_PARA_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.ARGON2_PARA_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.OUT_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.PBKDF2_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.PBKDF2_MIN_SHA256;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.PBKDF2_MIN_SHA512;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_N;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MIN;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2d;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2id;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherChaCha20;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyChaCha20;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pbkdf2;
 import static io.github.seerainer.secpwdman.ui.Widgets.button;
 import static io.github.seerainer.secpwdman.ui.Widgets.cTabItem;
 import static io.github.seerainer.secpwdman.ui.Widgets.combo;
@@ -49,19 +113,15 @@ import com.password4j.types.Argon2;
 import com.password4j.types.Hmac;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.Icons;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
 import io.github.seerainer.secpwdman.crypto.CryptoConfig;
-import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 import io.github.seerainer.secpwdman.crypto.CryptoFactory;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The record ConfigDialog.
  */
-record ConfigDialog(Action action) implements CryptoConstants, Icons, PrimitiveConstants, StringConstants {
+record ConfigDialog(Action action) {
 
     private static final Logger LOG = LogFactory.getLog();
 

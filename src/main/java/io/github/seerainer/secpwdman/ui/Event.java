@@ -19,6 +19,7 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
 import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
 import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
 import static org.eclipse.swt.events.MenuListener.menuShownAdapter;
@@ -50,12 +51,11 @@ import io.github.seerainer.secpwdman.action.EditAction;
 import io.github.seerainer.secpwdman.action.FileAction;
 import io.github.seerainer.secpwdman.action.ViewAction;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The class Event.
  */
-class Event implements StringConstants {
+class Event {
 
     private final ConfigData cData = new ConfigData();
 

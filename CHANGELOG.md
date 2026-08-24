@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Envelope encryption** following the [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#encrypting-stored-keys): vault data is now encrypted with a randomly generated 256-bit Data Encryption Key (DEK); the DEK is itself encrypted by a Key Encryption Key (KEK) derived from the master password via the configured KDF (Argon2, scrypt, or PBKDF2)
+- `EnvelopeCrypto` class implementing DEK generation, DEK wrap/unwrap (KEK layer, always AES-256-GCM), and data encrypt/decrypt (DEK layer, AES-256-GCM or ChaCha20-Poly1305)
+- `EnvelopeCryptoTest` — 24 unit tests covering all KDF × cipher × Argon2 × HMAC combinations, password-change-without-re-encryption, wrong-key/wrong-password rejection, and 1 MB data round-trip
+
+### Changed
+
+- **Password file format**: the JSON vault file now stores an `encryptedDEK` field (base64-encoded DEK wrapped by the KEK) alongside the existing `encryptedData` field; the master password no longer directly derives the data encryption key
+- Changing the master password now only re-wraps the DEK — vault data is not re-encrypted
+- `SensitiveData`: added `dek` (plaintext DEK, session-only) and `wrappedDek` fields; the plaintext DEK is zeroed on lock and on close alongside all other key material
+- `EncryptionStrategy`, `AESEncryptionStrategy`, `ChaCha20EncryptionStrategy`, `EncryptionContext`: added `encryptWithKey` / `decryptWithKey` methods that accept a pre-built `SecretKey` (DEK) and skip KDF derivation
+- `IO.saveFile` / `IO.openFile`: rewired to use envelope encryption; session DEK is generated once per vault and retained in `SensitiveData` while unlocked
+- `JsonUtil`: `getJsonFile` now serialises both ciphertext and wrapped DEK; `setJsonFile` returns an `EncryptedFile` record carrying both artefacts
+- Constants: refactored all four constant interfaces (`PrimitiveConstants`, `StringConstants`, `CryptoConstants`, `Icons`) from the Constant Interface anti-pattern (Effective Java Item 22) to `final` utility classes with `private` constructors; all usages updated to `static import`
+
 ## [1.2.0] - 2025-10-23
 
 ### Added

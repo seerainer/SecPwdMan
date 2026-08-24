@@ -20,11 +20,11 @@
 package io.github.seerainer.secpwdman.config;
 
 /**
- * The class IMG.
+ * The class Icons.
  */
-public interface Icons {
+public final class Icons {
 
-    String APP_ICON = """
+    public static final String APP_ICON = """
     	iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCA1LjEu
     	Mvu8A7YAAAC2ZVhJZklJKgAIAAAABQAaAQUAAQAAAEoAAAAbAQUAAQAAAFIAAAAoAQMAAQAAAAIA
@@ -49,7 +49,7 @@ public interface Icons {
     	VXqeEtuF/Z7P7zVbdrR0PiB6tP4jfolUGQAzwp3NPxz+CfN5lj/v2aIPRvxIXBXP7MeIMcb8BbxF
     	Y4ZH5x0NAAAAAElFTkSuQmCC
     	""";
-    String DEL = """
+    public static final String DEL = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALsSURBVDhPfZLfaxRXFMfPvfN7du7dnTHiW1tU
     	RGoWTEqxlUCUPjfNEh/8ga8iJQ+CCBpBpD70wT+gRXyRNa34skHfFaENTQop1kKhD6HVINlkd2Z2
@@ -66,7 +66,7 @@ public interface Icons {
     	Wi/Ad6rDZUSbTKhyBwdCemSIQ0iCAYC93UWudUpcXhyF3yCuPFhHnj0Ljvl76vYgTBwIhPwQDllw
     	Owmdv7JB9znyrDn+5x/eC7+B/+XhOvLtFvP6T9Kh/XecDr/9F1llXKAeIDOEAAAAAElFTkSuQmCC
     	""";
-    String EDIT = """
+    public static final String EDIT = """
     	iVBORw0KGgoAAAANSUhEUgAAAA4AAAAQCAYAAAAmlE46AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJLSURBVDhPfVFNTxNRFD1vZjozHSgl1KKTGBUS
     	IwhWVqQxMYatMcrWnbo0MSbu+BNuXLgxYeXChSGuXbgiiBpj2mBNUSsYFGmZUjof7WPmjXemI0gk
@@ -81,7 +81,7 @@ public interface Icons {
     	XkKSY0JvLUH6EBEhakEgSEMX1fIGfjRPYTsoYu3cfdTNCwiCEIEvyCfwxRoA/AZe65Yyx/C+rQAA
     	AABJRU5ErkJggg==
     	""";
-    String EXIT = """
+    public static final String EXIT = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJESURBVDhPjVNLaxRBEP66Z3Z2loCJ+8jV3UQk
     	LJFkw6J48pCL4M9QSUyiAdFD9Cge8wc8iqhkEzdrkjUPDxI8CYJ4EsGsZ9HM7qzGeez0WN2zLySo
@@ -96,7 +96,7 @@ public interface Icons {
     	VmXMJkydbMtz8DPwv7Pl6Qt5nfPHca4VDCbp/ftJSwIxrtVijF/9DRK/XgxJJfY/AAAAAElFTkSu
     	QmCC
     	""";
-    String GEAR = """
+    public static final String GEAR = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMOSURBVDhPdVNLbFNHFL1vfs92sJ0ozgsNlI8E
     	Ef+f6IJKVRoKYkEDLApiAwg2bEACBBKfBTs2LNmyAoRgA6UNCAQoUAHFpCKYT1KgBQQJsWQS2yH2
@@ -114,7 +114,7 @@ public interface Icons {
     	K4fM4opqOexYt3XpA3PSMylUzW0zXnVsmP/ww8vC5pH82I+FwfLWFT/NGrfcbz7nGxdyi8wbOGfq
     	3YAp3tfRNb/WVJMB8AVxHYQpREEr2gAAAABJRU5ErkJggg==
     	""";
-    String INFO = """
+    public static final String INFO = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGjSURBVDhPjVO9TgMxDLZzP+UopWWiEjsDYmkX
     	Rrog8RAgMfAACCZATOU9WNgYunZkQOIRQEBVIcSMQCrttZcEO7mfUIpU6z7Zzud8cXIJ7rZfq6WV
@@ -126,7 +126,7 @@ public interface Icons {
     	rZPHqyAKDsLKAngh/7DCuI5NTD0mpBxpUI6TO2wdP2zQM74Wvmjwa2RyHhMe9lGIwx+kXr/0Ynjw
     	7AAAAABJRU5ErkJggg==
     	""";
-    String KEY = """
+    public static final String KEY = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAInSURBVDhPjVJNaBNREJ55b9PsJpWmUalWrVSD
     	IIqIN8WDB6GJ4F0UivZkT0V68VAE70XqJRe9FDFiUU9eFIs/eBHJTZH4Ew9CiYKmNNnft/vG2U0u
@@ -140,7 +140,7 @@ public interface Icons {
     	7tWffl4qsLVUWcwDzicHntn2w3tj88+nk+gAEGRH++M7iU355PuuftoLDQbheuEt148+s+wfnY66
     	PLHwYqUfGwAAfwFmeeyX/q34wgAAAABJRU5ErkJggg==
     	""";
-    String LINK = """
+    public static final String LINK = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAMLSURBVDhPhVJrSBRRFL4zd2afs2turrVZSAUV
     	BD2gP1n2XCvfbqVoavRA+mGE9Phn/ehHRAhRERtEJPSiIFHUIoyegpWvdW0zksRan7u6r5ndnbkz
@@ -158,7 +158,7 @@ public interface Icons {
     	kMkUDffpGV2l3qCr1GhVNRRNb8S/4gj42APzNccB3zialIy1OW2iKH7n2IgJm8MgRNFEJMzXB33s
     	ycLDWe5E7RwA4Be1l3BVNBHJmQAAAABJRU5ErkJggg==
     	""";
-    String LOCK = """
+    public static final String LOCK = """
     	iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIlSURBVDhPXVHPaxNBFH4zszPZ3XRtBSu2Gnpo
     	Szz0oN5sMAeR4sFCLx78BwTxUBC8eVPw5kUoithTUap4UxDxVAmCP/AgHlQaL73YEm2yye5mJzvj
@@ -172,7 +172,7 @@ public interface Icons {
     	xLAwSUCNTMlhJpHE6RrjoJNpQBDTvgZuvpXlch7fiiiQbPX0wl8qxXmICmNZh0MPYXKOCP/HmBOO
     	EzlWOiEL6J1/BaQmzWCLMzoAAAAASUVORK5CYII=
     	""";
-    String MASTER_KEY = """
+    public static final String MASTER_KEY = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAC7ElEQVR42oWSXUiTYRTHz/N+7H3f
     	fbgPN5bLMdecztKcpSEq2zRoEoYEGRUYeWMKSkJeeFVYmURIlwu9CQNdiDKpCLqIyiC6ScyisUij
     	0j78bM25j3d7euc2zaB64Fw85znnd875nwfBH2d4aETCsuxpwUooilomKXK4psY2BX856PfL4OCQ
@@ -189,7 +189,7 @@ public interface Icons {
     	bmVomTbLfl0QvWtvyJXJkYdjkAkJQRinQGnDWx+HICFKG3Af23ynO/3VfwEgxho40w8XCgAAAABJ
     	RU5ErkJggg==
     	""";
-    String NEW = """
+    public static final String NEW = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAI1SURBVDhPlZJNaBNBFMffzOxsNsk2UGviNqjr
     	V0AtOaQWPPfgzZsHD+qlXkykevNSFDwoBSlYLCJCLULBS+N6EEQPehC9aC8KglqIiEir2GTrRnd2
@@ -203,7 +203,7 @@ public interface Icons {
     	83e0O5hLsBaNHfArPaAWc/UFEPkRCzktZyYeryvH4JWGn+Megc/N3eDJg0oOmeDaGXP86YZyDMH1
     	7OieXDagYXLB87e+SWnksnmpOtvubwDAH8V14XLEwbzCAAAAAElFTkSuQmCC
     	""";
-    String NOTE = """
+    public static final String NOTE = """
     	iVBORw0KGgoAAAANSUhEUgAAAA0AAAAQCAYAAADNo/U5AAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGPSURBVDhPjVLLTsJAFL3zaA1JSzTwFyw0xp0J
     	v+DKjRu/wI/xD0z8AXeuTdxqogkLMYQENEgBpQUU2umM905bAmoMZ3LamTNz5j5a1u+Mz4SURwCg
@@ -214,7 +214,7 @@ public interface Icons {
     	OLiOa9esSJlDN+8egzkWOhgOYDjKOQxgMpngYW65rIpq7zxhJIHfCW9aLZZgk8QaVpFFouJwYYwG
     	/YOk0e7awMNZXJpZ5wYEw7jWpqlUin/EZkyVbn0DORoaRJDkYCgAAAAASUVORK5CYII=
     	""";
-    String OPEN = """
+    public static final String OPEN = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAYAAAAmL5yKAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFmSURBVDhPlVI9SwNBEH0zd2cSBUtbf0bAzq9K
     	RElhIZb+BFv/g2AtoohlhGgjGkQRUVJqZSFobSGCQrz98G0u0UDuMA73bu5m37ydmV1Jb2trmmBd
@@ -225,7 +225,7 @@ public interface Icons {
     	Psk/D6epnPy9RBXOgX/55EFYeSAeg4D4q5UJfJW3+T3VEfzbeGTYlLn9PQD4BpkN5Z4Cqpj8AAAA
     	AElFTkSuQmCC
     	""";
-    String SAVE = """
+    public static final String SAVE = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJZSURBVDhPjVM7aBRBGP5m9nF7dyEiEmIgnU8Q
     	vUYLC0URg0FFDwsLFVIELC0stLAQlES5RuzF3srSwkqwiNVFC/FR3CXhjEgg98zd7jz8ZvdO0qj5
@@ -240,7 +240,7 @@ public interface Icons {
     	GA6Fa5873AH4k2RROwFj9KbVCeMaRZCF+G/QKVOIk/iXZPkedq36mFjTSGJFJMP17+CIN3pWfW/2
     	end/A6zS9N1pdGYnAAAAAElFTkSuQmCC
     	""";
-    String SEARCH = """
+    public static final String SEARCH = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJ7SURBVDhPjZHNSxRxGMe/v5fZedN9BcNW6WLZ
     	CwlSYaYpKKUHpU7RuVu3ukUWpWB0su79AXUoqEtUpFSuuaCiQR2iFKxdddXUtJ2Z3ZmdaXYclpZK
@@ -256,7 +256,7 @@ public interface Icons {
     	rVqQhAATTrtvMEKLNs3tekByKoGDDUffKETKc0b3Bzifo4Re/Q3Tf+Y0gocfAAAAAABJRU5ErkJg
     	gg==
     	""";
-    String SELA = """
+    public static final String SELA = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEeSURBVDhPldNNK4RRFMDx4y0kymJS7NTslC9A
     	PgOJUuZ7+ATWFpSdlYVsZKXEwsbCQpqGmMbKwmsYMwuT+P818wHOqd/T6em597nn3nN7ImIbUzjH
@@ -265,7 +265,7 @@ public interface Icons {
     	3cRp+PcqMjGGYqcZ/hsiGZ0mjBNsmiTDEhrOMg430juQiWEUXLq3yobwGBfQBy/KMtwbd3sJj3DQ
     	PO7hHswgzuCVdqDtvIZRvMBmKeILfjyHOiZRiojWH/+zRoH14RpQAAAAAElFTkSuQmCC
     	""";
-    String SYSTEM = """
+    public static final String SYSTEM = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHpSURBVDhPlVO/axRBFP5mZndv7zyCjYZ0Nkqq
     	RLASrhE7CdilELuI/4FdOnsxVZpU/miEVIJYaqc2ErkI5hLJniaaiMhdcuF2Z2fGN2/3zEaSQD54
@@ -278,7 +278,7 @@ public interface Icons {
     	55XkoVJqvlzn1D+129gfDI6cGAYhrk5P0cjvj0GHLIvl568f1euN+xTL9+IP03R3rmyUEbyUP7Ui
     	KoUUb/8CEuoXnLElteYAAAAASUVORK5CYII=
     	""";
-    String USER = """
+    public static final String USER = """
     	iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAYAAADJViUEAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIDSURBVDhPXVO/Sx1BEJ6dvX3PIkVUbAxCsBJT
     	pNGnIEYJCoE0IUUQBP+AECEREawUBU3jf2FSBARtLO1E8kAbSYgWIRYSVJLiQUDvbm/9Znd95t48
@@ -291,7 +291,7 @@ public interface Icons {
     	Qq829z/8UCDKVT5Bp/wylEjxHANilMjG0ti6K+ykRoNegLgGlW30D9kq8UXkDDCWJcxeJoC5P4L9
     	q573vd0A9jV2yAY8/gj+DyF1+mv61YQT48nTKefc8S3H2rg6S3coSQAAAABJRU5ErkJggg==
     	""";
-    String WEB = """
+    public static final String WEB = """
     	iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
     	jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAANqSURBVDhPbVNtaJxFEJ6Z3ffjLrl8nNegjbSl
     	DUZqxVSoZ5pC0FBpTat/KiL+iCApLYjpHymK/hDED4gUjCKipaEtWFK0UvyTorZpjaVFDTWt1Jha
@@ -311,4 +311,8 @@ public interface Icons {
     	mYFDaXu+hvvPOG9958parHP6o9VNcWs1SOEA0e+RjD8I4v1rfjx9avD13oiimgH8DQf4j5TZZjOE
     	AAAAAElFTkSuQmCC
     	""";
+
+    private Icons() {
+	throw new UnsupportedOperationException("Class not instantiable");
+    }
 }

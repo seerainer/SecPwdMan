@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.MEM_SIZE;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.OUT_LENGTH;
+
 import javax.crypto.SecretKey;
 
 import com.password4j.Argon2Function;
@@ -27,7 +30,7 @@ import com.password4j.Password;
 /**
  * The record Argon2KeyDerivation.
  */
-record Argon2KeyDerivation(CryptoConfig cConf) implements CryptoConstants, KeyDerivationStrategy {
+record Argon2KeyDerivation(CryptoConfig cConf) implements KeyDerivationStrategy {
 
     @Override
     public SecretKey deriveKey(final byte[] password, final byte[] salt) {

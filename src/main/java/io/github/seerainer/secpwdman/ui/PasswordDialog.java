@@ -19,6 +19,19 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_CONFIRM_HEIGHT;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.diaCancl;
+import static io.github.seerainer.secpwdman.config.StringConstants.dialOkay;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorLen;
+import static io.github.seerainer.secpwdman.config.StringConstants.passConf;
+import static io.github.seerainer.secpwdman.config.StringConstants.passNoMa;
+import static io.github.seerainer.secpwdman.config.StringConstants.passTitl;
+import static io.github.seerainer.secpwdman.config.StringConstants.passWord;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
 import static io.github.seerainer.secpwdman.ui.Widgets.button;
 import static io.github.seerainer.secpwdman.ui.Widgets.emptyLabel;
 import static io.github.seerainer.secpwdman.ui.Widgets.label;
@@ -45,15 +58,13 @@ import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.FileAction;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.io.IO;
 import io.github.seerainer.secpwdman.util.AutoLockManager;
 
 /**
  * The record PasswordDialog.
  */
-record PasswordDialog(FileAction action) implements PrimitiveConstants, StringConstants {
+record PasswordDialog(FileAction action) {
 
     private static void closeDialog(final ConfigData cData, final Shell dialog) {
 	cData.setLocked(false);
