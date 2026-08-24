@@ -29,13 +29,11 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The record ProgressDialog.
  */
-public record ProgressDialog(Action action) implements PrimitiveConstants, StringConstants {
+public record ProgressDialog(Action action) {
 
     Shell open(final String title, final int maximum) {
 	final var layout = getLayout(1, 10, 10, 10, 10, 10, 10);

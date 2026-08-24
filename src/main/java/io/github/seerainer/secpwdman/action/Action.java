@@ -19,6 +19,39 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.ASCII_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUFFER_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DARK_FORE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_TABLE_ENTRIES;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.QUOTE_CHAR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.TABL_BACK;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.CUSTOM_HEADER;
+import static io.github.seerainer.secpwdman.config.StringConstants.DATA_NOT_NULL;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.MAX_ENTRY;
+import static io.github.seerainer.secpwdman.config.StringConstants.TIME_TO_SORT;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrEdit;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrView;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorSev;
+import static io.github.seerainer.secpwdman.config.StringConstants.lineBrk;
+import static io.github.seerainer.secpwdman.config.StringConstants.listFirs;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuEent;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuLock;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuUnlo;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuVent;
+import static io.github.seerainer.secpwdman.config.StringConstants.newLine;
+import static io.github.seerainer.secpwdman.config.StringConstants.nullStr;
+import static io.github.seerainer.secpwdman.config.StringConstants.quote;
+import static io.github.seerainer.secpwdman.config.StringConstants.space;
+import static io.github.seerainer.secpwdman.config.StringConstants.tableHeader;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleMD;
+import static io.github.seerainer.secpwdman.config.StringConstants.titlePH;
+import static io.github.seerainer.secpwdman.config.StringConstants.warnMaxE;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
@@ -63,10 +96,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
-import io.github.seerainer.secpwdman.crypto.CryptoConstants;
 import io.github.seerainer.secpwdman.crypto.KeyStoreManager;
 import io.github.seerainer.secpwdman.csv.CSVConfiguration;
 import io.github.seerainer.secpwdman.csv.CSVParseException;
@@ -84,7 +114,7 @@ import io.github.seerainer.secpwdman.util.Win32Affinity;
 /**
  * Abstract class for actions.
  */
-public abstract class Action implements CryptoConstants, PrimitiveConstants, StringConstants {
+public abstract class Action {
 
     private static final Logger LOG = LogFactory.getLog();
 

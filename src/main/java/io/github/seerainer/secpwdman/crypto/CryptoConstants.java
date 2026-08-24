@@ -20,62 +20,62 @@
 package io.github.seerainer.secpwdman.crypto;
 
 /**
- * The interface CryptoConstants.
+ * The class CryptoConstants.
  */
-public interface CryptoConstants {
+public final class CryptoConstants {
 
-    int IV_LENGTH = 12;
-    int KEY_LENGTH = 256;
-    int MEM_SIZE = 1024;
-    int OUT_LENGTH = 32;
-    int SALT_LENGTH = 16;
-    int TAG_LENGTH = 128;
+    public static final int IV_LENGTH = 12;
+    public static final int KEY_LENGTH = 256;
+    public static final int DEK_BYTES = 32; // 256-bit Data Encryption Key
+    public static final int MEM_SIZE = 1024;
+    public static final int OUT_LENGTH = 32;
+    public static final int SALT_LENGTH = 16;
+    public static final int TAG_LENGTH = 128;
+    public static final int ARGON2_MEMO = 64;
+    public static final int ARGON2_MEMO_MIN = 19;
+    public static final int ARGON2_MEMO_MAX = 512;
+    public static final int ARGON2_ITER = 8;
+    public static final int ARGON2_ITER_MIN = 2;
+    public static final int ARGON2_ITER_MAX = 256;
+    public static final int ARGON2_PARA_MIN = 1;
+    public static final int ARGON2_PARA_MAX = 8;
+    public static final int PBKDF2_ITER = 600000;
+    public static final int PBKDF2_MIN_SHA256 = 600000;
+    public static final int PBKDF2_MIN_SHA512 = 210000;
+    public static final int PBKDF2_MAX = 0x1000000;
+    public static final int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512 };
+    public static final int SCRYPT_R = 8;
+    public static final int SCRYPT_P_MIN = 1;
+    public static final int SCRYPT_P_MAX = 10;
+    public static final String alias = "secpwdman";
+    public static final String cipher = "Cipher";
+    public static final String keyStore = "KeyStore";
+    public static final String mac = "Mac";
+    public static final String messageDigest = "MessageDigest";
+    public static final String pkcs12 = "PKCS12";
+    public static final String signature = "Signature";
+    public static final String keyAES = "AES";
+    public static final String keyChaCha20 = "CHACHA20";
+    public static final String cipherAES = "AES_256/GCM/NOPADDING";
+    public static final String cipherChaCha20 = "CHACHA20-POLY1305";
+    public static final String argon2 = "Argon2";
+    public static final String argon2id = "Argon2id";
+    public static final String argon2d = "Argon2d";
+    public static final String pbkdf2 = "PBKDF2";
+    public static final String SCRYPT = "scrypt";
+    public static final String configNotSet = "CryptoConfig is not set.";
+    public static final String configNull = "CryptoConfig is null.";
+    public static final String kdfNotSet = "KeyDerivation is not set.";
+    public static final String noCipher = "No encryption cipher available.";
+    public static final String noSecureRandom = "No strong SecureRandom instance available.";
+    public static final String noEntryFound = "No SecretKeyEntry found for alias.";
+    public static final String secureKeyTransFailed = "Secure key transformation failed";
+    public static final String secureSealedObjectFailed = "Secure sealed object generation failed";
+    public static final String unexpectedValue = "Unexpected value: ";
+    public static final String dekMissing = "Encrypted DEK is missing from file; cannot decrypt.";
+    public static final String dekUnwrapFailed = "Failed to unwrap DEK: wrong password or corrupted file.";
 
-    int ARGON2_MEMO = 64;
-    int ARGON2_MEMO_MIN = 19;
-    int ARGON2_MEMO_MAX = 512;
-    int ARGON2_ITER = 8;
-    int ARGON2_ITER_MIN = 2;
-    int ARGON2_ITER_MAX = 256;
-    int ARGON2_PARA_MIN = 1;
-    int ARGON2_PARA_MAX = 8;
-
-    int PBKDF2_ITER = 600000;
-    int PBKDF2_MIN_SHA256 = 600000;
-    int PBKDF2_MIN_SHA512 = 210000;
-    int PBKDF2_MAX = 0x1000000;
-
-    int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512 };
-    int SCRYPT_R = 8;
-    int SCRYPT_P_MIN = 1;
-    int SCRYPT_P_MAX = 10;
-
-    String alias = "secpwdman";
-    String cipher = "Cipher";
-    String keyStore = "KeyStore";
-    String mac = "Mac";
-    String messageDigest = "MessageDigest";
-    String pkcs12 = "PKCS12";
-    String signature = "Signature";
-
-    String keyAES = "AES";
-    String keyChaCha20 = "CHACHA20";
-    String cipherAES = "AES_256/GCM/NOPADDING";
-    String cipherChaCha20 = "CHACHA20-POLY1305";
-
-    String argon2 = "Argon2";
-    String argon2id = "Argon2id";
-    String argon2d = "Argon2d";
-    String pbkdf2 = "PBKDF2";
-    String SCRYPT = "scrypt";
-
-    String configNotSet = "CryptoConfig is not set.";
-    String configNull = "CryptoConfig is null.";
-    String kdfNotSet = "KeyDerivation is not set.";
-    String noCipher = "No encryption cipher available.";
-    String noSecureRandom = "No strong SecureRandom instance available.";
-    String noEntryFound = "No SecretKeyEntry found for alias.";
-    String secureKeyTransFailed = "Secure key transformation failed";
-    String secureSealedObjectFailed = "Secure sealed object generation failed";
-    String unexpectedValue = "Unexpected value: ";
+    private CryptoConstants() {
+	throw new UnsupportedOperationException("Class not instantiable");
+    }
 }

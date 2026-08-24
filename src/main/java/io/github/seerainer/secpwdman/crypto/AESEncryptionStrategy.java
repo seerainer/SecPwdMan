@@ -19,6 +19,11 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.IV_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SALT_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.TAG_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,12 +35,13 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
 /**
  * The record AESEncryptionStrategy.
  */
-record AESEncryptionStrategy(CryptoConfig cConf) implements CryptoConstants, EncryptionStrategy {
+record AESEncryptionStrategy(CryptoConfig cConf) implements EncryptionStrategy {
 
     @Override
     public byte[] encrypt(final byte[] data, final byte[] password)
@@ -57,6 +63,36 @@ record AESEncryptionStrategy(CryptoConfig cConf) implements CryptoConstants, Enc
 	final var iv = Arrays.copyOfRange(data, 0, IV_LENGTH);
 	final var salt = Arrays.copyOfRange(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
 	final var key = Crypto.getKeyTransformation(password, salt, cConf);
+	instance.init(Cipher.DECRYPT_MODE, key, getParams(iv));
+	return instance.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
+    }
+
+    /**
+     * Encrypts data using a pre-built DEK (no KDF invocation). The salt field is
+     * zeroed because key derivation is skipped; only the IV is needed for AES-GCM.
+     */
+    @Override
+    public byte[] encryptWithKey(final byte[] data, final SecretKey key)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var instance = Cipher.getInstance(cipherAES);
+	final var iv = Crypto.getRandomValue(IV_LENGTH);
+	final var salt = new byte[SALT_LENGTH]; // zero salt — no KDF, stored for format compatibility
+	instance.init(Cipher.ENCRYPT_MODE, key, getParams(iv));
+	return Crypto.appendValues(iv, salt, instance.doFinal(data));
+    }
+
+    /**
+     * Decrypts data using a pre-built DEK (no KDF invocation).
+     */
+    @Override
+    public byte[] decryptWithKey(final byte[] data, final SecretKey key)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var instance = Cipher.getInstance(cipherAES);
+	final var iv = Arrays.copyOfRange(data, 0, IV_LENGTH);
+	// salt bytes (IV_LENGTH .. IV_LENGTH+SALT_LENGTH) are ignored — key already
+	// supplied
 	instance.init(Cipher.DECRYPT_MODE, key, getParams(iv));
 	return instance.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
     }

@@ -19,6 +19,30 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LF;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_DEFAULT_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.RANDOM_PASSWORD_COUNT;
+import static io.github.seerainer.secpwdman.config.StringConstants.diaClose;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrCust;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrGene;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrLgth;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrPInd;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrRand;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrSpac;
+import static io.github.seerainer.secpwdman.config.StringConstants.passCopy;
+import static io.github.seerainer.secpwdman.config.StringConstants.passCoun;
+import static io.github.seerainer.secpwdman.config.StringConstants.passEmpt;
+import static io.github.seerainer.secpwdman.config.StringConstants.rNumbers;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia1;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia2;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextLoC;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextUpC;
+import static io.github.seerainer.secpwdman.config.StringConstants.toolPGen;
 import static io.github.seerainer.secpwdman.ui.Widgets.button;
 import static io.github.seerainer.secpwdman.ui.Widgets.emptyLabel;
 import static io.github.seerainer.secpwdman.ui.Widgets.group;
@@ -46,15 +70,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.Icons;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.RandomPassword;
 
 /**
  * The record PasswordGeneratorDialog.
  */
-record PasswordGeneratorDialog(Action action) implements Icons, PrimitiveConstants, StringConstants {
+record PasswordGeneratorDialog(Action action) {
 
     private void generate(final int count, final int pwdLength, final Group random, final Text text) {
 	final var buffer = new char[pwdLength * count + count - 1];

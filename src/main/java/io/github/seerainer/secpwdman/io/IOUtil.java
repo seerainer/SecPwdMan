@@ -19,6 +19,18 @@
  */
 package io.github.seerainer.secpwdman.io;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MEMORY_SIZE;
+import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.NO_SETTINGS_FILE;
+import static io.github.seerainer.secpwdman.config.StringConstants.WARN;
+import static io.github.seerainer.secpwdman.config.StringConstants.confFile;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorImp;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorInp;
+import static io.github.seerainer.secpwdman.config.StringConstants.fstop;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.config.StringConstants.userHome;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
@@ -37,14 +49,12 @@ import org.slf4j.Logger;
 import com.grack.nanojson.JsonParserException;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
  * The class IOUtil.
  */
-public class IOUtil implements PrimitiveConstants, StringConstants {
+public class IOUtil {
 
     private static final Logger LOG = LogFactory.getLog();
 

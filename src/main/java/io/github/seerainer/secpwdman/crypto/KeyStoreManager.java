@@ -19,6 +19,12 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.alias;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.noEntryFound;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pkcs12;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.KeyStore;
@@ -29,7 +35,6 @@ import javax.security.auth.DestroyFailedException;
 
 import org.slf4j.Logger;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.util.LogFactory;
 import io.github.seerainer.secpwdman.util.SecureMemory;
 import io.github.seerainer.secpwdman.util.Util;
@@ -37,7 +42,7 @@ import io.github.seerainer.secpwdman.util.Util;
 /**
  * The class KeyStoreManager.
  */
-public class KeyStoreManager implements CryptoConstants, StringConstants {
+public class KeyStoreManager {
 
     private static final Logger LOG = LogFactory.getLog();
 

@@ -19,14 +19,17 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.ERR_SECRET_NULL_OR_EMPTY;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERR_SECURE_MEMORY_FAILED;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERR_SECURE_MEMORY_OP;
+import static io.github.seerainer.secpwdman.config.StringConstants.WARN_ZERO_NATIVE_MEMORY;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
-
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * Utility class for secure native memory operations.
@@ -47,7 +50,7 @@ import io.github.seerainer.secpwdman.config.StringConstants;
  * </ul>
  * </p>
  */
-public class SecureMemory implements StringConstants {
+public class SecureMemory {
 
     private static final Logger LOG = LogFactory.getLog();
 

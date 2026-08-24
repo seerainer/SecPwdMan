@@ -19,6 +19,10 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.MAJOR_VERSION;
+import static io.github.seerainer.secpwdman.config.StringConstants.minus;
+import static io.github.seerainer.secpwdman.config.StringConstants.redot;
+import static io.github.seerainer.secpwdman.config.StringConstants.replus;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -27,12 +31,10 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.UUID;
 
-import io.github.seerainer.secpwdman.config.StringConstants;
-
 /**
  * The class Util.
  */
-public class Util implements StringConstants {
+public class Util {
 
     private Util() {
     }

@@ -19,6 +19,12 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.dialOkay;
+import static io.github.seerainer.secpwdman.config.StringConstants.quote;
+import static io.github.seerainer.secpwdman.config.StringConstants.searMess;
+import static io.github.seerainer.secpwdman.config.StringConstants.searText;
+import static io.github.seerainer.secpwdman.config.StringConstants.searTitl;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleInf;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
@@ -28,12 +34,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The record SearchDialog.
  */
-public record SearchDialog(Action action) implements StringConstants {
+public record SearchDialog(Action action) {
 
     Shell open() {
 	final var layout = getLayout(4, 5, 10, 10, 5, 5, 10);

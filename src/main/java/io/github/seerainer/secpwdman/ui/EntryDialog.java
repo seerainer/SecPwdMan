@@ -19,6 +19,41 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.ECHO_CHAR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.NULL_CHAR;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_DEFAULT_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
+import static io.github.seerainer.secpwdman.config.StringConstants.diaCancl;
+import static io.github.seerainer.secpwdman.config.StringConstants.dialOkay;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrCust;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrEdit;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrGene;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrGrou;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrLgth;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrLink;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrNewe;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrNote;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrPInd;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrPass;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrRand;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrShow;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrSpac;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrTitl;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrUser;
+import static io.github.seerainer.secpwdman.config.StringConstants.entrView;
+import static io.github.seerainer.secpwdman.config.StringConstants.newLine;
+import static io.github.seerainer.secpwdman.config.StringConstants.passShor;
+import static io.github.seerainer.secpwdman.config.StringConstants.rNumbers;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia1;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia2;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextLoC;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextUpC;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleWar;
+import static io.github.seerainer.secpwdman.config.StringConstants.warnUPeq;
 import static io.github.seerainer.secpwdman.ui.Widgets.button;
 import static io.github.seerainer.secpwdman.ui.Widgets.emptyLabel;
 import static io.github.seerainer.secpwdman.ui.Widgets.group;
@@ -52,16 +87,13 @@ import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.Icons;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.io.CharArrayString;
 import io.github.seerainer.secpwdman.util.RandomPassword;
 
 /**
  * The record EntryDialog.
  */
-record EntryDialog(Action action) implements Icons, PrimitiveConstants, StringConstants {
+record EntryDialog(Action action) {
 
     private static int[] getColumnIndexNumbers(final ConfigData cData) {
 	final var length = csvHeader.length;

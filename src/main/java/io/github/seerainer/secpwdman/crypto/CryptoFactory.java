@@ -19,10 +19,14 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyChaCha20;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.unexpectedValue;
+
 /**
  * The class CryptoFactory.
  */
-public class CryptoFactory implements CryptoConstants {
+public class CryptoFactory {
 
     private CryptoFactory() {
     }

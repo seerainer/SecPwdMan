@@ -19,6 +19,9 @@
  */
 package io.github.seerainer.secpwdman.action;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
+import static io.github.seerainer.secpwdman.config.StringConstants.headerOp;
+
 import java.util.Objects;
 
 import org.eclipse.swt.custom.SashForm;

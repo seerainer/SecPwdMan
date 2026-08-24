@@ -35,6 +35,7 @@
 
 ## Features
 - **Encryption:** AES/GCM (256-bit) or ChaCha20-Poly1305 (256-bit)
+- **Envelope Encryption:** OWASP-recommended two-key hierarchy — a random Data Encryption Key (DEK) encrypts vault data; a Key Encryption Key (KEK) derived from the master password wraps the DEK; changing the master password only re-wraps the DEK without re-encrypting vault data
 - **Key Derivation:** Argon2 (recommended), scrypt or PBKDF2
 - **Password Strength Measurement:** Integrated zxcvbn4j
 - **Random Password Generator:** Customizable, supports custom characters
@@ -119,9 +120,11 @@ cd SecPwdMan
 ---
 
 ## Security
-- **Encryption:** All passwords are encrypted with a strong symmetric cipher
-- **Key Derivation:** Uses Argon2, scrypt or PBKDF2 for master password transformation
-- **SecureRandom:** Cryptographically secure random number generation
+- **Envelope Encryption:** Follows the [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#encrypting-stored-keys) — a random 256-bit Data Encryption Key (DEK) encrypts vault data; a Key Encryption Key (KEK) derived from the master password via KDF wraps the DEK; only the encrypted DEK is stored in the vault file, never the KEK
+- **Encryption:** AES-256-GCM or ChaCha20-Poly1305 for vault data; AES-256-GCM always used for the DEK wrapping layer
+- **Key Derivation:** Argon2, scrypt, or PBKDF2 for KEK derivation from the master password
+- **SecureRandom:** Cryptographically secure random number generation (`SecureRandom.getInstanceStrong()`)
+- **Secure Native Memory:** Sensitive data (DEK, master password, keys) held in off-heap native memory via the Foreign Memory API; zeroed immediately after use
 - **Screenshot Protection:** Prevents screen capture on Windows
 - **Secure File Deletion:** Shreds exported files to prevent recovery
 - **Password Strength:** Integrated zxcvbn4j for strength feedback

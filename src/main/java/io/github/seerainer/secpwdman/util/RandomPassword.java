@@ -19,6 +19,15 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.KEYSTORE_PWD_LENGTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.rNumbers;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia1;
+import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia2;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextLoC;
+import static io.github.seerainer.secpwdman.config.StringConstants.rTextUpC;
+import static io.github.seerainer.secpwdman.config.StringConstants.space;
+
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -28,14 +37,12 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
 
 /**
  * The class RandomPassword.
  */
-public class RandomPassword implements PrimitiveConstants, StringConstants {
+public class RandomPassword {
 
     private RandomPassword() {
     }

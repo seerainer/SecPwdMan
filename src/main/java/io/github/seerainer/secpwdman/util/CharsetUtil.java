@@ -19,20 +19,18 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.SECURE_CHARSET_CONVERSION_FAILED;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.isNull;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
-
 /**
  * The class CharsetUtil - provides secure charset conversion operations. All
  * sensitive data operations use SecureMemory for proper security.
  */
-public class CharsetUtil implements PrimitiveConstants, StringConstants {
+public class CharsetUtil {
 
     private CharsetUtil() {
     }

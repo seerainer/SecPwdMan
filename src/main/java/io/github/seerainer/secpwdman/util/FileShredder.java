@@ -19,6 +19,17 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_FILE_SIZE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.RAND_BUFFER_SIZE;
+import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
+import static io.github.seerainer.secpwdman.config.StringConstants.FILE_TOO_LARGE;
+import static io.github.seerainer.secpwdman.config.StringConstants.TIME_TO_SHRED;
+import static io.github.seerainer.secpwdman.config.StringConstants.WARN;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorFil;
+import static io.github.seerainer.secpwdman.config.StringConstants.errorShr;
+import static io.github.seerainer.secpwdman.config.StringConstants.fileMode;
+import static io.github.seerainer.secpwdman.config.StringConstants.shredFil;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.createProgressDialog;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 
@@ -31,8 +42,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.slf4j.Logger;
 
 import io.github.seerainer.secpwdman.action.Action;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
 import io.github.seerainer.secpwdman.io.IOUtil;
 import io.github.seerainer.secpwdman.ui.ProgressDialog;
@@ -40,7 +49,7 @@ import io.github.seerainer.secpwdman.ui.ProgressDialog;
 /**
  * The class FileShredder.
  */
-public class FileShredder implements PrimitiveConstants, StringConstants {
+public class FileShredder {
 
     private static final Logger LOG = LogFactory.getLog();
 

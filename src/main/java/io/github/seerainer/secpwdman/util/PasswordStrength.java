@@ -19,6 +19,15 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.StringConstants.empty;
+import static io.github.seerainer.secpwdman.config.StringConstants.newLine;
+import static io.github.seerainer.secpwdman.config.StringConstants.passFair;
+import static io.github.seerainer.secpwdman.config.StringConstants.passSecu;
+import static io.github.seerainer.secpwdman.config.StringConstants.passShor;
+import static io.github.seerainer.secpwdman.config.StringConstants.passStro;
+import static io.github.seerainer.secpwdman.config.StringConstants.passWeak;
+
 import java.nio.CharBuffer;
 
 import org.eclipse.swt.SWT;
@@ -27,13 +36,11 @@ import org.eclipse.swt.widgets.Label;
 import com.nulabinc.zxcvbn.Zxcvbn;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The class PasswordStrength.
  */
-public class PasswordStrength implements PrimitiveConstants, StringConstants {
+public class PasswordStrength {
 
     private static final Zxcvbn zxcvbn = new Zxcvbn();
 

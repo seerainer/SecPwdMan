@@ -19,6 +19,10 @@
  */
 package io.github.seerainer.secpwdman.util;
 
+import static io.github.seerainer.secpwdman.config.StringConstants.linuxGTK;
+import static io.github.seerainer.secpwdman.config.StringConstants.macCocoa;
+import static io.github.seerainer.secpwdman.config.StringConstants.titleWar;
+import static io.github.seerainer.secpwdman.config.StringConstants.windows;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -39,12 +43,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.StringConstants;
 
 /**
  * The class SWTUtil.
  */
-public class SWTUtil implements StringConstants {
+public class SWTUtil {
 
     public static final boolean DARK = Display.isSystemDarkTheme();
     public static final boolean LINUX = linuxGTK.equals(SWT.getPlatform());

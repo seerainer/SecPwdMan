@@ -19,6 +19,75 @@
  */
 package io.github.seerainer.secpwdman.ui;
 
+import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
+import static io.github.seerainer.secpwdman.config.Icons.DEL;
+import static io.github.seerainer.secpwdman.config.Icons.EDIT;
+import static io.github.seerainer.secpwdman.config.Icons.EXIT;
+import static io.github.seerainer.secpwdman.config.Icons.GEAR;
+import static io.github.seerainer.secpwdman.config.Icons.INFO;
+import static io.github.seerainer.secpwdman.config.Icons.KEY;
+import static io.github.seerainer.secpwdman.config.Icons.LINK;
+import static io.github.seerainer.secpwdman.config.Icons.LOCK;
+import static io.github.seerainer.secpwdman.config.Icons.MASTER_KEY;
+import static io.github.seerainer.secpwdman.config.Icons.NEW;
+import static io.github.seerainer.secpwdman.config.Icons.NOTE;
+import static io.github.seerainer.secpwdman.config.Icons.OPEN;
+import static io.github.seerainer.secpwdman.config.Icons.SAVE;
+import static io.github.seerainer.secpwdman.config.Icons.SEARCH;
+import static io.github.seerainer.secpwdman.config.Icons.SELA;
+import static io.github.seerainer.secpwdman.config.Icons.SYSTEM;
+import static io.github.seerainer.secpwdman.config.Icons.USER;
+import static io.github.seerainer.secpwdman.config.Icons.WEB;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DARK_FORE;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LINK_COL1;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LINK_COL2;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LINK_COL3;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MENU_BACK;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_POS_XY;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_SIZE_Y;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.SASH_FORM_WEIGHT_1;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.SASH_FORM_WEIGHT_2;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.TOOL_BACK;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuAbou;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuChaP;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuClCb;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuClea;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuClos;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuCnot;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuCpwd;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuCurl;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuCusr;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuDels;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuEdit;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuEent;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuExit;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuExpo;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuFile;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuFind;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuFoSh;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuFoTa;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuFont;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuGrou;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuHelp;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuHpwd;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuImpo;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuLock;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuNent;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuOpen;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuOurl;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuPGen;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuPcol;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuPref;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuReaO;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSave;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSear;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSecD;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSela;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSpwd;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuSysI;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuText;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuTool;
+import static io.github.seerainer.secpwdman.config.StringConstants.menuView;
 import static io.github.seerainer.secpwdman.ui.Widgets.menu;
 import static io.github.seerainer.secpwdman.ui.Widgets.menuItem;
 import static io.github.seerainer.secpwdman.ui.Widgets.menuItemSeparator;
@@ -55,16 +124,13 @@ import org.eclipse.swt.widgets.TrayItem;
 
 import io.github.seerainer.secpwdman.action.FileAction;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.config.Icons;
-import io.github.seerainer.secpwdman.config.PrimitiveConstants;
-import io.github.seerainer.secpwdman.config.StringConstants;
 import io.github.seerainer.secpwdman.crypto.Crypto;
 import io.github.seerainer.secpwdman.io.IOUtil;
 
 /**
  * The class MainWindow.
  */
-public class MainWindow implements Icons, PrimitiveConstants, StringConstants {
+public class MainWindow {
 
     private final ConfigData cData;
     private final Event event;
