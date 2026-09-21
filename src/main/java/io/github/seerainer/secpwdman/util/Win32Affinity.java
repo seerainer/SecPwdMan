@@ -74,10 +74,10 @@ public class Win32Affinity {
 	    final var mh = LINKER.downcallHandle(address, FUNCTION_DESCRIPTOR);
 	    final var args0 = Long.class.cast(shell.getClass().getField(handle).get(shell)).longValue();
 	    if ((int) mh.invokeExact(args0, WDA_EXCLUDEFROMCAPTURE) == 0) {
-		LogFactory.getLog().error(AFFINITY_FAILED);
+		LogFactory.getLog(Win32Affinity.class).error(AFFINITY_FAILED);
 	    }
 	} catch (final Throwable t) {
-	    LogFactory.getLog().error(AFFINITY_FAILED, t);
+	    LogFactory.getLog(Win32Affinity.class).error(AFFINITY_FAILED, t);
 	}
     }
 }

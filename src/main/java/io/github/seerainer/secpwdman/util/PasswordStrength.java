@@ -19,7 +19,6 @@
  */
 package io.github.seerainer.secpwdman.util;
 
-import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
 import static io.github.seerainer.secpwdman.config.StringConstants.empty;
 import static io.github.seerainer.secpwdman.config.StringConstants.newLine;
 import static io.github.seerainer.secpwdman.config.StringConstants.passFair;
@@ -48,6 +47,22 @@ public class PasswordStrength {
     }
 
     /**
+     * Maps a zxcvbn score (0-4) to its display text. Extracted so the mapping is
+     * unit-testable without an SWT display.
+     *
+     * @param score the zxcvbn score
+     * @return the display text
+     */
+    static String strengthText(final int score) {
+	return switch (score) {
+	case 2 -> passFair;
+	case 3 -> passStro;
+	case 4 -> passSecu;
+	default -> passWeak;
+	};
+    }
+
+    /**
      * Evaluate the password strength.
      *
      * @param cData the cdata
@@ -56,7 +71,7 @@ public class PasswordStrength {
      */
     public static void evalPasswordStrength(final ConfigData cData, final Label label, final char[] pwd) {
 	final var display = label.getDisplay();
-	if (pwd.length < PWD_MIN_LENGTH) {
+	if (pwd.length < cData.getPasswordMinLength()) {
 	    label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 	    label.setText(passShor);
 	    label.setToolTipText(empty);
@@ -65,15 +80,7 @@ public class PasswordStrength {
 	final var charBuffer = CharBuffer.wrap(pwd);
 	final var strength = zxcvbn.measure(charBuffer);
 	Util.clear(charBuffer.array());
-	var text = passWeak;
-	switch (strength.getScore()) {
-	case 2 -> text = passFair;
-	case 3 -> text = passStro;
-	case 4 -> text = passSecu;
-	default -> {
-	    break;
-	}
-	}
+	final var text = strengthText(strength.getScore());
 	if (text.equals(passWeak) || text.equals(passFair)) {
 	    label.setForeground(display.getSystemColor(SWT.COLOR_RED));
 	} else if (SWTUtil.DARK) {

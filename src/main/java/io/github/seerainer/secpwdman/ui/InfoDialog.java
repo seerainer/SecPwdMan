@@ -55,6 +55,7 @@ import static io.github.seerainer.secpwdman.ui.Widgets.group;
 import static io.github.seerainer.secpwdman.ui.Widgets.label;
 import static io.github.seerainer.secpwdman.ui.Widgets.link;
 import static io.github.seerainer.secpwdman.ui.Widgets.shell;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getFont;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
@@ -80,7 +81,9 @@ record InfoDialog(Action action) {
 	sb.append(APP_NAME).append(space).append(APP_VERS).append(APP_INFO);
 	final var info = label(dialog, SWT.HORIZONTAL, sb.toString());
 	info.setAlignment(SWT.CENTER);
-	info.setFont(getFont(display, consFont, 12, SWT.BOLD));
+	final var infoFont = getFont(display, consFont, 12, SWT.BOLD);
+	info.setFont(infoFont);
+	disposeOnExit(dialog, infoFont);
 	info.setLayoutData(getGridData(SWT.CENTER, SWT.CENTER, 0, 0));
 	layout = getLayout(2, 5, 5, 10, 10, 10, 10);
 	layout.makeColumnsEqualWidth = true;
@@ -101,7 +104,9 @@ record InfoDialog(Action action) {
 	link(depencies, swtAddress, linkColor, swtLink);
 	link(depencies, eplAddress, linkColor, eplLink);
 	final var url = link(dialog, appAddress, linkColor, appLink);
-	url.setFont(getFont(display, safeFont, 13, SWT.BOLD));
+	final var urlFont = getFont(display, safeFont, 13, SWT.BOLD);
+	url.setFont(urlFont);
+	disposeOnExit(dialog, urlFont);
 
 	final var closeBtn = button(dialog, SWT.PUSH, diaClose, widgetSelectedAdapter(_ -> dialog.close()));
 	final var gridData = getGridData(SWT.CENTER, SWT.CENTER, 0, 0);

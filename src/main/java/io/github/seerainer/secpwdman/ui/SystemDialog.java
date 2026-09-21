@@ -30,8 +30,10 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyStore;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.mac;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.messageDigest;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.signature;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
+import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
 
 import java.security.Provider;
 import java.security.Security;
@@ -105,8 +107,9 @@ record SystemDialog(Action action) {
 	col1.pack();
 	col2.pack();
 
-	dialog.setMaximized(true);
-	image.dispose();
+	dialog.setSize(800, 600);
+	setCenter(dialog);
+	disposeOnExit(dialog, image);
 	dialog.open();
 	return dialog;
     }

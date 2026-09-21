@@ -27,6 +27,7 @@ import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_DEFAUL
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.RANDOM_PASSWORD_COUNT;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.SECONDS;
 import static io.github.seerainer.secpwdman.config.StringConstants.diaClose;
 import static io.github.seerainer.secpwdman.config.StringConstants.entrCust;
 import static io.github.seerainer.secpwdman.config.StringConstants.entrGene;
@@ -51,6 +52,7 @@ import static io.github.seerainer.secpwdman.ui.Widgets.shell;
 import static io.github.seerainer.secpwdman.ui.Widgets.spinner;
 import static io.github.seerainer.secpwdman.ui.Widgets.text;
 import static io.github.seerainer.secpwdman.util.PasswordStrength.evalPasswordStrength;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
@@ -143,6 +145,7 @@ record PasswordGeneratorDialog(Action action) {
 	    selectCurrentLine(display, pwdStrengthLabel, text);
 	    if (copyOnClick.getSelection()) {
 		text.copy();
+		display.timerExec(action.getCData().getClearPassword() * SECONDS, action::clearClipboard);
 	    }
 	}));
 
@@ -158,7 +161,7 @@ record PasswordGeneratorDialog(Action action) {
 	dialog.setSize(point.x + size, point.y + size * 5);
 	dialog.setDefaultButton(genBtn);
 	genBtn.setFocus();
-	image.dispose();
+	disposeOnExit(dialog, image);
 	dialog.open();
 	action.setAffinity(dialog);
 	return dialog;
@@ -193,7 +196,11 @@ record PasswordGeneratorDialog(Action action) {
 	}
 	text.setSelection(lineStart, lineEnd);
 	final var password = Arrays.copyOfRange(content, lineStart, lineEnd);
-	evalPasswordStrength(action.getCData(), label, password);
-	clear(content);
+	try {
+	    evalPasswordStrength(action.getCData(), label, password);
+	} finally {
+	    clear(password);
+	    clear(content);
+	}
     }
 }

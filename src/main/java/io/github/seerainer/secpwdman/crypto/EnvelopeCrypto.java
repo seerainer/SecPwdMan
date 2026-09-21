@@ -21,12 +21,15 @@ package io.github.seerainer.secpwdman.crypto;
 
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.DEK_BYTES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.IV_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.MIN_WRAPPED_DEK_LENGTH;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SALT_LENGTH;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.TAG_LENGTH;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekMissing;
-import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekUnwrapFailed;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.unexpectedValue;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -40,7 +43,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 
-import io.github.seerainer.secpwdman.util.SecureMemory;
 import io.github.seerainer.secpwdman.util.Util;
 
 /**
@@ -69,6 +71,10 @@ import io.github.seerainer.secpwdman.util.Util;
  * <li>Both layers use AES-256/GCM/NoPadding with independent random IVs and
  * salts, satisfying the OWASP requirement that the KEK is "at least as strong
  * as the DEK".</li>
+ * <li>Format v1 vaults bind the file metadata (cipher/key algorithms, KDF type
+ * and parameters) as AEAD associated data on both layers, so tampering with
+ * them fails authentication instead of merely deriving a wrong key. Pre-v1
+ * files carry no version field and decrypt without AAD.</li>
  * </ul>
  */
 public final class EnvelopeCrypto {
@@ -91,6 +97,41 @@ public final class EnvelopeCrypto {
 	return Crypto.getRandomValue(DEK_BYTES);
     }
 
+    /**
+     * Canonical associated-data binding for format v1 vaults: every file metadata
+     * value that decryption depends on, in stable order. Both the wrap side and the
+     * unwrap side derive identical bytes from the same {@code CryptoConfig}, so any
+     * tampering with the stored metadata fails GCM/Poly1305 authentication.
+     *
+     * @param cConf crypto configuration (file metadata at open, live settings at
+     *              save)
+     * @return AAD bytes (never empty)
+     */
+    static byte[] aadFor(final CryptoConfig cConf) {
+	final var sb = new StringBuilder(128);
+	sb.append('v').append(cConf.getVaultFormatVersion()).append('|').append(cConf.getKeyALGO()).append('|')
+		.append(cConf.getCipherALGO()).append('|').append(cConf.getKeyDerivation()).append('|')
+		.append(cConf.getArgon2Type()).append('|').append(cConf.getArgon2Memo()).append('|')
+		.append(cConf.getArgon2Iter()).append('|').append(cConf.getArgon2Para()).append('|')
+		.append(cConf.getHmac()).append('|').append(cConf.getPBKDF2Iter()).append('|')
+		.append(cConf.getScryptN()).append('|').append(cConf.getScryptR()).append('|')
+		.append(cConf.getScryptP());
+	return sb.toString().getBytes(UTF_8);
+    }
+
+    /**
+     * Applies the metadata AAD to an initialized cipher. No-op for legacy (pre-v1)
+     * configurations so old vaults keep decrypting unchanged.
+     *
+     * @param cipher cipher in ENCRYPT or DECRYPT mode (before any doFinal)
+     * @param cConf  crypto configuration carrying the format version
+     */
+    static void applyAad(final Cipher cipher, final CryptoConfig cConf) {
+	if (cConf.getVaultFormatVersion() > VAULT_FORMAT_LEGACY) {
+	    cipher.updateAAD(aadFor(cConf));
+	}
+    }
+
     // -------------------------------------------------------------------------
     // DEK wrap / unwrap (KEK layer — password-derived)
     // -------------------------------------------------------------------------
@@ -106,31 +147,36 @@ public final class EnvelopeCrypto {
      *   [ 12-byte IV | 16-byte salt | AES-256-GCM(DEK) + 16-byte auth-tag ]
      * </pre>
      *
-     * @param dek      plaintext DEK (32 bytes); zeroed after use
-     * @param password master password bytes; zeroed after use
+     * @param dek      plaintext DEK (32 bytes); a working copy is zeroed after use,
+     *                 the caller's array is left untouched
+     * @param password master password bytes (owned by the caller, e.g. IO, which
+     *                 zeroes it in {@code finally})
      * @param cConf    crypto configuration (selects KDF and parameters)
      * @return the encrypted DEK blob
      */
-    public static byte[] wrapDek(final byte[] dek, final byte[] password, final CryptoConfig cConf) {
-	return SecureMemory.withSecretMemory(dek.clone(), dekSegment -> {
-	    final var dekBytes = SecureMemory.readFromNative(dekSegment);
-	    try {
-		final var iv = Crypto.getRandomValue(IV_LENGTH);
-		final var salt = Crypto.getRandomValue(SALT_LENGTH);
-		// The KEK layer always uses AES-256-GCM regardless of the data-layer cipher.
-		// A temporary AES-keyed config is used so the KDF always outputs an AES key.
-		final var kekConf = kekConfig(cConf);
-		final var kek = Crypto.getKeyTransformation(password, salt, kekConf);
-		final var cipher = Cipher.getInstance(cipherAES);
-		cipher.init(Cipher.ENCRYPT_MODE, kek, gcmParams(iv));
-		final var encryptedDek = cipher.doFinal(dekBytes);
-		return Crypto.appendValues(iv, salt, encryptedDek);
-	    } catch (final Exception e) {
-		throw new RuntimeException(dekUnwrapFailed, e);
-	    } finally {
-		Util.clear(dekBytes);
-	    }
-	});
+    public static byte[] wrapDek(final byte[] dek, final byte[] password, final CryptoConfig cConf)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	// One heap copy, cleared in finally. (The previous withSecretMemory
+	// wrapper added no protection here: readFromNative always materializes
+	// the same heap copy, while its Function interface forced all JCE
+	// failures into an untyped RuntimeException.)
+	final var dekCopy = dek.clone();
+	try {
+	    final var iv = Crypto.getRandomValue(IV_LENGTH);
+	    final var salt = Crypto.getRandomValue(SALT_LENGTH);
+	    // The KEK layer always uses AES-256-GCM regardless of the data-layer cipher.
+	    // A temporary AES-keyed config is used so the KDF always outputs an AES key.
+	    final var kekConf = kekConfig(cConf);
+	    final var kek = Crypto.getKeyTransformation(password, salt, kekConf);
+	    final var cipher = Cipher.getInstance(cipherAES);
+	    cipher.init(Cipher.ENCRYPT_MODE, kek, gcmParams(iv));
+	    applyAad(cipher, kekConf);
+	    final var encryptedDek = cipher.doFinal(dekCopy);
+	    return Crypto.appendValues(iv, salt, encryptedDek);
+	} finally {
+	    Util.clear(dekCopy);
+	}
     }
 
     /**
@@ -146,7 +192,7 @@ public final class EnvelopeCrypto {
     public static byte[] unwrapDek(final byte[] wrappedDek, final byte[] password, final CryptoConfig cConf)
 	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
-	if (wrappedDek == null || wrappedDek.length == 0) {
+	if (wrappedDek == null || wrappedDek.length < MIN_WRAPPED_DEK_LENGTH) {
 	    throw new IllegalArgumentException(dekMissing);
 	}
 	final var iv = Arrays.copyOfRange(wrappedDek, 0, IV_LENGTH);
@@ -156,6 +202,7 @@ public final class EnvelopeCrypto {
 	final var kek = Crypto.getKeyTransformation(password, salt, kekConf);
 	final var cipher = Cipher.getInstance(cipherAES);
 	cipher.init(Cipher.DECRYPT_MODE, kek, gcmParams(iv));
+	applyAad(cipher, kekConf);
 	return cipher.doFinal(wrappedDek, IV_LENGTH + SALT_LENGTH, wrappedDek.length - IV_LENGTH - SALT_LENGTH);
     }
 
@@ -168,22 +215,21 @@ public final class EnvelopeCrypto {
      * {@code cConf} (AES-256-GCM or ChaCha20-Poly1305).
      *
      * @param data  plaintext bytes
-     * @param dek   256-bit Data Encryption Key (plaintext); zeroed inside
+     * @param dek   256-bit Data Encryption Key (plaintext); a working copy is
+     *              zeroed inside, the caller's array is left untouched
      * @param cConf crypto configuration
      * @return ciphertext blob (IV + salt + ciphertext+tag)
      */
-    public static byte[] encryptWithDek(final byte[] data, final byte[] dek, final CryptoConfig cConf) {
-	return SecureMemory.withSecretMemory(dek.clone(), dekSegment -> {
-	    final var dekBytes = SecureMemory.readFromNative(dekSegment);
-	    try {
-		final var secretKey = Crypto.getSecretKey(dekBytes, cConf.getKeyALGO());
-		return new EncryptionContext(selectStrategy(cConf)).encryptWithKey(data, secretKey);
-	    } catch (final Exception e) {
-		throw new RuntimeException(e);
-	    } finally {
-		Util.clear(dekBytes);
-	    }
-	});
+    public static byte[] encryptWithDek(final byte[] data, final byte[] dek, final CryptoConfig cConf)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var dekCopy = dek.clone();
+	try {
+	    final var secretKey = Crypto.getSecretKey(dekCopy, cConf.getKeyALGO());
+	    return new EncryptionContext(selectStrategy(cConf)).encryptWithKey(data, secretKey);
+	} finally {
+	    Util.clear(dekCopy);
+	}
     }
 
     /**
@@ -191,22 +237,22 @@ public final class EnvelopeCrypto {
      * {@code cConf}.
      *
      * @param ciphertext encrypted blob produced by {@link #encryptWithDek}
-     * @param dek        256-bit Data Encryption Key (plaintext); zeroed inside
+     * @param dek        256-bit Data Encryption Key (plaintext); a working copy is
+     *                   zeroed inside, the caller's array is left untouched
      * @param cConf      crypto configuration
      * @return plaintext bytes
+     * @throws BadPaddingException if the DEK is wrong or the blob is corrupted
      */
-    public static byte[] decryptWithDek(final byte[] ciphertext, final byte[] dek, final CryptoConfig cConf) {
-	return SecureMemory.withSecretMemory(dek.clone(), dekSegment -> {
-	    final var dekBytes = SecureMemory.readFromNative(dekSegment);
-	    try {
-		final var secretKey = Crypto.getSecretKey(dekBytes, cConf.getKeyALGO());
-		return new EncryptionContext(selectStrategy(cConf)).decryptWithKey(ciphertext, secretKey);
-	    } catch (final Exception e) {
-		throw new RuntimeException(e);
-	    } finally {
-		Util.clear(dekBytes);
-	    }
-	});
+    public static byte[] decryptWithDek(final byte[] ciphertext, final byte[] dek, final CryptoConfig cConf)
+	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
+	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	final var dekCopy = dek.clone();
+	try {
+	    final var secretKey = Crypto.getSecretKey(dekCopy, cConf.getKeyALGO());
+	    return new EncryptionContext(selectStrategy(cConf)).decryptWithKey(ciphertext, secretKey);
+	} finally {
+	    Util.clear(dekCopy);
+	}
     }
 
     // -------------------------------------------------------------------------
@@ -227,7 +273,8 @@ public final class EnvelopeCrypto {
      * @return {@link EnvelopeResult} containing both encrypted artefacts
      */
     public static EnvelopeResult seal(final byte[] data, final byte[] dek, final byte[] password,
-	    final CryptoConfig cConf) {
+	    final CryptoConfig cConf) throws BadPaddingException, IllegalBlockSizeException,
+	    InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
 	final var encData = encryptWithDek(data, dek, cConf);
 	final var wrappedDk = wrapDek(dek, password, cConf);
 	return new EnvelopeResult(encData, wrappedDk);
@@ -264,7 +311,8 @@ public final class EnvelopeCrypto {
     private static EncryptionStrategy selectStrategy(final CryptoConfig cConf) {
 	return switch (cConf.getKeyALGO()) {
 	case keyAES -> new AESEncryptionStrategy(cConf);
-	default -> new ChaCha20EncryptionStrategy(cConf);
+	case "CHACHA20" -> new ChaCha20EncryptionStrategy(cConf);
+	default -> throw new IllegalArgumentException(unexpectedValue + cConf.getKeyALGO());
 	};
     }
 
@@ -282,6 +330,7 @@ public final class EnvelopeCrypto {
 	final var kek = new CryptoConfig();
 	kek.setKeyALGO(keyAES);
 	kek.setCipherALGO(cipherAES);
+	kek.setVaultFormatVersion(source.getVaultFormatVersion());
 	kek.setKeyDerivation(source.getKeyDerivation());
 	kek.setArgon2Type(source.getArgon2Type());
 	kek.setArgon2Memo(source.getArgon2Memo());

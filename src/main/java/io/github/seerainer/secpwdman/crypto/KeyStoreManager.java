@@ -44,7 +44,7 @@ import io.github.seerainer.secpwdman.util.Util;
  */
 public class KeyStoreManager {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(KeyStoreManager.class);
 
     private KeyStoreManager() {
     }

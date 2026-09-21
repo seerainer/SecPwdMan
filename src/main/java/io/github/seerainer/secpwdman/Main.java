@@ -105,19 +105,19 @@ class Main {
 
 	    display = getDisplay();
 	    final var mainUI = new MainWindow(display, args);
-	    LogFactory.getLog().info(START_TIME, APP_NAME, Long.valueOf(getTime()));
+	    LogFactory.getLog(Main.class).info(START_TIME, APP_NAME, Long.valueOf(getTime()));
 	    while (!mainUI.getShell().isDisposed()) {
 		if (!display.readAndDispatch()) {
 		    display.sleep();
 		}
 	    }
 	} catch (final Exception e) {
-	    LogFactory.getLog().error(ERROR, e);
+	    LogFactory.getLog(Main.class).error(ERROR, e);
 	} finally {
 	    if (display != null && !display.isDisposed()) {
 		display.dispose();
 	    }
-	    LogFactory.getLog().info(TOTAL_TIME, APP_NAME, Long.valueOf(getTime() / SECONDS));
+	    LogFactory.getLog(Main.class).info(TOTAL_TIME, APP_NAME, Long.valueOf(getTime() / SECONDS));
 	}
     }
 }

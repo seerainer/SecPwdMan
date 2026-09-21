@@ -86,12 +86,12 @@ class SecPwdManIntegrationTest {
     void shouldCreateAndReadConfiguration() throws Exception {
 	// Create test configuration
 	configData.setPasswordMinLength(12);
-	configData.setAutoLockTime(300);
+	configData.setAutoLockTime(30);
 	configData.setBufferLength(8192);
 
 	// Test configuration data
 	assertThat(configData.getPasswordMinLength()).isEqualTo(12);
-	assertThat(configData.getAutoLockTime()).isEqualTo(300);
+	assertThat(configData.getAutoLockTime()).isEqualTo(30);
 	assertThat(configData.getBufferLength()).isEqualTo(8192);
 
 	// Test crypto configuration
@@ -136,6 +136,7 @@ class SecPwdManIntegrationTest {
 
 	// Test with ChaCha20
 	final var chachaConfig = new CryptoConfig();
+	chachaConfig.setKeyALGO("CHACHA20");
 	chachaConfig.setCipherALGO("ChaCha20-Poly1305");
 	final var chachaCrypto = CryptoFactory.crypto(chachaConfig);
 
@@ -344,6 +345,7 @@ class SecPwdManIntegrationTest {
     void shouldWorkWithDifferentEncryptionAlgorithms(final String algorithm) throws Exception {
 	// Setup crypto config
 	final var cryptoConfig = new CryptoConfig();
+	cryptoConfig.setKeyALGO("ChaCha20-Poly1305".equals(algorithm) ? "CHACHA20" : "AES");
 	cryptoConfig.setCipherALGO(algorithm);
 
 	final var crypto = CryptoFactory.crypto(cryptoConfig);

@@ -19,16 +19,19 @@
  */
 package io.github.seerainer.secpwdman.io;
 
-import java.io.CharArrayWriter;
+import java.util.Arrays;
 
 import io.github.seerainer.secpwdman.util.Util;
 
 /**
- * The class CharArrayString.
+ * The class CharArrayString. Wipeable char sequence that never relies on
+ * reflection: the backing buffer is owned by this class and zeroed on clear.
  */
 public class CharArrayString {
 
-    private final CharArrayWriter caw;
+    private final char[] buf;
+
+    private int count;
 
     /**
      * Instantiates a new CharArrayString.
@@ -36,22 +39,35 @@ public class CharArrayString {
      * @param str the String
      */
     public CharArrayString(final String str) {
-	this.caw = new CharArrayWriter();
-	this.caw.write(str, 0, str.length());
+	this.buf = new char[Math.max(16, str.length())];
+	str.getChars(0, str.length(), buf, 0);
+	this.count = str.length();
     }
 
     /**
-     * Clear.
+     * Instantiates a new CharArrayString from a char array without pinning an
+     * intermediate String.
+     *
+     * @param chars the char array (copied)
+     */
+    public CharArrayString(final char[] chars) {
+	this.buf = new char[Math.max(16, chars.length)];
+	System.arraycopy(chars, 0, buf, 0, chars.length);
+	this.count = chars.length;
+    }
+
+    /**
+     * Zero the entire backing buffer and reset the length.
      */
     public void clear() {
-	Util.clear(toCharArray());
-	caw.reset();
+	Util.clear(buf);
+	count = 0;
     }
 
     /**
-     * @return the char array
+     * @return a copy of the live characters
      */
     public char[] toCharArray() {
-	return caw.toCharArray();
+	return Arrays.copyOf(buf, count);
     }
 }

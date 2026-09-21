@@ -21,6 +21,10 @@ package io.github.seerainer.secpwdman.action;
 
 import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
 import static io.github.seerainer.secpwdman.config.StringConstants.headerOp;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_VIEW;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_HIDE_PASS;
+import static io.github.seerainer.secpwdman.ui.Widgets.findMenuItem;
+import static io.github.seerainer.secpwdman.util.SWTUtil.setOwnedFont;
 
 import java.util.Objects;
 
@@ -68,12 +72,14 @@ public class ViewAction extends Action {
 	if (Objects.isNull(fontData)) {
 	    return;
 	}
-	final var font = new Font(shell.getDisplay(), fontData);
 	if (isShell) {
-	    shell.setFont(font);
+	    setOwnedFont(shell, new Font(shell.getDisplay(), fontData));
 	} else {
-	    table.setFont(font);
-	    getList().setFont(font);
+	    final var font = new Font(shell.getDisplay(), fontData);
+	    setOwnedFont(table, font);
+	    // list shares the table font instance; track ownership on both so a
+	    // later change disposes the old instance exactly once (guarded)
+	    setOwnedFont(getList(), font);
 	}
     }
 
@@ -107,8 +113,8 @@ public class ViewAction extends Action {
      * @param e the SelectionEvent
      */
     public void showPasswordColumn(final SelectionEvent e) {
-	final var viewMenu = getMenu().getItem(3).getMenu();
-	if (viewMenu.getItem(7).getSelection()) {
+	final var viewMenu = findMenuItem(getMenu(), MENU_VIEW).getMenu();
+	if (findMenuItem(viewMenu, VIEW_HIDE_PASS).getSelection()) {
 	    hidePasswordColumn();
 	} else if (((MenuItem) e.widget).getSelection()) {
 	    final var map = cData.getColumnMap();

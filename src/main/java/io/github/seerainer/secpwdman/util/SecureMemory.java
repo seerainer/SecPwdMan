@@ -52,7 +52,7 @@ import org.slf4j.Logger;
  */
 public class SecureMemory {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(SecureMemory.class);
 
     private SecureMemory() {
     }

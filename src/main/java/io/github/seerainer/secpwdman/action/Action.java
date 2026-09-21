@@ -52,6 +52,35 @@ import static io.github.seerainer.secpwdman.config.StringConstants.titlePH;
 import static io.github.seerainer.secpwdman.config.StringConstants.warnMaxE;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_NOTES;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_PASS;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_URL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_USER;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_DELETE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_EDIT;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_NEW;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_OPEN_URL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_SELECT_ALL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_CHANGE_KEY;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_CLOSE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_EXPORT;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_IMPORT;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_LOCK;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_OPEN;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FILE_SAVE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.FIND_SEARCH;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_EDIT;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_FILE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_FIND;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_VIEW;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_GROUPS;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_HIDE_PASS;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_READ_ONLY;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_RESIZE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_SHOW_PASS;
+import static io.github.seerainer.secpwdman.ui.MenuIds.VIEW_TEXT;
+import static io.github.seerainer.secpwdman.ui.Widgets.findMenuItem;
+import static io.github.seerainer.secpwdman.ui.Widgets.findToolItem;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
@@ -74,6 +103,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -116,7 +146,7 @@ import io.github.seerainer.secpwdman.util.Win32Affinity;
  */
 public abstract class Action {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(Action.class);
 
     final ConfigData cData;
     final Shell shell;
@@ -132,12 +162,19 @@ public abstract class Action {
      * Clears the clipboard.
      */
     public void clearClipboard() {
-	final var cb = new Clipboard(shell.getDisplay());
-	final var data = new Object[] { nullStr };
-	final var dataTypes = new Transfer[] { TextTransfer.getInstance() };
-	cb.setContents(data, dataTypes, DND.CLIPBOARD);
-	cb.clearContents();
-	cb.dispose();
+	final var display = shell.getDisplay();
+	if (display == null || display.isDisposed()) {
+	    return;
+	}
+	final var cb = new Clipboard(display);
+	try {
+	    final var data = new Object[] { nullStr };
+	    final var dataTypes = new Transfer[] { TextTransfer.getInstance() };
+	    cb.setContents(data, dataTypes, DND.CLIPBOARD);
+	    cb.clearContents();
+	} finally {
+	    cb.dispose();
+	}
     }
 
     /**
@@ -253,63 +290,53 @@ public abstract class Action {
 	hideColumns();
     }
 
+    private static boolean rule(final Map<String, Boolean> states, final String id) {
+	final var state = states.get(id);
+	if (state == null) {
+	    throw new IllegalStateException("No enablement rule for menu item: " + id);
+	}
+	return state.booleanValue();
+    }
+
+    private static void applyStates(final Menu menu, final Map<String, Boolean> states, final String... ids) {
+	for (final var id : ids) {
+	    findMenuItem(menu, id).setEnabled(rule(states, id));
+	}
+    }
+
+    private static void applyToolStates(final ToolBar toolBar, final Map<String, Boolean> states, final String... ids) {
+	for (final var id : ids) {
+	    findToolItem(toolBar, id).setEnabled(rule(states, id));
+	}
+    }
+
     /**
-     * Disables menu and toolbar items.
+     * Disables menu and toolbar items. Items resolve through stable
+     * {@code MenuIds}, never positional indexes; the decision matrix lives in
+     * {@link MenuStates} and the toolbar mirrors its menu counterpart.
      */
     public void enableItems() {
-	final var menu = getMenu();
-	final var file = menu.getItem(0).getMenu();
-	final var edit = menu.getItem(1).getMenu();
-	final var find = menu.getItem(2).getMenu();
-	final var view = menu.getItem(3).getMenu();
-	final var isDefaultHeader = !cData.isCustomHeader();
-	final var isFileOpen = IOUtil.isFileReady(cData.getFile());
-	final var isKeyReady = isKeyStoreReady();
-	final var isModified = cData.isModified();
-	final var isUnlocked = !cData.isLocked();
-	final var isWriteable = !cData.isReadOnly();
-	final var itemCount = table.getItemCount();
-	final var selectionCount = table.getSelectionCount();
+	final var menuBar = getMenu();
+	final var file = findMenuItem(menuBar, MENU_FILE).getMenu();
+	final var edit = findMenuItem(menuBar, MENU_EDIT).getMenu();
+	final var find = findMenuItem(menuBar, MENU_FIND).getMenu();
+	final var view = findMenuItem(menuBar, MENU_VIEW).getMenu();
+	final var state = new MenuStates.State(!cData.isCustomHeader(), IOUtil.isFileReady(cData.getFile()),
+		isKeyStoreReady(), cData.isModified(), !cData.isLocked(), !cData.isReadOnly(), table.getItemCount(),
+		table.getSelectionCount(), isUrl(cData, table), findMenuItem(view, VIEW_HIDE_PASS).getSelection(),
+		findMenuItem(view, VIEW_SHOW_PASS).getSelection());
+	final var states = MenuStates.enabled(state);
 
-	file.getItem(1).setEnabled(!isFileOpen);
-	file.getItem(2).setEnabled(itemCount > 0 && isWriteable && isDefaultHeader);
-	file.getItem(3).setEnabled(isFileOpen);
-	file.getItem(5).setEnabled(isKeyReady && !isModified && isUnlocked && isWriteable);
-	file.getItem(7).setEnabled(isFileOpen && !isModified && isDefaultHeader);
-	file.getItem(9).setEnabled(itemCount == 0 && isUnlocked && isWriteable);
-	file.getItem(10).setEnabled(itemCount > 0);
+	applyStates(file, states, FILE_OPEN, FILE_SAVE, FILE_CLOSE, FILE_CHANGE_KEY, FILE_LOCK, FILE_IMPORT,
+		FILE_EXPORT);
+	applyStates(edit, states, EDIT_NEW, EDIT_EDIT, EDIT_SELECT_ALL, EDIT_DELETE, EDIT_COPY_URL, EDIT_COPY_USER,
+		EDIT_COPY_PASS, EDIT_COPY_NOTES, EDIT_OPEN_URL);
+	applyStates(find, states, FIND_SEARCH);
+	applyStates(view, states, VIEW_READ_ONLY, VIEW_GROUPS, VIEW_SHOW_PASS, VIEW_HIDE_PASS, VIEW_TEXT);
+	findMenuItem(view, VIEW_READ_ONLY).setSelection(cData.isReadOnly());
 
-	edit.getItem(0).setEnabled(isKeyReady && isUnlocked && isWriteable && isDefaultHeader);
-	edit.getItem(1).setEnabled(selectionCount == 1 && isDefaultHeader && isKeyReady);
-	edit.getItem(3).setEnabled(itemCount > 0);
-	edit.getItem(4).setEnabled(selectionCount > 0 && isWriteable);
-	edit.getItem(6).setEnabled(selectionCount == 1 && isDefaultHeader);
-	edit.getItem(7).setEnabled(selectionCount == 1 && isDefaultHeader);
-	edit.getItem(8).setEnabled(selectionCount == 1 && isDefaultHeader);
-	edit.getItem(9).setEnabled(selectionCount == 1 && isDefaultHeader);
-	edit.getItem(11).setEnabled(selectionCount == 1 && isDefaultHeader && isUrl(cData, table));
-
-	find.getItem(0).setEnabled(itemCount > 1);
-
-	view.getItem(0).setEnabled(itemCount > 0 && isFileOpen && isUnlocked && !isModified && isDefaultHeader);
-	view.getItem(0).setSelection(cData.isReadOnly());
-	view.getItem(2).setEnabled(isDefaultHeader);
-	view.getItem(6).setEnabled(view.getItem(7).getSelection() && isFileOpen && isDefaultHeader);
-	view.getItem(7).setEnabled(view.getItem(6).getSelection() && isFileOpen && isDefaultHeader);
-	view.getItem(11).setEnabled(isUnlocked);
-
-	final var toolBar = getToolBar();
-	toolBar.getItem(0).setEnabled(file.getItem(1).getEnabled());
-	toolBar.getItem(1).setEnabled(file.getItem(2).getEnabled());
-	toolBar.getItem(3).setEnabled(file.getItem(7).getEnabled());
-	toolBar.getItem(5).setEnabled(edit.getItem(0).getEnabled());
-	toolBar.getItem(6).setEnabled(edit.getItem(1).getEnabled());
-	toolBar.getItem(8).setEnabled(find.getItem(0).getEnabled());
-	toolBar.getItem(10).setEnabled(edit.getItem(6).getEnabled());
-	toolBar.getItem(11).setEnabled(edit.getItem(7).getEnabled());
-	toolBar.getItem(12).setEnabled(edit.getItem(8).getEnabled());
-	toolBar.getItem(13).setEnabled(edit.getItem(9).getEnabled());
-	toolBar.getItem(15).setEnabled(edit.getItem(11).getEnabled());
+	applyToolStates(getToolBar(), states, FILE_OPEN, FILE_SAVE, FILE_LOCK, EDIT_NEW, EDIT_EDIT, FIND_SEARCH,
+		EDIT_COPY_URL, EDIT_COPY_USER, EDIT_COPY_PASS, EDIT_COPY_NOTES, EDIT_OPEN_URL);
     }
 
     /**
@@ -331,17 +358,53 @@ public abstract class Action {
     }
 
     private String escapeSpecialChar(final char[] chars) {
-	if (!containsSpecialChar(chars)) {
-	    return new String(CharsetUtil.replaceSequence(chars, lineBrk.toCharArray(), space.toCharArray()));
+	// OWASP CSV Injection: neutralize cells starting with =,+,-,@,|,%,tab/CR
+	// by prefixing a single quote. The quote is part of the exported data so
+	// Excel/LibreOffice treat the cell as text instead of a formula.
+	final var safe = sanitizeCsvFormula(chars);
+	if (!containsSpecialChar(safe)) {
+	    try {
+		return new String(CharsetUtil.replaceSequence(safe, lineBrk.toCharArray(), space.toCharArray()));
+	    } finally {
+		if (safe != chars) {
+		    clear(safe);
+		}
+	    }
 	}
 	final var quoteChar1 = quote.toCharArray();
 	final var quoteChar2 = (quote + quote).toCharArray();
-	final var specialCha = CharsetUtil.replaceSequence(chars, quoteChar1, quoteChar2);
+	final var specialCha = CharsetUtil.replaceSequence(safe, quoteChar1, quoteChar2);
+	if (safe != chars) {
+	    clear(safe);
+	}
 	final var result = new char[specialCha.length + quoteChar2.length];
 	System.arraycopy(quoteChar1, 0, result, 0, quoteChar1.length);
 	System.arraycopy(specialCha, 0, result, quoteChar1.length, specialCha.length);
 	System.arraycopy(quoteChar1, 0, result, quoteChar1.length + specialCha.length, quoteChar1.length);
 	return new String(result);
+    }
+
+    private static char[] sanitizeCsvFormula(final char[] chars) {
+	if (chars == null || chars.length == 0) {
+	    return chars;
+	}
+	var start = 0;
+	// Skip leading whitespace/control for trigger detection only; prefix still
+	// applies to the whole cell.
+	while (start < chars.length && (chars[start] == ' ' || chars[start] == '\t')) {
+	    start++;
+	}
+	if (start >= chars.length) {
+	    return chars;
+	}
+	final var c = chars[start];
+	if ((c != '=') && (c != '+') && (c != '-') && (c != '@') && (c != '|') && (c != '%')) {
+	    return chars;
+	}
+	final var prefixed = new char[chars.length + 1];
+	prefixed[0] = '\'';
+	System.arraycopy(chars, 0, prefixed, 1, chars.length);
+	return prefixed;
     }
 
     /**
@@ -570,9 +633,9 @@ public abstract class Action {
 	}
 	passwordColumn.setWidth(0);
 	passwordColumn.setResizable(false);
-	final var viewMenu = getMenu().getItem(3).getMenu();
-	viewMenu.getItem(6).setSelection(false);
-	viewMenu.getItem(7).setSelection(true);
+	final var viewMenu = findMenuItem(getMenu(), MENU_VIEW).getMenu();
+	findMenuItem(viewMenu, VIEW_SHOW_PASS).setSelection(false);
+	findMenuItem(viewMenu, VIEW_HIDE_PASS).setSelection(true);
 	final var title = map.get(csvHeader[2]).intValue();
 	table.getColumn(title).setText(tableHeader[2]);
     }
@@ -614,7 +677,7 @@ public abstract class Action {
      * Resizes the columns.
      */
     public void resizeColumns() {
-	final var resize = getMenu().getItem(3).getMenu().getItem(4).getSelection();
+	final var resize = findMenuItem(findMenuItem(getMenu(), MENU_VIEW).getMenu(), VIEW_RESIZE).getSelection();
 	cData.setResizeCol(resize);
 
 	table.setRedraw(false);
@@ -686,15 +749,17 @@ public abstract class Action {
 
 	final var menu = getMenu();
 	final var tool = getToolBar();
+	final var fileMenu = findMenuItem(menu, MENU_FILE).getMenu();
+	final var editMenu = findMenuItem(menu, MENU_EDIT).getMenu();
 	final var lockText = cData.isLocked() ? menuUnlo : menuLock;
-	menu.getItem(0).getMenu().getItem(7).setText(lockText);
-	tool.getItem(3).setToolTipText(lockText);
+	findMenuItem(fileMenu, FILE_LOCK).setText(lockText);
+	findToolItem(tool, FILE_LOCK).setToolTipText(lockText);
 
 	final var readOnly = cData.isReadOnly();
 	final var readOnlyText = readOnly ? menuVent : menuEent;
-	table.getMenu().getItem(8).setText(readOnlyText);
-	menu.getItem(1).getMenu().getItem(1).setText(readOnlyText);
-	tool.getItem(6).setToolTipText(readOnly ? entrView : entrEdit);
+	findMenuItem(table.getMenu(), EDIT_EDIT).setText(readOnlyText);
+	findMenuItem(editMenu, EDIT_EDIT).setText(readOnlyText);
+	findToolItem(tool, EDIT_EDIT).setToolTipText(readOnly ? entrView : entrEdit);
     }
 
     private void sortTable(final SelectionEvent e) {

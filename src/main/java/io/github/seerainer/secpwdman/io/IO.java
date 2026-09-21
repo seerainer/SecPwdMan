@@ -34,17 +34,25 @@ import static io.github.seerainer.secpwdman.config.StringConstants.errorOut;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorPwd;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorSev;
 import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
+import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.decryptWithDek;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.generateDek;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.seal;
-import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.unseal;
+import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.unwrapDek;
 import static io.github.seerainer.secpwdman.crypto.KeyStoreManager.putPasswordInKeyStore;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
 import static io.github.seerainer.secpwdman.util.RandomPassword.generateKeyStorePassword;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -61,7 +69,6 @@ import com.grack.nanojson.JsonParserException;
 
 import io.github.seerainer.secpwdman.action.Action;
 import io.github.seerainer.secpwdman.config.ConfigData;
-import io.github.seerainer.secpwdman.crypto.EnvelopeCrypto;
 import io.github.seerainer.secpwdman.util.LogFactory;
 
 /**
@@ -86,7 +93,7 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 public class IO {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(IO.class);
 
     private final Action action;
 
@@ -105,11 +112,58 @@ public class IO {
 	    LOG.warn(WARN, FILE_TOO_LARGE);
 	    throw new IOException(errorFil.formatted(IOUtil.getFilePath(filePath)));
 	}
-	return Files.newInputStream(path);
+	// The size pre-check races file growth: cap the stream itself so a file
+	// that grows between check and read fails instead of exhausting memory.
+	return new CappedStream(Files.newInputStream(path), MAX_FILE_SIZE);
     }
 
     static void save(final String filePath, final byte[] fileBytes) throws IOException {
-	Files.write(IOUtil.getPath(filePath), fileBytes);
+	final var path = IOUtil.getPath(filePath).toAbsolutePath();
+	final var parent = path.getParent();
+	if (parent != null) {
+	    Files.createDirectories(parent);
+	    IOUtil.restrictDirectoryPermissions(parent);
+	}
+	// Crash-safe write: temp file in same directory + fsync + atomic move.
+	// A direct Files.write truncate risks a torn vault on power loss.
+	final var tmp = Files.createTempFile(parent, ".secpwdman-", ".tmp");
+	// Restrict before writing: close the window where vault bytes sit in a
+	// file with creation-default permissions.
+	IOUtil.restrictFilePermissions(tmp);
+	try {
+	    Files.write(tmp, fileBytes);
+	    try (final var channel = FileChannel.open(tmp, StandardOpenOption.WRITE)) {
+		channel.force(true);
+	    } catch (final IOException _) {
+		// Best effort: filesystems that do not support force still get atomic move.
+	    }
+	    try {
+		Files.move(tmp, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+	    } catch (final AtomicMoveNotSupportedException _) {
+		Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING);
+	    }
+	    IOUtil.restrictFilePermissions(path);
+	    fsyncParent(parent);
+	} finally {
+	    Files.deleteIfExists(tmp);
+	}
+    }
+
+    /**
+     * Best-effort fsync of the parent directory so the rename itself survives power
+     * loss on POSIX. No-op where directories cannot be opened (Windows).
+     *
+     * @param parent the directory containing the vault file, may be null
+     */
+    private static void fsyncParent(final Path parent) {
+	if (parent == null) {
+	    return;
+	}
+	try (final var dir = FileChannel.open(parent, StandardOpenOption.READ)) {
+	    dir.force(true);
+	} catch (final IOException _) {
+	    // Best effort only.
+	}
     }
 
     /**
@@ -178,9 +232,10 @@ public class IO {
 		final var ciphertext = envelope.encryptedData();
 		final var cConf = cData.getCryptoConfig();
 
-		// Unwrap DEK with KEK derived from user password, then decrypt data
-		bytes = unseal(ciphertext, wrappedDek, password, cConf);
-		dek = EnvelopeCrypto.unwrapDek(wrappedDek, password, cConf);
+		// Single KDF: unwrap once, then decrypt with the recovered DEK.
+		// Previously unseal() + unwrapDek() derived the KEK twice.
+		dek = unwrapDek(wrappedDek, password, cConf);
+		bytes = decryptWithDek(ciphertext, dek, cConf);
 
 		// Keep both the plaintext DEK and the wrapped DEK for this session
 		final var sensitiveData = cData.getSensitiveData();
@@ -205,7 +260,7 @@ public class IO {
 	    LOG.warn(WARN, e);
 	    exMsg = errorImp.formatted(IOUtil.getFilePath(file));
 	} catch (final IllegalBlockSizeException | InvalidAlgorithmParameterException | InvalidKeyException
-		| NoSuchAlgorithmException | NoSuchPaddingException | OutOfMemoryError e) {
+		| NoSuchAlgorithmException | NoSuchPaddingException | OutOfMemoryError | RuntimeException e) {
 	    LOG.error(ERROR, e);
 	    exMsg = errorSev;
 	} finally {
@@ -258,6 +313,10 @@ public class IO {
 		bytes = action.extractData(false);
 		bytes = cData.isCompress() ? IOUtil.deflate(bytes) : bytes;
 
+		// New saves always use the current format (with AAD binding);
+		// opening a legacy file and saving migrates it forward.
+		cConf.setVaultFormatVersion(VAULT_FORMAT_VERSION);
+
 		// Envelope-encrypt: data → DEK layer, DEK → KEK layer
 		final var result = seal(bytes, dek, password, cConf);
 
@@ -274,11 +333,51 @@ public class IO {
 	} catch (final IOException e) {
 	    LOG.error(ERROR, e);
 	    exMsg = errorOut.formatted(IOUtil.getFilePath(file));
+	} catch (final BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException
+		| InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | RuntimeException e) {
+	    // seal() failures (KDF, AES-GCM, bad config) previously escaped as
+	    // uncaught exceptions with no user feedback; fail closed instead.
+	    LOG.error(ERROR, e);
+	    exMsg = errorSev;
 	} finally {
 	    clear(password);
 	    clear(bytes);
 	}
 	msg(action.getShell(), SWT.ICON_ERROR | SWT.OK, titleErr, exMsg);
 	return false;
+    }
+
+    /**
+     * Input stream that fails once more than {@code limit} bytes have been read,
+     * bounding every downstream consumer ({@code readAllBytes}, JSON parsing)
+     * regardless of file growth after the size pre-check.
+     */
+    static final class CappedStream extends FilterInputStream {
+
+	private final long limit;
+	private long read;
+
+	CappedStream(final InputStream in, final long limit) {
+	    super(in);
+	    this.limit = limit;
+	}
+
+	@Override
+	public int read() throws IOException {
+	    final var value = super.read();
+	    if (value >= 0 && ++read > limit) {
+		throw new IOException("Stream exceeds size limit.");
+	    }
+	    return value;
+	}
+
+	@Override
+	public int read(final byte[] bytes, final int offset, final int length) throws IOException {
+	    final var count = super.read(bytes, offset, length);
+	    if (count > 0 && (read += count) > limit) {
+		throw new IOException("Stream exceeds size limit.");
+	    }
+	    return count;
+	}
     }
 }

@@ -26,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
+import javax.crypto.BadPaddingException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -259,7 +261,66 @@ class EnvelopeCryptoTest {
     }
 
     static Stream<Arguments> cipherConfigs() {
-	return Stream.of(Arguments.of("AES", "AES_256/GCM/NOPADDING"), Arguments.of("CHACHA20", "CHACHA20-POLY1305"));
+	return Stream.of(Arguments.of("AES", "AES/GCM/NoPadding"), Arguments.of("CHACHA20", "CHACHA20-POLY1305"));
+    }
+
+    @Test
+    @DisplayName("pre-1.x AES spelling normalizes and still round-trips (old vaults open)")
+    void legacyAesSpellingNormalizes() throws Exception {
+	config.setKeyALGO("AES");
+	config.setCipherALGO("AES_256/GCM/NOPADDING");
+	assertThat(config.getCipherALGO()).isEqualTo("AES/GCM/NoPadding");
+	final var dek = EnvelopeCrypto.generateDek();
+	final var result = EnvelopeCrypto.seal(PLAINTEXT, dek, PASSWORD.clone(), config);
+	final var plain = EnvelopeCrypto.unseal(result.encryptedData(), result.wrappedDek(), PASSWORD.clone(), config);
+	assertThat(plain).isEqualTo(PLAINTEXT);
+    }
+
+    // -------------------------------------------------------------------------
+    // Format v1: AAD-bound metadata
+    // -------------------------------------------------------------------------
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("v1 seal/unseal round-trips with AAD for AES and ChaCha20")
+    void v1SealUnsealRoundTrips() throws Exception {
+	for (final var keyAlgo : new String[] { "AES", "CHACHA20" }) {
+	    final var v1 = new CryptoConfig();
+	    v1.setKeyALGO(keyAlgo);
+	    v1.setCipherALGO("AES".equals(keyAlgo) ? "AES/GCM/NoPadding" : "CHACHA20-POLY1305");
+	    v1.setVaultFormatVersion(1);
+	    final var dek = EnvelopeCrypto.generateDek();
+	    final var result = EnvelopeCrypto.seal(PLAINTEXT, dek, PASSWORD.clone(), v1);
+	    assertThat(EnvelopeCrypto.unseal(result.encryptedData(), result.wrappedDek(), PASSWORD.clone(), v1))
+		    .isEqualTo(PLAINTEXT);
+	}
+    }
+
+    @Test
+    @DisplayName("v1 cipher metadata tampering fails authentication (pure AAD proof)")
+    void v1CipherMetadataTamperRejected() throws Exception {
+	// Downgrade-style tamper: the cipher string affects neither key
+	// derivation nor strategy selection (keyALGO drives both), so only the
+	// AAD can reject it.
+	config.setVaultFormatVersion(1);
+	final var dek = EnvelopeCrypto.generateDek();
+	final var result = EnvelopeCrypto.seal(PLAINTEXT, dek, PASSWORD.clone(), config);
+	config.setCipherALGO("AES/CBC/PKCS5Padding");
+	assertThatThrownBy(
+		() -> EnvelopeCrypto.unseal(result.encryptedData(), result.wrappedDek(), PASSWORD.clone(), config))
+		.isInstanceOf(BadPaddingException.class);
+    }
+
+    @Test
+    @DisplayName("v1 blob rejected on the legacy path (version field is load-bearing)")
+    void v1BlobRejectedWithoutAad() throws Exception {
+	config.setVaultFormatVersion(1);
+	final var dek = EnvelopeCrypto.generateDek();
+	final var result = EnvelopeCrypto.seal(PLAINTEXT, dek, PASSWORD.clone(), config);
+	config.setVaultFormatVersion(0);
+	assertThatThrownBy(
+		() -> EnvelopeCrypto.unseal(result.encryptedData(), result.wrappedDek(), PASSWORD.clone(), config))
+		.isInstanceOf(BadPaddingException.class);
     }
 
     // -------------------------------------------------------------------------

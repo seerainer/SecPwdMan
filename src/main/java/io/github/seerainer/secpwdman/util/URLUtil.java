@@ -48,7 +48,15 @@ public class URLUtil {
      * @return true, if is url
      */
     public static boolean isUrl(final ConfigData cData, final Table table) {
-	return isUrl(table.getSelection()[0].getText(cData.getColumnMap().get(csvHeader[3]).intValue()));
+	final var selection = table.getSelection();
+	if (selection.length == 0) {
+	    return false;
+	}
+	final var index = cData.getColumnMap().get(csvHeader[3]);
+	if (index == null) {
+	    return false;
+	}
+	return isUrl(selection[0].getText(index.intValue()));
     }
 
     /**

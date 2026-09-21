@@ -27,6 +27,7 @@ import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia2;
 import static io.github.seerainer.secpwdman.config.StringConstants.rTextLoC;
 import static io.github.seerainer.secpwdman.config.StringConstants.rTextUpC;
 import static io.github.seerainer.secpwdman.config.StringConstants.space;
+import static io.github.seerainer.secpwdman.util.Util.clear;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -72,10 +73,16 @@ public class RandomPassword {
 	final var isCustomBlank = Util.isBlank(customText);
 	sb.append(!isCustomBlank ? removeDuplicates(customText) : empty);
 	final var spinner = ((Spinner) children[9]).getSelection();
-	var randomPwd = new char[spinner];
-	do {
+	var randomPwd = generate(spinner, sb);
+	// Bounded rejection sampling: coverage requirement can be improbable for
+	// short lengths with many classes. Never hang the UI thread.
+	var attempts = 1;
+	final var maxAttempts = 100;
+	while (isCustomBlank && isWeakPassword(select, randomPwd) && attempts < maxAttempts) {
+	    clear(randomPwd);
 	    randomPwd = generate(spinner, sb);
-	} while (isCustomBlank && isWeakPassword(select, randomPwd));
+	    attempts++;
+	}
 	return randomPwd;
     }
 

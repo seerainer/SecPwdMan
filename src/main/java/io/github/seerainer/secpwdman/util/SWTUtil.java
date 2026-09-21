@@ -31,16 +31,19 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DropTarget;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Widget;
 
 import io.github.seerainer.secpwdman.config.ConfigData;
 
@@ -54,7 +57,118 @@ public class SWTUtil {
     public static final boolean MACOS = macCocoa.equals(SWT.getPlatform());
     public static final boolean WIN32 = windows.equals(SWT.getPlatform());
 
+    private static final String OWNED_FONT_KEY = "SecPwdMan.ownedFont";
+    private static final String OWNED_FONT_ARMED = "SecPwdMan.ownedFontArmed";
+
     private SWTUtil() {
+    }
+
+    /**
+     * Disposes the resource if non-null and not already disposed. SWT {@code Color}
+     * objects do not require disposal since 2020-06, but {@code Font} and
+     * {@code Image} still do.
+     *
+     * @param resource the resource to dispose, may be null
+     */
+    public static void safeDispose(final Resource resource) {
+	if (resource == null || resource.isDisposed()) {
+	    return;
+	}
+	resource.dispose();
+    }
+
+    /**
+     * Disposes the widget if non-null and not already disposed. Child widgets are
+     * disposed automatically with their parent; this is for top-level resources
+     * such as {@code TrayItem} that have no SWT parent.
+     *
+     * @param widget the widget to dispose, may be null
+     */
+    public static void safeDispose(final Widget widget) {
+	if (widget == null || widget.isDisposed()) {
+	    return;
+	}
+	widget.dispose();
+    }
+
+    /**
+     * Disposes the drop target if non-null and not already disposed.
+     *
+     * @param dropTarget the drop target to dispose, may be null
+     */
+    public static void safeDispose(final DropTarget dropTarget) {
+	if (dropTarget == null || dropTarget.isDisposed()) {
+	    return;
+	}
+	dropTarget.dispose();
+    }
+
+    /**
+     * Arranges for the given resources to be disposed when the owner widget is
+     * disposed. All disposals are guarded, so calling this alongside an explicit
+     * disposal in an exit path is safe.
+     *
+     * @param owner     the widget owning the resources
+     * @param resources the resources to dispose with the owner
+     */
+    public static void disposeOnExit(final Widget owner, final Resource... resources) {
+	if (owner == null) {
+	    return;
+	}
+	if (owner.isDisposed()) {
+	    for (final var resource : resources) {
+		safeDispose(resource);
+	    }
+	    return;
+	}
+	owner.addDisposeListener(_ -> {
+	    for (final var resource : resources) {
+		safeDispose(resource);
+	    }
+	});
+    }
+
+    /**
+     * Returns the custom font previously installed via
+     * {@link #setOwnedFont(Control, Font)}, or null if the control still uses its
+     * inherited/system font.
+     *
+     * @param control the control to query
+     * @return the owned font or null
+     */
+    public static Font getOwnedFont(final Control control) {
+	if (control == null || control.isDisposed()) {
+	    return null;
+	}
+	final var data = control.getData(OWNED_FONT_KEY);
+	return data instanceof final Font font ? font : null;
+    }
+
+    /**
+     * Sets a custom font on the control, disposing the previously owned font (if
+     * any) and arranging disposal of the new font when the control is disposed. The
+     * inherited/system font is never disposed.
+     *
+     * @param control the control to set the font on
+     * @param font    the new custom font (takes ownership)
+     */
+    public static void setOwnedFont(final Control control, final Font font) {
+	final var old = getOwnedFont(control);
+	if (old != null && old != font) {
+	    safeDispose(old);
+	}
+	control.setFont(font);
+	control.setData(OWNED_FONT_KEY, font);
+	if (control.getData(OWNED_FONT_ARMED) != null) {
+	    return;
+	}
+	control.setData(OWNED_FONT_ARMED, Boolean.TRUE);
+	control.addDisposeListener(_ -> {
+	    final var data = control.getData(OWNED_FONT_KEY);
+	    if (data instanceof final Font owned) {
+		safeDispose(owned);
+	    }
+	});
     }
 
     /**

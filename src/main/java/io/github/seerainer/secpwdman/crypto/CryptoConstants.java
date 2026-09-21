@@ -56,8 +56,13 @@ public final class CryptoConstants {
     public static final String signature = "Signature";
     public static final String keyAES = "AES";
     public static final String keyChaCha20 = "CHACHA20";
-    public static final String cipherAES = "AES_256/GCM/NOPADDING";
+    public static final String cipherAES = "AES/GCM/NoPadding";
     public static final String cipherChaCha20 = "CHACHA20-POLY1305";
+    /**
+     * Pre-1.x persisted spelling of {@link #cipherAES}; accepted on load and
+     * normalized.
+     */
+    public static final String legacyCipherAES = "AES_256/GCM/NOPADDING";
     public static final String argon2 = "Argon2";
     public static final String argon2id = "Argon2id";
     public static final String argon2d = "Argon2d";
@@ -72,8 +77,13 @@ public final class CryptoConstants {
     public static final String secureKeyTransFailed = "Secure key transformation failed";
     public static final String secureSealedObjectFailed = "Secure sealed object generation failed";
     public static final String unexpectedValue = "Unexpected value: ";
+    /** Vault files without a {@code formatVersion} field predate AAD binding. */
+    public static final int VAULT_FORMAT_LEGACY = 0;
+    /** Current vault format: KDF/cipher metadata bound as AEAD associated data. */
+    public static final int VAULT_FORMAT_VERSION = 1;
+    public static final String unsupportedFormat = "Unsupported vault format version.";
     public static final String dekMissing = "Encrypted DEK is missing from file; cannot decrypt.";
-    public static final String dekUnwrapFailed = "Failed to unwrap DEK: wrong password or corrupted file.";
+    public static final int MIN_WRAPPED_DEK_LENGTH = IV_LENGTH + SALT_LENGTH + 16;
 
     private CryptoConstants() {
 	throw new UnsupportedOperationException("Class not instantiable");

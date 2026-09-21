@@ -41,7 +41,7 @@ class Messages {
 	try {
 	    return RESOURCE_BUNDLE.getString(key);
 	} catch (final MissingResourceException e) {
-	    LogFactory.getLog().error(MISSING_RESOURCE, key);
+	    LogFactory.getLog(Messages.class).error(MISSING_RESOURCE, key);
 	    return new StringBuilder().append('!').append(key).append('!').toString();
 	}
     }

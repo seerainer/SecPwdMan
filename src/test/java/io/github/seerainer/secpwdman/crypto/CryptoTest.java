@@ -18,6 +18,8 @@
  */
 package io.github.seerainer.secpwdman.crypto;
 
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyChaCha20;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -55,12 +57,12 @@ class CryptoTest {
     private EncryptionContext crypto;
 
     private static Stream<Arguments> provideCryptoConfigurationCombinations() {
-	return Stream.of(Arguments.of(CryptoConfig.KDF.Argon2, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
-		Arguments.of(CryptoConfig.KDF.Argon2, "ChaCha20-Poly1305", Argon2.ID, Hmac.SHA256),
-		Arguments.of(CryptoConfig.KDF.PBKDF2, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
-		Arguments.of(CryptoConfig.KDF.PBKDF2, "ChaCha20-Poly1305", Argon2.D, Hmac.SHA512),
-		Arguments.of(CryptoConfig.KDF.scrypt, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
-		Arguments.of(CryptoConfig.KDF.scrypt, "ChaCha20-Poly1305", Argon2.D, Hmac.SHA512));
+	return Stream.of(Arguments.of(CryptoConfig.KDF.Argon2, keyAES, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
+		Arguments.of(CryptoConfig.KDF.Argon2, keyChaCha20, "ChaCha20-Poly1305", Argon2.ID, Hmac.SHA256),
+		Arguments.of(CryptoConfig.KDF.PBKDF2, keyAES, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
+		Arguments.of(CryptoConfig.KDF.PBKDF2, keyChaCha20, "ChaCha20-Poly1305", Argon2.D, Hmac.SHA512),
+		Arguments.of(CryptoConfig.KDF.scrypt, keyAES, "AES/GCM/NoPadding", Argon2.D, Hmac.SHA256),
+		Arguments.of(CryptoConfig.KDF.scrypt, keyChaCha20, "ChaCha20-Poly1305", Argon2.D, Hmac.SHA512));
     }
 
     @BeforeEach
@@ -189,6 +191,7 @@ class CryptoTest {
     @ValueSource(strings = { "AES/GCM/NoPadding", "ChaCha20-Poly1305" })
     @DisplayName("Should work with different cipher algorithms")
     void shouldWorkWithDifferentCipherAlgorithms(final String cipher) throws Exception {
+	config.setKeyALGO("ChaCha20-Poly1305".equals(cipher) ? keyChaCha20 : keyAES);
 	config.setCipherALGO(cipher);
 	crypto = CryptoFactory.crypto(config);
 
@@ -215,10 +218,11 @@ class CryptoTest {
     @ParameterizedTest
     @MethodSource("provideCryptoConfigurationCombinations")
     @DisplayName("Should work with various crypto configuration combinations")
-    void shouldWorkWithVariousCryptoConfigurationCombinations(final CryptoConfig.KDF kdf, final String cipher,
-	    final Argon2 argon2Type, final Hmac hmac) throws Exception {
+    void shouldWorkWithVariousCryptoConfigurationCombinations(final CryptoConfig.KDF kdf, final String keyAlgo,
+	    final String cipher, final Argon2 argon2Type, final Hmac hmac) throws Exception {
 
 	config.setKeyDerivation(kdf);
+	config.setKeyALGO(keyAlgo);
 	config.setCipherALGO(cipher);
 
 	if (kdf == CryptoConfig.KDF.Argon2) {

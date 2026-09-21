@@ -51,7 +51,7 @@ import io.github.seerainer.secpwdman.ui.ProgressDialog;
  */
 public class FileShredder {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(FileShredder.class);
 
     private FileShredder() {
     }

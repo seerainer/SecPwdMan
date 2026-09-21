@@ -67,21 +67,30 @@ public class EditAction extends Action {
 	if (index == cData.getColumnMap().get(csvHeader[5]).intValue()) {
 	    final var text = text(shell, SWT.SINGLE);
 	    final var cas = new CharArrayString(item.getText(index));
-	    final var password = decryptPassword(cas.toCharArray());
-	    text.setTextChars(password);
-	    clear(password);
-	    text.selectAll();
-	    text.copy();
-	    text.dispose();
-	    display.timerExec(cData.getClearPassword() * SECONDS, this::clearClipboard);
+	    final var raw = cas.toCharArray();
+	    final var password = decryptPassword(raw);
+	    clear(raw);
+	    cas.clear();
+	    try {
+		text.setTextChars(password);
+		text.selectAll();
+		text.copy();
+	    } finally {
+		clear(password);
+		text.dispose();
+	    }
 	} else {
 	    final var cb = new Clipboard(display);
-	    final var str = item.getText(index);
-	    final var data = new Object[] { isBlank(str) ? nullStr : str };
-	    final var dataTypes = new Transfer[] { TextTransfer.getInstance() };
-	    cb.setContents(data, dataTypes, DND.CLIPBOARD);
-	    cb.dispose();
+	    try {
+		final var str = item.getText(index);
+		final var data = new Object[] { isBlank(str) ? nullStr : str };
+		final var dataTypes = new Transfer[] { TextTransfer.getInstance() };
+		cb.setContents(data, dataTypes, DND.CLIPBOARD);
+	    } finally {
+		cb.dispose();
+	    }
 	}
+	display.timerExec(cData.getClearPassword() * SECONDS, this::clearClipboard);
     }
 
     /**

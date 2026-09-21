@@ -39,8 +39,6 @@ public class AutoLockManager {
 
     private static AutoLockManager instance;
 
-    private static int LOCK_TIMEOUT_MS;
-
     private boolean running = true;
 
     private long lastActivityTime = System.currentTimeMillis();
@@ -56,9 +54,13 @@ public class AutoLockManager {
     private AutoLockManager(final Display display, final FileAction action) {
 	this.display = display;
 	this.action = action;
-	LOCK_TIMEOUT_MS = action.getCData().getAutoLockTime() * AUTOLOCK_MAX * SECONDS;
 	addActivityListeners();
 	start();
+    }
+
+    private int currentTimeoutMs() {
+	final var minutes = Math.min(AUTOLOCK_MAX, Math.max(1, action.getCData().getAutoLockTime()));
+	return minutes * AUTOLOCK_MAX * SECONDS;
     }
 
     /**
@@ -82,10 +84,10 @@ public class AutoLockManager {
     }
 
     private void checkTimeout() {
-	if (!running) {
+	if (!running || display == null || display.isDisposed()) {
 	    return;
 	}
-	if (System.currentTimeMillis() - lastActivityTime > LOCK_TIMEOUT_MS) {
+	if (System.currentTimeMillis() - lastActivityTime > currentTimeoutMs()) {
 	    action.setLocked();
 	} else {
 	    start();
@@ -99,6 +101,9 @@ public class AutoLockManager {
     }
 
     private void start() {
+	if (display == null || display.isDisposed()) {
+	    return;
+	}
 	display.timerExec(SECONDS, this::checkTimeout);
     }
 

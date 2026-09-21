@@ -32,12 +32,16 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+
 /**
  * Utility class for ensuring only one instance of an application runs at a
  * time. Uses file locking mechanism that is automatically released when the JVM
  * exits.
  */
 public class SingleInstanceManager {
+
+    private static final Logger LOG = LogFactory.getLog(SingleInstanceManager.class);
 
     private final String applicationName;
     private final Path lockFilePath;
@@ -83,7 +87,7 @@ public class SingleInstanceManager {
 		channel.close();
 	    }
 	} catch (final IOException e) {
-	    System.err.println("Error closing file channel: " + e.getMessage());
+	    LOG.warn("Error closing file channel", e);
 	}
 
 	try {
@@ -91,7 +95,7 @@ public class SingleInstanceManager {
 		randomAccessFile.close();
 	    }
 	} catch (final IOException e) {
-	    System.err.println("Error closing random access file: " + e.getMessage());
+	    LOG.warn("Error closing random access file", e);
 	}
 
 	channel = null;
@@ -136,7 +140,7 @@ public class SingleInstanceManager {
 		lock.release();
 	    }
 	} catch (final IOException e) {
-	    System.err.println("Error releasing lock: " + e.getMessage());
+	    LOG.warn("Error releasing lock", e);
 	}
 
 	closeResources();
@@ -146,7 +150,7 @@ public class SingleInstanceManager {
 		Files.delete(lockFilePath);
 	    }
 	} catch (final IOException e) {
-	    System.err.println("Could not delete lock file: " + e.getMessage());
+	    LOG.warn("Could not delete lock file", e);
 	}
 
 	locked = false;
@@ -178,7 +182,7 @@ public class SingleInstanceManager {
 	    closeResources();
 	    return false;
 	} catch (final IOException e) {
-	    System.err.println("Error acquiring single instance lock: " + e.getMessage());
+	    LOG.warn("Error acquiring single instance lock", e);
 	    closeResources();
 	    return false;
 	}

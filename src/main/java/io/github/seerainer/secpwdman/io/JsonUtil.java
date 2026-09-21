@@ -19,6 +19,7 @@
  */
 package io.github.seerainer.secpwdman.io;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_POS_XY;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PREF_SIZE_Y;
 import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
@@ -40,6 +41,7 @@ import static io.github.seerainer.secpwdman.config.StringConstants.dekSalt;
 import static io.github.seerainer.secpwdman.config.StringConstants.divider;
 import static io.github.seerainer.secpwdman.config.StringConstants.encData;
 import static io.github.seerainer.secpwdman.config.StringConstants.encDek;
+import static io.github.seerainer.secpwdman.config.StringConstants.formatVersion;
 import static io.github.seerainer.secpwdman.config.StringConstants.hmacSHA;
 import static io.github.seerainer.secpwdman.config.StringConstants.keyALGO;
 import static io.github.seerainer.secpwdman.config.StringConstants.keyderf;
@@ -59,11 +61,14 @@ import static io.github.seerainer.secpwdman.config.StringConstants.shellSY;
 import static io.github.seerainer.secpwdman.config.StringConstants.tableFo;
 import static io.github.seerainer.secpwdman.config.StringConstants.tabul;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2d;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2id;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekMissing;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pbkdf2;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.unsupportedFormat;
 import static java.lang.Boolean.valueOf;
 import static java.lang.Integer.valueOf;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -150,27 +155,30 @@ class JsonUtil {
      *   "appName": "SecPwdMan",
      *   "appVersion": "1.2.0",
      *   "keyALGO": "AES",
-     *   "cipherALGO": "AES_256/GCM/NOPADDING",
+     *   "cipherALGO": "AES/GCM/NoPadding",
      *   ...KDF params...,
      *   "encryptedData": "&lt;base64 ciphertext&gt;",
      *   "encryptedDEK":  "&lt;base64 wrapped DEK&gt;",
-     *   "dekSalt":       "envelope"
+     *   "dekSalt":       "envelope",
+     *   "formatVersion": 1
      * }
      * </pre>
      *
-     * @param cData      runtime configuration
+     * @param cData      runtime configuration (its crypto config carries the
+     *                   format version the blobs were sealed with)
      * @param ciphertext encrypted vault data (DEK layer)
      * @param wrappedDek encrypted DEK (KEK layer)
      * @return JSON bytes
      */
     static byte[] getJsonFile(final ConfigData cData, final byte[] ciphertext, final byte[] wrappedDek) {
-    	final var encStr    = new String(Util.getBase64Encode(ciphertext), UTF_8);
-    	final var dekStr    = new String(Util.getBase64Encode(wrappedDek), UTF_8);
-    	return getEncryptionValues(cData)
-    			.value(encData, encStr)
-    			.value(encDek,  dekStr)
-    			.value(dekSalt, "envelope")
-    		.end()
+	final var encStr    = new String(Util.getBase64Encode(ciphertext), UTF_8);
+	final var dekStr    = new String(Util.getBase64Encode(wrappedDek), UTF_8);
+	return getEncryptionValues(cData)
+			.value(encData, encStr)
+			.value(encDek,  dekStr)
+			.value(dekSalt, "envelope")
+			.value(formatVersion, cData.getCryptoConfig().getVaultFormatVersion())
+		.end()
     	.done().getBytes(UTF_8);
     }
 
@@ -252,7 +260,12 @@ class JsonUtil {
 	cData.setClearPassword(obj.getInt(clearPw, cData.getClearPassword()));
 	cData.setColumnWidth(obj.getInt(coWidth, cData.getColumnWidth()));
 	cData.setCompress(obj.getBoolean(deflate, valueOf(cData.isCompress())));
-	cData.setDivider(obj.getString(divider, String.valueOf(cData.getDivider())).charAt(0));
+	final var dividerStr = obj.getString(divider, String.valueOf(cData.getDivider()));
+	if (dividerStr == null || dividerStr.isEmpty()) {
+	    cData.setDivider(DELIMITER);
+	} else {
+	    cData.setDivider(dividerStr.charAt(0));
+	}
 	cData.setMaximized(obj.getBoolean(shelMax, valueOf(cData.isMaximized())));
 	cData.setPasswordMinLength(obj.getInt(pwdMinL, cData.getPasswordMinLength()));
 	cData.setResizeCol(obj.getBoolean(resizeC, valueOf(cData.isResizeCol())));
@@ -278,6 +291,16 @@ class JsonUtil {
      */
     static EncryptedFile setJsonFile(final ConfigData cData, final InputStream is) throws JsonParserException {
 	final var obj = setEncryptionValues(cData, is);
+
+	// Files without the field predate AAD binding and open via the legacy
+	// path; newer-than-known versions fail closed instead of decrypting
+	// with the wrong AAD scheme.
+	final var version = obj.getInt(formatVersion, VAULT_FORMAT_LEGACY);
+	if (version > VAULT_FORMAT_VERSION) {
+	    throw new IllegalArgumentException(
+		    new StringBuilder().append(unsupportedFormat).append(" ").append(version).toString());
+	}
+	cData.getCryptoConfig().setVaultFormatVersion(version);
 
 	final var dataStr = obj.getString(encData);
 	final var dekStr = obj.getString(encDek);

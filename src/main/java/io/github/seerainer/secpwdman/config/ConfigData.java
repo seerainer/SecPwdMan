@@ -19,7 +19,20 @@
  */
 package io.github.seerainer.secpwdman.config;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.AUTOLOCK_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.AUTOLOCK_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUFFER_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUFFER_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CLEAR_PWD_MAX;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CLEAR_PWD_MIN;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.COL_MAX_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.COL_MIN_WIDTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.CR;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.LF;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.QUOTE_CHAR;
 
 import java.util.HashMap;
 
@@ -274,17 +287,17 @@ public class ConfigData {
     }
 
     /**
-     * @param autoLockTime the autoLockTime to set
+     * @param autoLockTime the autoLockTime to set (clamped 1..60 minutes)
      */
     public void setAutoLockTime(final int autoLockTime) {
-	this.autoLockTime = autoLockTime;
+	this.autoLockTime = Math.min(AUTOLOCK_MAX, Math.max(AUTOLOCK_MIN, autoLockTime));
     }
 
     /**
-     * @param bufferLength the bufferLength to set
+     * @param bufferLength the bufferLength to set (clamped 64..1MiB)
      */
     public void setBufferLength(final int bufferLength) {
-	this.bufferLength = bufferLength;
+	this.bufferLength = Math.min(BUFFER_MAX, Math.max(BUFFER_MIN, bufferLength));
     }
 
     /**
@@ -295,10 +308,10 @@ public class ConfigData {
     }
 
     /**
-     * @param clearPassword the new clear passwd
+     * @param clearPassword the new clear passwd (clamped 5..300 seconds)
      */
     public void setClearPassword(final int clearPassword) {
-	this.clearPassword = clearPassword;
+	this.clearPassword = Math.min(CLEAR_PWD_MAX, Math.max(CLEAR_PWD_MIN, clearPassword));
     }
 
     /**
@@ -309,10 +322,10 @@ public class ConfigData {
     }
 
     /**
-     * @param columnWidth the new column width
+     * @param columnWidth the new column width (clamped 10..5000)
      */
     public void setColumnWidth(final int columnWidth) {
-	this.columnWidth = columnWidth;
+	this.columnWidth = Math.min(COL_MAX_WIDTH, Math.max(COL_MIN_WIDTH, columnWidth));
     }
 
     /**
@@ -330,9 +343,16 @@ public class ConfigData {
     }
 
     /**
-     * @param divider the divider to set
+     * @param divider the divider to set (falls back to {@code DELIMITER} for
+     *                double-quote, line breaks, and control characters, which would
+     *                corrupt the CSV round-trip; TAB is allowed)
      */
     public void setDivider(final char divider) {
+	if (divider == QUOTE_CHAR || divider == CR || divider == LF
+		|| (Character.isISOControl(divider) && divider != '\t')) {
+	    this.divider = DELIMITER;
+	    return;
+	}
 	this.divider = divider;
     }
 
@@ -393,10 +413,10 @@ public class ConfigData {
     }
 
     /**
-     * @param passwordMinLength the passwordMinLength to set
+     * @param passwordMinLength the passwordMinLength to set (clamped 8..64)
      */
     public void setPasswordMinLength(final int passwordMinLength) {
-	this.passwordMinLength = passwordMinLength;
+	this.passwordMinLength = Math.min(PWD_MAX_LENGTH, Math.max(PWD_MIN_LENGTH, passwordMinLength));
     }
 
     /**
