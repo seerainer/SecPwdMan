@@ -21,8 +21,6 @@ package io.github.seerainer.secpwdman.ui;
 
 import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.BUTTON_WIDTH;
-import static io.github.seerainer.secpwdman.config.PrimitiveConstants.ECHO_CHAR;
-import static io.github.seerainer.secpwdman.config.PrimitiveConstants.NULL_CHAR;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_DEFAULT_LENGTH;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MAX_LENGTH;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.PWD_MIN_LENGTH;
@@ -64,6 +62,7 @@ import static io.github.seerainer.secpwdman.ui.Widgets.spinner;
 import static io.github.seerainer.secpwdman.ui.Widgets.text;
 import static io.github.seerainer.secpwdman.util.PasswordStrength.evalPasswordStrength;
 import static io.github.seerainer.secpwdman.util.SWTUtil.MACOS;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
@@ -254,8 +253,8 @@ record EntryDialog(Action action) {
 
 	if (!MACOS) { // macOS does not support modification of the echo char
 	    emptyLabel(dialog, 1);
-	    button(dialog, SWT.CHECK, entrShow, widgetSelectedAdapter(
-		    _ -> pwd.setEchoChar(pwd.getEchoChar() == NULL_CHAR ? ECHO_CHAR : NULL_CHAR)));
+	    button(dialog, SWT.CHECK, entrShow,
+		    widgetSelectedAdapter(_ -> pwd.setEchoChar(pwd.getEchoChar() == '\0' ? '\u25CF' : '\0')));
 	}
 
 	emptyLabel(dialog, 3);
@@ -314,7 +313,7 @@ record EntryDialog(Action action) {
 	final var size = 25;
 	final var point = getPrefSize(dialog);
 	dialog.setSize(point.x + size, point.y + size * 2);
-	image.dispose();
+	disposeOnExit(dialog, image);
 	dialog.open();
 	group.selectAll();
 	title.selectAll();

@@ -189,8 +189,8 @@ public final class StringConstants {
 
     // Envelope encryption keys (DEK wrapped by KEK)
     public static final String encDek = "encryptedDEK";
-    public static final String dekIv = "dekIV";
     public static final String dekSalt = "dekSalt";
+    public static final String formatVersion = "formatVersion";
     // Messages
     public static final String allFiles = getString("File.All.Text");
     public static final String imexFile = getString("File.ImpExp.Text");

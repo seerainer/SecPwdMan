@@ -28,11 +28,17 @@ import static java.util.Objects.isNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Set;
+
+import javax.crypto.SealedObject;
 
 import org.slf4j.Logger;
+
+import io.github.seerainer.secpwdman.io.ByteContainer;
 
 /**
  * The class SerializationUtils - provides secure serialization utilities. This
@@ -41,13 +47,41 @@ import org.slf4j.Logger;
  */
 public class SerializationUtils {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(SerializationUtils.class);
+
+    /**
+     * Exact classes that may appear in a deserialized graph: the sealed vault
+     * payload ({@code SealedObject} of {@code ByteContainer}) plus the
+     * {@code String} and {@code byte[]} fields those two declare. Everything else —
+     * including serializable JDK gadgets such as collections — is rejected.
+     */
+    private static final Set<Class<?>> ALLOWED_CLASSES = Set.of(ByteContainer.class, SealedObject.class, String.class,
+	    byte[].class);
+
+    /**
+     * Stream bounds (depth, array length, total bytes, references) sized above the
+     * maximum vault size so legitimate payloads never trip them.
+     */
+    private static final ObjectInputFilter LIMITS = ObjectInputFilter.Config
+	    .createFilter("maxdepth=16;maxarray=17825792;maxbytes=18874368;maxrefs=1024");
+
+    private static final ObjectInputFilter ALLOW = ObjectInputFilter.allowFilter(ALLOWED_CLASSES::contains,
+	    ObjectInputFilter.Status.REJECTED);
 
     private SerializationUtils() {
     }
 
+    private static ObjectInputFilter.Status checkInput(final ObjectInputFilter.FilterInfo info) {
+	// Limits first: an oversized array must be rejected even when its
+	// class is allowlisted; classes then resolve against the exact list.
+	final var limited = LIMITS.checkInput(info);
+	return limited != ObjectInputFilter.Status.UNDECIDED ? limited : ALLOW.checkInput(info);
+    }
+
     /**
-     * Deserializes an object from a byte array without type checking.
+     * Deserializes an object from a byte array with an exact-class allowlist plus
+     * stream limits. Only {@code ByteContainer}, {@code javax.crypto.SealedObject},
+     * {@code String} and {@code byte[]} are permitted.
      *
      * @param data the serialized data
      * @return the deserialized object
@@ -64,6 +98,7 @@ public class SerializationUtils {
 
 		try (final var bais = new ByteArrayInputStream(secureData);
 			final var ois = new ObjectInputStream(bais)) {
+		    ois.setObjectInputFilter(SerializationUtils::checkInput);
 		    final var obj = ois.readObject();
 		    Util.clear(data);
 		    return obj;
@@ -100,7 +135,11 @@ public class SerializationUtils {
 	    return SecureMemory.withSecretMemory(data, dataSegment -> {
 		final var secureData = SecureMemory.readFromNative(dataSegment);
 		Util.clear(data);
-		return secureData.clone();
+		try {
+		    return secureData.clone();
+		} finally {
+		    Util.clear(secureData);
+		}
 	    });
 	} catch (final Exception e) {
 	    LOG.error(SERIAL_OBJ_FAILED, obj.getClass().getName(), e);

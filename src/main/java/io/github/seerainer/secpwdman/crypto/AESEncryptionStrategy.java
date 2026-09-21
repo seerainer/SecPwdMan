@@ -59,6 +59,9 @@ record AESEncryptionStrategy(CryptoConfig cConf) implements EncryptionStrategy {
     public byte[] decrypt(final byte[] data, final byte[] password)
 	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 	    InvalidKeyException, InvalidKeySpecException, NoSuchAlgorithmException, NoSuchPaddingException {
+	if (data == null || data.length < IV_LENGTH + SALT_LENGTH + 1) {
+	    throw new IllegalArgumentException("Ciphertext too short.");
+	}
 	final var instance = Cipher.getInstance(cipherAES);
 	final var iv = Arrays.copyOfRange(data, 0, IV_LENGTH);
 	final var salt = Arrays.copyOfRange(data, IV_LENGTH, IV_LENGTH + SALT_LENGTH);
@@ -79,6 +82,7 @@ record AESEncryptionStrategy(CryptoConfig cConf) implements EncryptionStrategy {
 	final var iv = Crypto.getRandomValue(IV_LENGTH);
 	final var salt = new byte[SALT_LENGTH]; // zero salt — no KDF, stored for format compatibility
 	instance.init(Cipher.ENCRYPT_MODE, key, getParams(iv));
+	EnvelopeCrypto.applyAad(instance, cConf);
 	return Crypto.appendValues(iv, salt, instance.doFinal(data));
     }
 
@@ -89,11 +93,15 @@ record AESEncryptionStrategy(CryptoConfig cConf) implements EncryptionStrategy {
     public byte[] decryptWithKey(final byte[] data, final SecretKey key)
 	    throws BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException,
 	    InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException {
+	if (data == null || data.length < IV_LENGTH + SALT_LENGTH + 1) {
+	    throw new IllegalArgumentException("Ciphertext too short.");
+	}
 	final var instance = Cipher.getInstance(cipherAES);
 	final var iv = Arrays.copyOfRange(data, 0, IV_LENGTH);
 	// salt bytes (IV_LENGTH .. IV_LENGTH+SALT_LENGTH) are ignored — key already
 	// supplied
 	instance.init(Cipher.DECRYPT_MODE, key, getParams(iv));
+	EnvelopeCrypto.applyAad(instance, cConf);
 	return instance.doFinal(data, IV_LENGTH + SALT_LENGTH, data.length - IV_LENGTH - SALT_LENGTH);
     }
 

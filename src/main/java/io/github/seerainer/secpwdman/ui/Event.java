@@ -20,7 +20,18 @@
 package io.github.seerainer.secpwdman.ui;
 
 import static io.github.seerainer.secpwdman.config.StringConstants.csvHeader;
-import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_NOTES;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_PASS;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_URL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_COPY_USER;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_DELETE;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_EDIT;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_NEW;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_OPEN_URL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.EDIT_SELECT_ALL;
+import static io.github.seerainer.secpwdman.ui.MenuIds.MENU_EDIT;
+import static io.github.seerainer.secpwdman.ui.Widgets.findMenuItem;
+import static io.github.seerainer.secpwdman.ui.Widgets.getTrayItem;
 import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
 import static org.eclipse.swt.events.MenuListener.menuShownAdapter;
 import static org.eclipse.swt.events.MouseListener.mouseDoubleClickAdapter;
@@ -36,7 +47,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.MouseListener;
@@ -63,26 +73,13 @@ class Event {
     private FileAction fileAction;
     private ViewAction viewAction;
 
-    DisposeListener dispose = _ -> {
-	final var shell = fileAction.getShell();
-	if (Objects.nonNull(shell) && !shell.isDisposed()) {
-	    shell.dispose();
-	}
-    };
     KeyListener keyListener = keyPressedAdapter(_ -> fileAction.enableItems());
     MenuListener enableItems = menuShownAdapter(_ -> fileAction.enableItems());
     MenuListener tableMenu = menuShownAdapter(e -> {
-	final var item = ((Menu) e.widget);
-	final var editMenu = editAction.getMenu().getItem(1).getMenu();
-	item.getItem(0).setEnabled(editMenu.getItem(11).getEnabled());
-	item.getItem(2).setEnabled(editMenu.getItem(6).getEnabled());
-	item.getItem(3).setEnabled(editMenu.getItem(7).getEnabled());
-	item.getItem(4).setEnabled(editMenu.getItem(8).getEnabled());
-	item.getItem(5).setEnabled(editMenu.getItem(9).getEnabled());
-	item.getItem(7).setEnabled(editMenu.getItem(0).getEnabled());
-	item.getItem(8).setEnabled(editMenu.getItem(1).getEnabled());
-	item.getItem(10).setEnabled(editMenu.getItem(3).getEnabled());
-	item.getItem(11).setEnabled(editMenu.getItem(4).getEnabled());
+	final var popup = ((Menu) e.widget);
+	final var editMenu = findMenuItem(editAction.getMenu(), MENU_EDIT).getMenu();
+	syncEnabled(popup, editMenu, EDIT_OPEN_URL, EDIT_COPY_URL, EDIT_COPY_USER, EDIT_COPY_PASS, EDIT_COPY_NOTES,
+		EDIT_NEW, EDIT_EDIT, EDIT_SELECT_ALL, EDIT_DELETE);
     });
     MouseListener mouseListener = mouseDoubleClickAdapter(
 	    _ -> DialogFactory.createEntryDialog(editAction, editAction.getTable().getSelectionIndex()));
@@ -145,9 +142,9 @@ class Event {
     ShellListener close = shellClosedAdapter(e -> e.doit = fileAction.exit());
     ShellListener deiconified = shellDeiconifiedAdapter(_ -> {
 	final var shell = fileAction.getShell();
-	final var tray = shell.getDisplay().getSystemTray();
-	if (Objects.nonNull(tray) && WIN32) {
-	    tray.getItem(0).setVisible(false);
+	final var trayItem = getTrayItem(shell);
+	if (trayItem != null) {
+	    trayItem.setVisible(false);
 	}
 	shell.addShellListener(activated);
     });
@@ -185,6 +182,12 @@ class Event {
     };
 
     Event() {
+    }
+
+    private static void syncEnabled(final Menu popup, final Menu source, final String... ids) {
+	for (final var id : ids) {
+	    findMenuItem(popup, id).setEnabled(findMenuItem(source, id).isEnabled());
+	}
     }
 
     ConfigData getConfigData() {

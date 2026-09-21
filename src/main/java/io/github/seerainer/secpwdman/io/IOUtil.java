@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -56,7 +57,7 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 public class IOUtil {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(IOUtil.class);
 
     private IOUtil() {
     }
@@ -85,10 +86,13 @@ public class IOUtil {
 	if (!Files.exists(userDir)) {
 	    try {
 		Files.createDirectory(userDir);
+		restrictDirectoryPermissions(userDir);
 	    } catch (final IOException e) {
 		LOG.error(ERROR, e);
 		return confFile;
 	    }
+	} else {
+	    restrictDirectoryPermissions(userDir);
 	}
 	return userDir.resolve(confFile).toAbsolutePath().toString();
     }
@@ -164,14 +168,68 @@ public class IOUtil {
     }
 
     /**
-     * Checks if a file is readable.
+     * Checks if a file is readable. Write access is intentionally not required so
+     * read-only vaults can still be opened.
      *
      * @param filePath the file path
      * @return true if the file is readable, false otherwise
      */
     public static boolean isReadable(final String filePath) {
+	if (isBlank(filePath)) {
+	    return false;
+	}
 	final var f = getPath(filePath);
-	return Files.exists(f) && Files.isReadable(f) && Files.isRegularFile(f) && Files.isWritable(f);
+	return Files.exists(f) && Files.isReadable(f) && Files.isRegularFile(f);
+    }
+
+    /**
+     * Best-effort owner-only permissions for a file (0600 on POSIX, owner-only ACL
+     * fallback on Windows). Failures are logged, never thrown.
+     *
+     * @param path the file
+     */
+    public static void restrictFilePermissions(final Path path) {
+	try {
+	    try {
+		Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rw-------"));
+		return;
+	    } catch (final UnsupportedOperationException _) {
+		// Non-POSIX (Windows): fall through to legacy File API.
+	    }
+	    final var file = path.toFile();
+	    file.setReadable(false, false);
+	    file.setWritable(false, false);
+	    file.setExecutable(false, false);
+	    file.setReadable(true, true);
+	    file.setWritable(true, true);
+	} catch (final Exception e) {
+	    LOG.warn(WARN, e);
+	}
+    }
+
+    /**
+     * Best-effort owner-only permissions for a directory (0700 on POSIX).
+     *
+     * @param path the directory
+     */
+    public static void restrictDirectoryPermissions(final Path path) {
+	try {
+	    try {
+		Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rwx------"));
+		return;
+	    } catch (final UnsupportedOperationException _) {
+		// Non-POSIX (Windows): fall through.
+	    }
+	    final var file = path.toFile();
+	    file.setReadable(false, false);
+	    file.setWritable(false, false);
+	    file.setExecutable(false, false);
+	    file.setReadable(true, true);
+	    file.setWritable(true, true);
+	    file.setExecutable(true, true);
+	} catch (final Exception e) {
+	    LOG.warn(WARN, e);
+	}
     }
 
     /**

@@ -23,10 +23,10 @@ import static io.github.seerainer.secpwdman.config.Icons.APP_ICON;
 import static io.github.seerainer.secpwdman.config.StringConstants.newLine;
 import static io.github.seerainer.secpwdman.config.StringConstants.textView;
 import static io.github.seerainer.secpwdman.config.StringConstants.textWarn;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
-import static io.github.seerainer.secpwdman.util.SWTUtil.getPrefSize;
 import static io.github.seerainer.secpwdman.util.SWTUtil.setCenter;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.isEqual;
@@ -73,11 +73,9 @@ record TextDialog(Action action) {
 	    clear(textData);
 	}));
 
-	final var size = 200;
-	final var point = getPrefSize(dialog);
-	dialog.setSize(point.x + size, point.y + size * 2);
+	dialog.setSize(800, 600);
 	setCenter(dialog);
-	image.dispose();
+	disposeOnExit(dialog, image);
 	dialog.open();
 	action.setAffinity(dialog);
 	return dialog;

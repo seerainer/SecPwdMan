@@ -26,8 +26,8 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherChaCha2
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.configNotSet;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.configNull;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.kdfNotSet;
-import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyStore;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.legacyCipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.noCipher;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.noSecureRandom;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pkcs12;
@@ -113,6 +113,10 @@ public class Crypto {
     public static SealedObject generateSealedObject(final byte[] data, final byte[] key, final String transformation,
 	    final String algorithm) throws IllegalBlockSizeException, InvalidKeyException, IOException,
 	    NoSuchAlgorithmException, NoSuchPaddingException, ClassNotFoundException {
+	if (!cipherAES.equals(transformation) && !cipherChaCha20.equals(transformation)
+		&& !legacyCipherAES.equals(transformation) && !"ChaCha20-Poly1305".equals(transformation)) {
+	    throw new NoSuchAlgorithmException(unexpectedValue + transformation);
+	}
 	return SecureMemory.withSecretMemory(key.clone(), keySegment -> {
 	    try {
 		final var cipherInstance = Cipher.getInstance(transformation);
@@ -222,9 +226,11 @@ public class Crypto {
     }
 
     private static void resetConfig(final CryptoConfig cConf) {
-	if (!cConf.getCipherALGO().startsWith(cConf.getKeyALGO())) {
-	    cConf.setCipherALGO(cipherAES);
-	    cConf.setKeyALGO(keyAES);
+	// Case-insensitive: the "ChaCha20-Poly1305" spelling is accepted
+	// alongside the canonical "CHACHA20-POLY1305" (see generateSealedObject).
+	if (!cConf.getCipherALGO().regionMatches(true, 0, cConf.getKeyALGO(), 0, cConf.getKeyALGO().length())) {
+	    throw new IllegalArgumentException(new StringBuilder().append(unexpectedValue).append(cConf.getCipherALGO())
+		    .append(" (keyALGO ").append(cConf.getKeyALGO()).append(")").toString());
 	}
 	if (!Set.of(CryptoConfig.KDF.Argon2, CryptoConfig.KDF.PBKDF2, CryptoConfig.KDF.scrypt)
 		.contains(cConf.getKeyDerivation())) {
@@ -234,7 +240,7 @@ public class Crypto {
 
     /**
      * Checks if Ciphers and strong SecureRandom are available. Test SecureRandom
-     * strong, AES_256/GCM/NOPADDING, CHACHA20-POLY1305 and PKCS12
+     * strong, AES/GCM/NoPadding, CHACHA20-POLY1305 and PKCS12
      *
      * @throws RuntimeException         if any of the required ciphers or
      *                                  SecureRandom is not available

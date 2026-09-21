@@ -43,9 +43,11 @@ import static io.github.seerainer.secpwdman.ui.DialogFactory.closeAllDialogs;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.closeSearchDialog;
 import static io.github.seerainer.secpwdman.ui.DialogFactory.createPasswordDialog;
 import static io.github.seerainer.secpwdman.ui.Widgets.fileDialog;
+import static io.github.seerainer.secpwdman.ui.Widgets.getTrayItem;
 import static io.github.seerainer.secpwdman.ui.Widgets.msg;
-import static io.github.seerainer.secpwdman.util.SWTUtil.WIN32;
+import static io.github.seerainer.secpwdman.util.SWTUtil.getOwnedFont;
 import static io.github.seerainer.secpwdman.util.SWTUtil.msgYesNo;
+import static io.github.seerainer.secpwdman.util.SWTUtil.safeDispose;
 import static io.github.seerainer.secpwdman.util.Util.clear;
 import static io.github.seerainer.secpwdman.util.Util.isBlank;
 
@@ -68,7 +70,7 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 public class FileAction extends Action {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(FileAction.class);
 
     /**
      * Instantiates a new file action.
@@ -84,9 +86,11 @@ public class FileAction extends Action {
     private void clearConfidentialData() {
 	final var sensitiveData = cData.getSensitiveData();
 	clear(sensitiveData.getDek());
+	clear(sensitiveData.getWrappedDek());
 	clear(sensitiveData.getDataKey());
 	clear(sensitiveData.getKeyStorePassword());
 	clear(sensitiveData.getKeyStoreData());
+	clear(sensitiveData.getSealedData());
 	sensitiveData.setDek(null);
 	sensitiveData.setWrappedDek(null);
 	sensitiveData.setDataKey(null);
@@ -136,20 +140,28 @@ public class FileAction extends Action {
     }
 
     private void disposeResources() {
-	final var tray = shell.getDisplay().getSystemTray();
-	if (Objects.nonNull(tray) && WIN32) {
-	    tray.getItem(0).getImage().dispose();
-	}
-	for (final var item : getToolBar().getItems()) {
-	    final var image = item.getImage();
-	    if (Objects.nonNull(image)) {
-		image.dispose();
+	// Idempotent exit-path cleanup. Widget dispose listeners (see Widgets
+	// toolItem/cTabItem/menuItem and MainWindow shell listeners) free the
+	// same resources on shell dispose; every call here is guarded so running
+	// both paths disposes each Image/Font exactly once. System fonts are
+	// never disposed: only fonts installed via SWTUtil.setOwnedFont are freed.
+	// tray shares the shell (app) image: dispose the item, the shared
+	// image is disposed once below via the shell image
+	safeDispose(getTrayItem(shell));
+	if (!getToolBar().isDisposed()) {
+	    for (final var item : getToolBar().getItems()) {
+		if (item.isDisposed()) {
+		    continue;
+		}
+		safeDispose(item.getImage());
+		safeDispose(item.getDisabledImage());
 	    }
 	}
-	getList().getFont().dispose();
-	table.getFont().dispose();
-	shell.getFont().dispose();
-	shell.getImage().dispose();
+	safeDispose(getOwnedFont(getList()));
+	// table and list share one font instance: second call is a guarded no-op
+	safeDispose(getOwnedFont(table));
+	safeDispose(getOwnedFont(shell));
+	safeDispose(shell.getImage());
 	System.gc();
     }
 
@@ -400,10 +412,13 @@ public class FileAction extends Action {
     }
 
     /**
-     * Locks the app.
+     * Locks the app. Always locks even with unsaved changes to avoid leaving
+     * plaintext in memory on minimize or auto-lock timeout. Unsaved changes are
+     * discarded from memory; the modified flag is preserved so the user is aware on
+     * next unlock that the file on disk is stale.
      */
     public void setLocked() {
-	if (!IOUtil.isFileReady(cData.getFile()) || cData.isModified()) {
+	if (!IOUtil.isFileReady(cData.getFile())) {
 	    return;
 	}
 	cData.setLocked(true);
@@ -418,13 +433,12 @@ public class FileAction extends Action {
 	stopAutoLockManager();
 	System.gc();
 
-	final var tray = shell.getDisplay().getSystemTray();
-	if (Objects.isNull(tray) || !WIN32) {
+	final var trayItem = getTrayItem(shell);
+	if (trayItem == null) {
 	    return;
 	}
 	shell.setMinimized(true);
 	shell.setVisible(false);
-	final var trayItem = tray.getItem(0);
 	final var sb = new StringBuilder();
 	sb.append(APP_NAME).append(titlePH).append(IOUtil.getFilePath(cData.getFile()));
 	trayItem.setToolTipText(sb.toString());

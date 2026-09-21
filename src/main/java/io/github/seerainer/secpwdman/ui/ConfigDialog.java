@@ -96,6 +96,7 @@ import static io.github.seerainer.secpwdman.ui.Widgets.spinner;
 import static io.github.seerainer.secpwdman.ui.Widgets.text;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getLayout;
+import static io.github.seerainer.secpwdman.util.Util.clear;
 import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
 
 import java.util.Arrays;
@@ -123,7 +124,7 @@ import io.github.seerainer.secpwdman.util.LogFactory;
  */
 record ConfigDialog(Action action) {
 
-    private static final Logger LOG = LogFactory.getLog();
+    private static final Logger LOG = LogFactory.getLog(ConfigDialog.class);
 
     private static GridLayout gridLayout(final int numColumns) {
 	return getLayout(numColumns, 12, 10, 10, 10, 10, 10);
@@ -409,9 +410,18 @@ record ConfigDialog(Action action) {
 	    cData.setPasswordMinLength(minPwdLength.getSelection());
 
 	    if (csvDivider.getCharCount() > 0) {
-		final var newDivider = csvDivider.getTextChars()[0];
-		cData.setHeader(cData.getHeader().replace(cData.getDivider(), newDivider));
-		cData.setDivider(newDivider);
+		final var dividerChars = csvDivider.getTextChars();
+		try {
+		    final var oldDivider = cData.getDivider();
+		    cData.setDivider(dividerChars[0]);
+		    final var validated = cData.getDivider();
+		    final var header = cData.getHeader();
+		    if (header != null && oldDivider != validated) {
+			cData.setHeader(header.replace(oldDivider, validated));
+		    }
+		} finally {
+		    clear(dividerChars);
+		}
 	    } else {
 		cData.setDivider(DELIMITER);
 	    }

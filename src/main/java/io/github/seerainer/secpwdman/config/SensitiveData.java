@@ -19,6 +19,8 @@
  */
 package io.github.seerainer.secpwdman.config;
 
+import io.github.seerainer.secpwdman.util.Util;
+
 /**
  * The class SensitiveData.
  *
@@ -60,9 +62,12 @@ public class SensitiveData {
     }
 
     /**
-     * @param dek the plaintext DEK to set
+     * @param dek the plaintext DEK to set (previous value is zeroed)
      */
     public void setDek(final byte[] dek) {
+	if (this.dek != null && this.dek != dek) {
+	    Util.clear(this.dek);
+	}
 	this.dek = dek;
     }
 
@@ -74,9 +79,12 @@ public class SensitiveData {
     }
 
     /**
-     * @param wrappedDek the wrapped DEK to set
+     * @param wrappedDek the wrapped DEK to set (previous value is zeroed)
      */
     public void setWrappedDek(final byte[] wrappedDek) {
+	if (this.wrappedDek != null && this.wrappedDek != wrappedDek) {
+	    Util.clear(this.wrappedDek);
+	}
 	this.wrappedDek = wrappedDek;
     }
 
@@ -109,30 +117,43 @@ public class SensitiveData {
     }
 
     /**
-     * @param dataKey the dataKey to set
+     * @param dataKey the dataKey to set (previous value is zeroed)
      */
     public void setDataKey(final byte[] dataKey) {
+	if (this.dataKey != null && this.dataKey != dataKey) {
+	    Util.clear(this.dataKey);
+	}
 	this.dataKey = dataKey;
     }
 
     /**
-     * @param keyStoreData the keyStoreData to set
+     * @param keyStoreData the keyStoreData to set (previous value is zeroed)
      */
     public void setKeyStoreData(final byte[] keyStoreData) {
+	if (this.keyStoreData != null && this.keyStoreData != keyStoreData) {
+	    Util.clear(this.keyStoreData);
+	}
 	this.keyStoreData = keyStoreData;
     }
 
     /**
-     * @param keyStorePassword the keyStorePassword to set
+     * @param keyStorePassword the keyStorePassword to set (previous value is
+     *                         zeroed)
      */
     public void setKeyStorePassword(final char[] keyStorePassword) {
+	if (this.keyStorePassword != null && this.keyStorePassword != keyStorePassword) {
+	    Util.clear(this.keyStorePassword);
+	}
 	this.keyStorePassword = keyStorePassword;
     }
 
     /**
-     * @param sealedData the sealedData to set
+     * @param sealedData the sealedData to set (previous value is zeroed)
      */
     public void setSealedData(final byte[] sealedData) {
+	if (this.sealedData != null && this.sealedData != sealedData) {
+	    Util.clear(this.sealedData);
+	}
 	this.sealedData = sealedData;
     }
 }

@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Envelope encryption** following the [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#encrypting-stored-keys): vault data is now encrypted with a randomly generated 256-bit Data Encryption Key (DEK); the DEK is itself encrypted by a Key Encryption Key (KEK) derived from the master password via the configured KDF (Argon2, scrypt, or PBKDF2)
 - `EnvelopeCrypto` class implementing DEK generation, DEK wrap/unwrap (KEK layer, always AES-256-GCM), and data encrypt/decrypt (DEK layer, AES-256-GCM or ChaCha20-Poly1305)
 - `EnvelopeCryptoTest` — 24 unit tests covering all KDF × cipher × Argon2 × HMAC combinations, password-change-without-re-encryption, wrong-key/wrong-password rejection, and 1 MB data round-trip
+- `SecurityFixesTest` — unit tests for KDF parameter clamping, truncated DEK/ciphertext rejection, fail-closed unknown-algorithm handling, and the `SealedObject` AEAD allowlist
+- `StorageHardeningTest` — unit tests for `CharArrayString` wiping, `SensitiveData` zero-on-replace, serialization allowlist round-trip, atomic save, and `ConfigData` clamping
+- `SWTUtil` resource helpers: guarded `safeDispose` overloads (`Resource`/`Widget`/`DropTarget`), `disposeOnExit` owner tracking, and `setOwnedFont`/`getOwnedFont` custom-font ownership (system/inherited fonts are never disposed)
 
 ### Changed
 
@@ -22,6 +25,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IO.saveFile` / `IO.openFile`: rewired to use envelope encryption; session DEK is generated once per vault and retained in `SensitiveData` while unlocked
 - `JsonUtil`: `getJsonFile` now serialises both ciphertext and wrapped DEK; `setJsonFile` returns an `EncryptedFile` record carrying both artefacts
 - Constants: refactored all four constant interfaces (`PrimitiveConstants`, `StringConstants`, `CryptoConstants`, `Icons`) from the Constant Interface anti-pattern (Effective Java Item 22) to `final` utility classes with `private` constructors; all usages updated to `static import`
+- `CryptoConfig` setters now clamp to safe ranges (Argon2 memo 19..512 / iter 2..256 / para 1..8, PBKDF2 OWASP minimum 600k SHA256 / 210k SHA512, scrypt N snapped to allowlist with floor 128, scrypt P 1..10); null cipher/KDF/HMAC inputs are rejected
+- `ConfigData` setters now clamp auto-lock 1..60 min, clipboard clear 5..300 s, buffer 64..1 MiB, column width 10..5000, password min length 8..64
+- `ConfigData.setDivider` now rejects CSV-breaking characters (double-quote, CR, LF, other control characters except TAB) and falls back to `DELIMITER`; `StorageHardeningTest` covers the validation
+- `IO.save` now writes crash-safe (temp file in target directory + fsync + atomic move) and applies owner-only file permissions; permissions are restricted before writing (no creation-default window) and the parent directory is fsynced best-effort after the move so the rename survives power loss; config directory and log directory are hardened best-effort; `IOUtil.isReadable` no longer requires write access so read-only vaults can be opened
+- `IO.open` now returns a size-capped stream (`MAX_FILE_SIZE`) so a file that grows between the size pre-check and the read fails instead of exhausting memory
+- `IO.openFile` derives the KEK once per open (unwrap + DEK-decrypt) instead of twice (`unseal` + `unwrapDek`)
+- `CharArrayString` rewritten to own wipeable `char[]` buffer (no reflection) with an added `char[]` constructor
+- `SensitiveData` setters now zero the previous array before replacing it
+- `SerializationUtils.deserialize` now enforces an exact-class `ObjectInputFilter` allowlist (`ByteContainer`, `SealedObject`, `String`, `byte[]`) plus stream limits (`maxdepth`, `maxarray`, `maxbytes`, `maxrefs`) instead of the broad `java.base/*` pattern; `serialize` clears its heap intermediate
+- `EnvelopeCrypto.selectStrategy` now fails closed on unknown key algorithms; truncated DEK blobs and ciphertexts are rejected with `IllegalArgumentException` before KDF/cipher use; the wrap path reports `dekWrapFailed` instead of the unwrap message
+- `Crypto.generateSealedObject` now accepts only AEAD transformations
+- `Action.escapeSpecialChar` now neutralizes CSV formula injection (`=,+,-,@,|, %` prefixed with `'`)
+- `AutoLockManager` timeout is recomputed and clamped per cycle instead of once at construction, with disposed-display guards
+- SWT resource ownership: `Widgets.toolItem`/`cTabItem`/`menuItem` now track their `Image`s via `disposeOnDispose`; `MainWindow` owns the shared app icon, `TrayItem`, `DropTarget`, and startup fonts; `ViewAction.changeFont` and `MainWindow.initializeShellValues` install fonts via `setOwnedFont`; `InfoDialog` fonts and `Entry`/`System`/`Text`/`PasswordGenerator` dialog icons are freed on dialog dispose
+- `FileAction.disposeResources` is now idempotent and guarded: frees both toolbar images (normal + disabled), only `getOwnedFont` fonts (never system/inherited fonts), the shared shell/tray image exactly once, and the `TrayItem` itself
+- Removed redundant self-dispose listeners (`Widgets.shell` dispose listener, `Event.dispose` shell-dispose handler)
+- AES transformation canonicalized: `CryptoConstants.cipherAES` is now the JCE-standard `AES/GCM/NoPadding` (was the non-standard `AES_256/GCM/NOPADDING`, kept as `legacyCipherAES`); `CryptoConfig.setCipherALGO` normalizes the legacy spelling on load so pre-1.x vault/config files keep opening, and the `SealedObject` AEAD allowlist still accepts it
+- Fail-closed crypto configuration: `Crypto.resetConfig` now throws `IllegalArgumentException` on cipher/key mismatch instead of silently rewriting to AES; `CryptoConfig` setters (`cipherALGO`, `keyALGO`, `hmac`, `keyDerivation`, `argon2Type`) throw on null/blank instead of silently keeping the old value; the cipher/key pairing check is case-insensitive for the accepted `ChaCha20-Poly1305` spelling
+- Typed DEK-layer errors: `EnvelopeCrypto.encryptWithDek`/`decryptWithDek`/`wrapDek`/`seal` now declare the JCE checked exceptions instead of wrapping everything in `RuntimeException` (single heap copy still zeroed in `finally` — the `withSecretMemory` wrapper added no protection there since `readFromNative` materializes the same heap copy); `IO.saveFile` maps `seal()` failures to the severe-error dialog instead of escaping uncaught, and `IO.openFile` maps unexpected `RuntimeException`s there too while DEK-layer `BadPaddingException` reaches the wrong-password message
+- Vault format versioning with AAD binding: new saves write `formatVersion: 1` and bind cipher/key algorithms plus KDF type and parameters as AEAD associated data on both envelope layers (`EnvelopeCrypto.aadFor`); files without the field open via the legacy no-AAD path, opening a legacy file and saving migrates it forward, and newer-than-known versions fail closed in `JsonUtil.setJsonFile` instead of decrypting with the wrong scheme
+- Index-free menu handling: new `MenuIds` stable identifiers attached at creation (`Widgets.tag`) with fail-fast `findMenuItem`/`findToolItem` lookups; `enableItems`, `setText`, `hidePasswordColumn`, `resizeColumns`, `showPasswordColumn`, the table-popup sync and the startup resize selection no longer use positional `getItem(N)` indexes; the enablement matrix lives in the headless-testable `MenuStates.enabled` (`MenuStatesTest`, 7 tests) with the toolbar mirroring its menu counterpart
+- Per-class logging: `LogFactory.getLog(Class)` replaces the single shared logger so records carry class context; all call sites migrated and the no-arg overload removed
+- `SingleInstanceManager` reports lock/close failures through the logger instead of `System.err` (still console-visible pre-`configureLogging` via the JUL root handler)
+- Windows native-image hardening: `/DYNAMICBASE`, `/NXCOMPAT`, `/HIGHENTROPYVA` linker flags enabled for release builds; `window_affinity.obj` stays off (built manually via `JNI/build.cmd`, absent on clean checkouts)
+- Test coverage: new headless `PasswordStrengthTest` (score-to-text mapping, extracted as `strengthText`) and `RandomPasswordTest` (keystore password length/pool/randomness contract)
+
+### Fixed
+
+- Auto-lock / lock-on-minimize no longer silently skipped when the vault has unsaved changes — `FileAction.setLocked` always locks and clears secrets/table/clipboard
+- `FileAction.clearConfidentialData` now also clears `wrappedDek` and `sealedData`
+- Clipboard handling: `EditAction` disposes `Clipboard` in `finally`, clears `CharArrayString` intermediates, and auto-clears non-password copies too; `PasswordGeneratorDialog` copies now auto-clear; `Action.clearClipboard` guards disposed displays; generator strength-check slice is cleared
+- `RandomPassword` rejection sampling is bounded (100 attempts) so short lengths with many character classes cannot hang the UI thread
+- Integration test `shouldCreateAndReadConfiguration` now uses `autoLockTime` 30 instead of 300 (above the 60-minute maximum)
+- SWT menu icons: `Widgets.menuItem` no longer disposes the `Image` immediately after `setImage` (use-after-dispose — SWT does not copy); the image now lives until the `MenuItem` is disposed
+- SWT dialog icons: `Entry`/`System`/`Text`/`PasswordGenerator` dialogs no longer dispose the app `Image` before `dialog.open()` while the shell still references it; disposal now happens on dialog dispose
+- SWT leaks closed: toolbar disabled (gray) images, `CTabItem` images, and replaced fonts from `ViewAction.changeFont` are now disposed; leaked `TrayItem` and `DropTarget` are disposed with the main shell
+- SWT double-dispose corrected: the shared shell/tray app icon is freed exactly once, and `disposeResources` no longer disposes system/inherited fonts
+- Divider crash fixed: an empty `divider` value in `config.json` no longer throws `StringIndexOutOfBoundsException` in `JsonUtil.setJsonConfig` (uncaught — `IOUtil.openConfig` only handles `IOException`/`JsonParserException`); empty values fall back to `DELIMITER`
+- `ConfigDialog` divider apply no longer throws `NullPointerException` when no header exists yet, validates the character through `setDivider` before rewriting the header, and wipes the `Text.getTextChars` buffer after use
+- Tray handling no longer relies on `SystemTray` index `0`: the app `TrayItem` is now stored on the main shell (`Widgets.setTrayItem`/`getTrayItem`) and reused by `FileAction`/`Event`, avoiding wrong-item targeting when other tray items exist
+- `PasswordStrength.evalPasswordStrength` now honors `ConfigData.getPasswordMinLength()` instead of the static default, so strength feedback matches the configured policy
+- `SingleInstanceManager` logger warnings now include full throwables (`LOG.warn(..., e)`) rather than only `e.getMessage()`, restoring stack traces for lock/IO diagnostics
 
 ## [1.2.0] - 2025-10-23
 

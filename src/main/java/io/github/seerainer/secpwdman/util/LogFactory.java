@@ -26,6 +26,9 @@ import static io.github.seerainer.secpwdman.config.StringConstants.empty;
 import static io.github.seerainer.secpwdman.config.StringConstants.logFileP;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -38,8 +41,6 @@ import org.slf4j.LoggerFactory;
  * The class LogFactory.
  */
 public class LogFactory {
-
-    private static final Logger logger = LoggerFactory.getLogger(LogFactory.class.getName());
 
     private LogFactory() {
     }
@@ -55,17 +56,43 @@ public class LogFactory {
 	    final var fileHandler = new FileHandler(logFileP, LOG_FILE_SIZE, LOG_FILES, true);
 	    fileHandler.setFormatter(new SimpleFormatter());
 	    rootLogger.addHandler(fileHandler);
+	    restrictLogPermissions();
 	} catch (final IOException e) {
-	    logger.error(ERROR, e);
+	    getLog(LogFactory.class).error(ERROR, e);
+	}
+    }
+
+    private static void restrictLogPermissions() {
+	try {
+	    final var logPath = Path
+		    .of(logFileP.replace("%h", System.getProperty("user.home")).replace("%g", "0").replace("%u", "0"));
+	    final var dir = logPath.getParent();
+	    if (dir != null && Files.exists(dir)) {
+		try {
+		    Files.setPosixFilePermissions(dir, PosixFilePermissions.fromString("rwx------"));
+		} catch (final UnsupportedOperationException _) {
+		    final var f = dir.toFile();
+		    f.setReadable(false, false);
+		    f.setWritable(false, false);
+		    f.setExecutable(false, false);
+		    f.setReadable(true, true);
+		    f.setWritable(true, true);
+		    f.setExecutable(true, true);
+		}
+	    }
+	} catch (final Exception _) {
+	    // Best effort only; logging must never fail startup.
 	}
     }
 
     /**
-     * Gets the logger of the calling class.
+     * Gets the logger of the given class. Call sites pass their own class so log
+     * records carry class context instead of a single shared name.
      *
+     * @param clazz the class requesting the logger
      * @return the logger
      */
-    public static Logger getLog() {
-	return logger;
+    public static Logger getLog(final Class<?> clazz) {
+	return LoggerFactory.getLogger(clazz.getName());
     }
 }

@@ -25,6 +25,7 @@ import static io.github.seerainer.secpwdman.config.PrimitiveConstants.HEAD_FORE;
 import static io.github.seerainer.secpwdman.util.SWTUtil.DARK;
 import static io.github.seerainer.secpwdman.util.SWTUtil.LINUX;
 import static io.github.seerainer.secpwdman.util.SWTUtil.MACOS;
+import static io.github.seerainer.secpwdman.util.SWTUtil.disposeOnExit;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getColor;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getGridData;
 import static io.github.seerainer.secpwdman.util.SWTUtil.getImage;
@@ -47,6 +48,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
@@ -59,11 +61,15 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.swt.widgets.TrayItem;
 
 /**
  * The class Widgets.
  */
 public class Widgets {
+
+    private static final String ITEM_ID_KEY = "SecPwdMan.menuId";
+    private static final String TRAY_ITEM_KEY = "SecPwdMan.trayItem";
 
     private Widgets() {
     }
@@ -112,7 +118,9 @@ public class Widgets {
 
     static CTabItem cTabItem(final CTabFolder parent, final int style, final String image, final String text) {
 	final var item = new CTabItem(parent, style);
-	item.setImage(getImage(parent.getDisplay(), image));
+	final var img = getImage(parent.getDisplay(), image);
+	item.setImage(img);
+	disposeOnExit(item, img);
 	item.setText(text);
 	return item;
     }
@@ -203,7 +211,7 @@ public class Widgets {
 	if (nonNull(image) && !LINUX) {
 	    final var img = getImage(parent.getDisplay(), image);
 	    item.setImage(img);
-	    img.dispose();
+	    disposeOnExit(item, img);
 	}
 	if (selection) {
 	    item.setSelection(true);
@@ -247,6 +255,91 @@ public class Widgets {
     }
 
     /**
+     * Stores the main window tray item on the shell so action/event classes can
+     * reference that exact instance without relying on tray indexes.
+     *
+     * @param shell    the main window shell
+     * @param trayItem the tray item (or null to clear)
+     */
+    public static void setTrayItem(final Shell shell, final TrayItem trayItem) {
+	shell.setData(TRAY_ITEM_KEY, trayItem);
+    }
+
+    /**
+     * Gets the main window tray item previously stored via
+     * {@link #setTrayItem(Shell, TrayItem)}.
+     *
+     * @param shell the main window shell
+     * @return the live tray item or null
+     */
+    public static TrayItem getTrayItem(final Shell shell) {
+	if (shell == null || shell.isDisposed()) {
+	    return null;
+	}
+	final var data = shell.getData(TRAY_ITEM_KEY);
+	if (data instanceof final TrayItem trayItem && !trayItem.isDisposed()) {
+	    return trayItem;
+	}
+	return null;
+    }
+
+    /**
+     * Attaches a stable {@link MenuIds} identifier to a menu or toolbar item.
+     * Lookups via {@link #findMenuItem} / {@link #findToolItem} resolve through
+     * these ids, so menu order never affects enablement or text updates.
+     *
+     * @param <T>  the item type
+     * @param item the item to tag
+     * @param id   the stable identifier
+     * @return the tagged item (for inline use at creation sites)
+     */
+    public static <T extends Item> T tag(final T item, final String id) {
+	item.setData(ITEM_ID_KEY, id);
+	return item;
+    }
+
+    private static boolean hasId(final Item item, final String id) {
+	return !item.isDisposed() && id.equals(item.getData(ITEM_ID_KEY));
+    }
+
+    /**
+     * Finds a menu item by its {@link MenuIds} identifier within one menu. Scoped
+     * to the given parent, so the same id may be reused in different menus (e.g.
+     * edit menu and table popup).
+     *
+     * @param parent the menu to search
+     * @param id     the identifier
+     * @return the tagged item
+     * @throws IllegalStateException if no tagged item exists (fail fast on a
+     *                               missing tag instead of mis-targeting by index)
+     */
+    public static MenuItem findMenuItem(final Menu parent, final String id) {
+	for (final var item : parent.getItems()) {
+	    if (hasId(item, id)) {
+		return item;
+	    }
+	}
+	throw new IllegalStateException("No menu item tagged: " + id);
+    }
+
+    /**
+     * Finds a toolbar item by its {@link MenuIds} identifier.
+     *
+     * @param toolBar the toolbar to search
+     * @param id      the identifier
+     * @return the tagged item
+     * @throws IllegalStateException if no tagged item exists
+     */
+    public static ToolItem findToolItem(final ToolBar toolBar, final String id) {
+	for (final var item : toolBar.getItems()) {
+	    if (hasId(item, id)) {
+		return item;
+	    }
+	}
+	throw new IllegalStateException("No toolbar item tagged: " + id);
+    }
+
+    /**
      * MessageBox.
      *
      * @param parent the parent
@@ -284,7 +377,6 @@ public class Widgets {
 
     static Shell shell(final Shell parent, final int style, final Image image, final Layout layout, final String text) {
 	final var shell = new Shell(parent, style);
-	shell.addDisposeListener(_ -> shell.dispose());
 	setFont(shell, parent);
 	setLayout(shell, layout);
 	if (DARK && !MACOS) {
@@ -359,9 +451,11 @@ public class Widgets {
 	final var display = toolBar.getDisplay();
 	final var item = new ToolItem(toolBar, SWT.PUSH);
 	final var img = getImage(display, image);
+	final var disabledImg = new Image(display, img, SWT.IMAGE_GRAY);
 	item.addSelectionListener(listener);
 	item.setImage(img);
-	item.setDisabledImage(new Image(display, img, SWT.IMAGE_GRAY));
+	item.setDisabledImage(disabledImg);
+	disposeOnExit(item, img, disabledImg);
 	item.setToolTipText(toolTip);
 	return item;
     }

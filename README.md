@@ -49,7 +49,7 @@
 - **Configurable Table & Dialog Fonts**
 - **Theming:** Dark mode
 - **Unit & Integration Tests:** Comprehensive test coverage
-- **Secure Native Memory:** All sensitive data (passwords, keys) are handled using off-heap native memory (Java Foreign Memory API) via the `SecureMemory` utility, ensuring automatic zeroing and minimizing heap exposure.
+- **Secure Native Memory:** Sensitive operations use off-heap native memory (Java Foreign Memory API) via `SecureMemory` with explicit zeroing; unavoidable on-heap copies are minimized and cleared as quickly as possible.
 
 ---
 
@@ -121,10 +121,10 @@ cd SecPwdMan
 
 ## Security
 - **Envelope Encryption:** Follows the [OWASP Cryptographic Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html#encrypting-stored-keys) — a random 256-bit Data Encryption Key (DEK) encrypts vault data; a Key Encryption Key (KEK) derived from the master password via KDF wraps the DEK; only the encrypted DEK is stored in the vault file, never the KEK
-- **Encryption:** AES-256-GCM or ChaCha20-Poly1305 for vault data; AES-256-GCM always used for the DEK wrapping layer
+- **Encryption:** AES-256-GCM or ChaCha20-Poly1305 for vault data; AES-256-GCM always used for the DEK wrapping layer; v1 vaults bind cipher/KDF metadata as AEAD associated data so tampering fails authentication
 - **Key Derivation:** Argon2, scrypt, or PBKDF2 for KEK derivation from the master password
 - **SecureRandom:** Cryptographically secure random number generation (`SecureRandom.getInstanceStrong()`)
-- **Secure Native Memory:** Sensitive data (DEK, master password, keys) held in off-heap native memory via the Foreign Memory API; zeroed immediately after use
+- **Secure Native Memory:** Sensitive crypto operations use off-heap native memory where practical via the Foreign Memory API, with explicit wiping; some JVM-managed heap copies are unavoidable and are cleared promptly
 - **Screenshot Protection:** Prevents screen capture on Windows
 - **Secure File Deletion:** Shreds exported files to prevent recovery
 - **Password Strength:** Integrated zxcvbn4j for strength feedback

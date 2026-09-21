@@ -72,9 +72,7 @@ public final class PrimitiveConstants {
     public static final char CR = '\r';
     public static final char LF = '\n';
     public static final char DELIMITER = ',';
-    public static final char ECHO_CHAR = '\u25CF';
     public static final char ESCAPE_CHAR = '"';
-    public static final char NULL_CHAR = '\0';
     public static final char QUOTE_CHAR = '"';
 
     private PrimitiveConstants() {
