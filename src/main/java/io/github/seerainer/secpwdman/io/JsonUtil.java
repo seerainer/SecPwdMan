@@ -66,6 +66,7 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2d;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2id;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.compressionMissing;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekMissing;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.pbkdf2;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.unsupportedFormat;
@@ -160,7 +161,8 @@ class JsonUtil {
      *   "encryptedData": "&lt;base64 ciphertext&gt;",
      *   "encryptedDEK":  "&lt;base64 wrapped DEK&gt;",
      *   "dekSalt":       "envelope",
-     *   "formatVersion": 1
+     *   "deflate":       true,
+     *   "formatVersion": 2
      * }
      * </pre>
      *
@@ -175,9 +177,10 @@ class JsonUtil {
 	final var dekStr    = new String(Util.getBase64Encode(wrappedDek), UTF_8);
 	return getEncryptionValues(cData)
 			.value(encData, encStr)
-			.value(encDek,  dekStr)
-			.value(dekSalt, "envelope")
-			.value(formatVersion, cData.getCryptoConfig().getVaultFormatVersion())
+ 			.value(encDek,  dekStr)
+ 			.value(dekSalt, "envelope")
+ 			.value(deflate, valueOf(cData.getCryptoConfig().isCompress()))
+ 			.value(formatVersion, cData.getCryptoConfig().getVaultFormatVersion())
 		.end()
     	.done().getBytes(UTF_8);
     }
@@ -247,6 +250,7 @@ class JsonUtil {
 	cConf.setScryptN(obj.getInt(scryptN, cConf.getScryptN()));
 	cConf.setScryptR(obj.getInt(scryptR, cConf.getScryptR()));
 	cConf.setScryptP(obj.getInt(scryptP, cConf.getScryptP()));
+	cConf.setCompress(obj.getBoolean(deflate, valueOf(cData.isCompress())));
 	return obj;
     }
 
@@ -292,13 +296,18 @@ class JsonUtil {
     static EncryptedFile setJsonFile(final ConfigData cData, final InputStream is) throws JsonParserException {
 	final var obj = setEncryptionValues(cData, is);
 
-	// Files without the field predate AAD binding and open via the legacy
-	// path; newer-than-known versions fail closed instead of decrypting
-	// with the wrong AAD scheme.
 	final var version = obj.getInt(formatVersion, VAULT_FORMAT_LEGACY);
-	if (version > VAULT_FORMAT_VERSION) {
+	if (version < VAULT_FORMAT_LEGACY || version > VAULT_FORMAT_VERSION) {
 	    throw new IllegalArgumentException(
 		    new StringBuilder().append(unsupportedFormat).append(" ").append(version).toString());
+	}
+	if (version >= VAULT_FORMAT_VERSION) {
+	    if (!obj.has(deflate) || !obj.isBoolean(deflate)) {
+		throw new IllegalArgumentException(compressionMissing);
+	    }
+	    cData.getCryptoConfig().setCompress(obj.getBoolean(deflate, Boolean.FALSE));
+	} else {
+	    cData.getCryptoConfig().setCompress(cData.isCompress());
 	}
 	cData.getCryptoConfig().setVaultFormatVersion(version);
 

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `SecurityFixesTest` — unit tests for KDF parameter clamping, truncated DEK/ciphertext rejection, fail-closed unknown-algorithm handling, and the `SealedObject` AEAD allowlist
 - `StorageHardeningTest` — unit tests for `CharArrayString` wiping, `SensitiveData` zero-on-replace, serialization allowlist round-trip, atomic save, and `ConfigData` clamping
 - `SWTUtil` resource helpers: guarded `safeDispose` overloads (`Resource`/`Widget`/`DropTarget`), `disposeOnExit` owner tracking, and `setOwnedFont`/`getOwnedFont` custom-font ownership (system/inherited fonts are never disposed)
+- Add compression metadata handling in JSON serialization
 
 ### Changed
 
@@ -67,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tray handling no longer relies on `SystemTray` index `0`: the app `TrayItem` is now stored on the main shell (`Widgets.setTrayItem`/`getTrayItem`) and reused by `FileAction`/`Event`, avoiding wrong-item targeting when other tray items exist
 - `PasswordStrength.evalPasswordStrength` now honors `ConfigData.getPasswordMinLength()` instead of the static default, so strength feedback matches the configured policy
 - `SingleInstanceManager` logger warnings now include full throwables (`LOG.warn(..., e)`) rather than only `e.getMessage()`, restoring stack traces for lock/IO diagnostics
+- Improve error handling in CSV processing and file actions
+- Refactor methods to ensure secure clearing of sensitive data
 
 ## [1.2.0] - 2025-10-23
 

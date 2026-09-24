@@ -78,20 +78,24 @@ public class PasswordStrength {
 	    return;
 	}
 	final var charBuffer = CharBuffer.wrap(pwd);
-	final var strength = zxcvbn.measure(charBuffer);
-	Util.clear(charBuffer.array());
-	final var text = strengthText(strength.getScore());
-	if (text.equals(passWeak) || text.equals(passFair)) {
-	    label.setForeground(display.getSystemColor(SWT.COLOR_RED));
-	} else if (SWTUtil.DARK) {
-	    label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
-	} else {
-	    label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
+	try {
+	    final var strength = zxcvbn.measure(charBuffer);
+	    final var text = strengthText(strength.getScore());
+	    if (text.equals(passWeak) || text.equals(passFair)) {
+		label.setForeground(display.getSystemColor(SWT.COLOR_RED));
+	    } else if (SWTUtil.DARK) {
+		label.setForeground(display.getSystemColor(SWT.COLOR_GREEN));
+	    } else {
+		label.setForeground(display.getSystemColor(SWT.COLOR_DARK_GREEN));
+	    }
+	    label.setText(text);
+	    final var feedback = strength.getFeedback();
+	    final var sb = new StringBuilder();
+	    feedback.getSuggestions().forEach((final var s) -> sb.append(s).append(newLine));
+	    label.setToolTipText(sb.toString() + feedback.getWarning());
+	} finally {
+	    Util.clear(pwd);
+	    CharsetUtil.clearCharBuffer(charBuffer);
 	}
-	label.setText(text);
-	final var feedback = strength.getFeedback();
-	final var sb = new StringBuilder();
-	feedback.getSuggestions().forEach((final var s) -> sb.append(s).append(newLine));
-	label.setToolTipText(sb.toString() + feedback.getWarning());
     }
 }

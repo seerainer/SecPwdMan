@@ -35,6 +35,8 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_N;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MAX;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MIN;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R_MIN;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
@@ -66,6 +68,7 @@ public class CryptoConfig {
      * freshness matters here.
      */
     private int vaultFormatVersion = VAULT_FORMAT_LEGACY;
+    private boolean compress = true;
 
     /**
      * Instantiates a new CryptoConfig.
@@ -141,6 +144,10 @@ public class CryptoConfig {
      */
     public int getVaultFormatVersion() {
 	return vaultFormatVersion;
+    }
+
+    public boolean isCompress() {
+	return compress;
     }
 
     /**
@@ -261,10 +268,15 @@ public class CryptoConfig {
     }
 
     /**
-     * @param scryptR the scryptR to set (minimum 1, hardened default 8)
+     * @param scryptR the scryptR to set (clamped to SCRYPT_R_MIN..MAX, hardened
+     *                default 8)
      */
     public void setScryptR(final int scryptR) {
-	this.scryptR = Math.max(1, scryptR);
+	this.scryptR = Math.min(SCRYPT_R_MAX, Math.max(SCRYPT_R_MIN, scryptR));
+    }
+
+    public void setCompress(final boolean compress) {
+	this.compress = compress;
     }
 
     /**

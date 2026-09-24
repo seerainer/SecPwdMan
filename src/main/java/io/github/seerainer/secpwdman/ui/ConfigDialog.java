@@ -75,7 +75,8 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_N;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MAX;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_P_MIN;
-import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R_MIN;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2d;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.argon2id;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
@@ -332,7 +333,7 @@ record ConfigDialog(Action action) {
 	final var comboScrypt = combo(groupScrypt, SWT.READ_ONLY);
 	comboScrypt.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	comboScrypt.setItems(Arrays.stream(SCRYPT_N).mapToObj(String::valueOf).toArray(String[]::new));
-	final var spinScryptR = spinner(groupScrypt, cConf.getScryptR(), SCRYPT_R, SCRYPT_R, 0, 1, 2);
+	final var spinScryptR = spinner(groupScrypt, cConf.getScryptR(), SCRYPT_R_MIN, SCRYPT_R_MAX, 0, 1, 2);
 	final var spinScryptP = spinner(groupScrypt, cConf.getScryptP(), SCRYPT_P_MIN, SCRYPT_P_MAX, 0, 1, 2);
 	spinScryptR.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));
 	spinScryptP.setLayoutData(getGridData(SWT.LEAD, SWT.CENTER, 1, 0));

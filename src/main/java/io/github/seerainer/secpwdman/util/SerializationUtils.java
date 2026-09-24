@@ -93,21 +93,19 @@ public class SerializationUtils {
 	}
 
 	return SecureMemory.withSecretMemory(data.clone(), dataSegment -> {
+	    byte[] secureData = null;
 	    try {
-		final var secureData = SecureMemory.readFromNative(dataSegment);
-
-		try (final var bais = new ByteArrayInputStream(secureData);
-			final var ois = new ObjectInputStream(bais)) {
-		    ois.setObjectInputFilter(SerializationUtils::checkInput);
-		    final var obj = ois.readObject();
-		    Util.clear(data);
-		    return obj;
-		} finally {
-		    Util.clear(secureData);
-		}
+		secureData = SecureMemory.readFromNative(dataSegment);
+		final var bais = new ByteArrayInputStream(secureData);
+		final var ois = new ObjectInputStream(bais);
+		ois.setObjectInputFilter(SerializationUtils::checkInput);
+		return ois.readObject();
 	    } catch (final Exception e) {
 		LOG.error(DESERIAL_FAILED, e);
 		throw new RuntimeException(DESERIAL_FAILED, e);
+	    } finally {
+		Util.clear(data);
+		Util.clear(secureData);
 	    }
 	});
     }
@@ -134,10 +132,11 @@ public class SerializationUtils {
 
 	    return SecureMemory.withSecretMemory(data, dataSegment -> {
 		final var secureData = SecureMemory.readFromNative(dataSegment);
-		Util.clear(data);
+
 		try {
 		    return secureData.clone();
 		} finally {
+		    Util.clear(data);
 		    Util.clear(secureData);
 		}
 	    });

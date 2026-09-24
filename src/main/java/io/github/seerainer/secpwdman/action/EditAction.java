@@ -69,14 +69,14 @@ public class EditAction extends Action {
 	    final var cas = new CharArrayString(item.getText(index));
 	    final var raw = cas.toCharArray();
 	    final var password = decryptPassword(raw);
-	    clear(raw);
-	    cas.clear();
 	    try {
 		text.setTextChars(password);
 		text.selectAll();
 		text.copy();
 	    } finally {
 		clear(password);
+		clear(raw);
+		cas.clear();
 		text.dispose();
 	    }
 	} else {

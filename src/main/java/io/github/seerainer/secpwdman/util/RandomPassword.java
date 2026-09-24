@@ -27,7 +27,6 @@ import static io.github.seerainer.secpwdman.config.StringConstants.rSpecia2;
 import static io.github.seerainer.secpwdman.config.StringConstants.rTextLoC;
 import static io.github.seerainer.secpwdman.config.StringConstants.rTextUpC;
 import static io.github.seerainer.secpwdman.config.StringConstants.space;
-import static io.github.seerainer.secpwdman.util.Util.clear;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -79,7 +78,6 @@ public class RandomPassword {
 	var attempts = 1;
 	final var maxAttempts = 100;
 	while (isCustomBlank && isWeakPassword(select, randomPwd) && attempts < maxAttempts) {
-	    clear(randomPwd);
 	    randomPwd = generate(spinner, sb);
 	    attempts++;
 	}

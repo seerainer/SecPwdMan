@@ -81,22 +81,25 @@ record PasswordGeneratorDialog(Action action) {
 
     private void generate(final int count, final int pwdLength, final Group random, final Text text) {
 	final var buffer = new char[pwdLength * count + count - 1];
-	var bufferIndex = 0;
+	try {
+	    var bufferIndex = 0;
 
-	for (var i = 0; i < count; i++) {
-	    final var randPwd = RandomPassword.generate(action, random.getChildren());
-	    if (randPwd.length == 0) {
-		continue;
+	    for (var i = 0; i < count; i++) {
+		final var randPwd = RandomPassword.generate(action, random.getChildren());
+		if (randPwd.length == 0) {
+		    continue;
+		}
+		System.arraycopy(randPwd, 0, buffer, bufferIndex, randPwd.length);
+		bufferIndex += randPwd.length;
+		if (i < count - 1) {
+		    buffer[bufferIndex] = LF;
+		    bufferIndex++;
+		}
 	    }
-	    System.arraycopy(randPwd, 0, buffer, bufferIndex, randPwd.length);
-	    bufferIndex += randPwd.length;
-	    if (i < count - 1) {
-		buffer[bufferIndex] = LF;
-		bufferIndex++;
-	    }
+	    text.setTextChars(buffer);
+	} finally {
+	    clear(buffer);
 	}
-	text.setTextChars(buffer);
-	clear(buffer);
     }
 
     Shell open() {

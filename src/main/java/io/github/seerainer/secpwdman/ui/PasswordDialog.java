@@ -78,19 +78,22 @@ record PasswordDialog(FileAction action) {
 	final var label = (Label) text1.getParent().getChildren()[5];
 	final var pwd1 = text1.getTextChars();
 	final var pwd2 = text2.getTextChars();
-	if (isEqual(pwd1, pwd2)) {
-	    if (pwd1.length >= PWD_MIN_LENGTH) {
-		evalPasswordStrength(cData, label, pwd1);
+	try {
+	    if (isEqual(pwd1, pwd2)) {
+		if (pwd1.length >= PWD_MIN_LENGTH) {
+		    evalPasswordStrength(cData, label, pwd1);
+		} else {
+		    label.setText(errorLen.formatted(Integer.valueOf(cData.getPasswordMinLength())));
+		}
 	    } else {
-		label.setText(errorLen.formatted(Integer.valueOf(cData.getPasswordMinLength())));
+		label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
+		label.setText(passNoMa);
+		label.setToolTipText(empty);
 	    }
-	} else {
-	    label.setForeground(e.display.getSystemColor(SWT.COLOR_RED));
-	    label.setText(passNoMa);
-	    label.setToolTipText(empty);
+	} finally {
+	    clear(pwd1);
+	    clear(pwd2);
 	}
-	clear(pwd1);
-	clear(pwd2);
     }
 
     private static void startAutoLock(final Display display, final FileAction action) {
@@ -105,46 +108,49 @@ record PasswordDialog(FileAction action) {
 	final var io = new IO(action);
 	final var pwd = ((Text) dialog.getChildren()[1]);
 	final var pwdCharsA = pwd.getTextChars();
-	final var length = pwdCharsA.length;
-	pwd.selectAll();
-	if (dialog.getBounds().height == PWD_CONFIRM_HEIGHT) {
-	    final var pwdMinLength = cData.getPasswordMinLength();
-	    final var pwdConfirm = ((Text) dialog.getChildren()[3]);
-	    final var pwdCharsB = pwdConfirm.getTextChars();
-	    pwdConfirm.selectAll();
-	    if ((length > 0 && isEqual(pwdCharsA, pwdCharsB))) {
-		if (length < pwdMinLength) {
-		    msg(dialog, SWT.ICON_ERROR | SWT.OK, titleErr, errorLen.formatted(Integer.valueOf(pwdMinLength)));
-		} else {
-		    action.resetGroupList();
-		    action.fillTable(true, action.extractData(true));
-		    cData.setImport(true);
-		    if (io.saveFile(toBytes(pwdCharsB), file)) {
-			closeDialog(cData, dialog);
-			action.postSave();
-			startAutoLock(display, action);
+	try {
+	    final var length = pwdCharsA.length;
+	    pwd.selectAll();
+	    if (dialog.getBounds().height == PWD_CONFIRM_HEIGHT) {
+		final var pwdMinLength = cData.getPasswordMinLength();
+		final var pwdConfirm = ((Text) dialog.getChildren()[3]);
+		final var pwdCharsB = pwdConfirm.getTextChars();
+		pwdConfirm.selectAll();
+		if ((length > 0 && isEqual(pwdCharsA, pwdCharsB))) {
+		    if (length < pwdMinLength) {
+			msg(dialog, SWT.ICON_ERROR | SWT.OK, titleErr,
+				errorLen.formatted(Integer.valueOf(pwdMinLength)));
+		    } else if (action.fillTable(true, action.extractData(true))) {
+			action.resetGroupList();
+			cData.setImport(true);
+			if (io.saveFile(toBytes(pwdCharsB), file)) {
+			    closeDialog(cData, dialog);
+			    action.postSave();
+			    startAutoLock(display, action);
+			}
 		    }
 		}
+	    } else if (length > 0) {
+		dialog.setVisible(false);
+		if (io.openFile(toBytes(pwdCharsA), file)) {
+		    cData.setReadOnly(action.getTable().getItemCount() > 0);
+		    closeDialog(cData, dialog);
+		    startAutoLock(display, action);
+		} else {
+		    dialog.setVisible(true);
+		}
 	    }
+	    if (!dialog.isDisposed()) {
+		pwd.setFocus();
+	    }
+	    if (Objects.isNull(shell) || shell.isDisposed()) {
+		return;
+	    }
+	    action.fillGroupList();
+	    action.updateUI();
+	} finally {
 	    clear(pwdCharsA);
-	} else if (length > 0) {
-	    dialog.setVisible(false);
-	    if (io.openFile(toBytes(pwdCharsA), file)) {
-		cData.setReadOnly(action.getTable().getItemCount() > 0);
-		closeDialog(cData, dialog);
-		startAutoLock(display, action);
-	    } else {
-		dialog.setVisible(true);
-	    }
 	}
-	if (!dialog.isDisposed()) {
-	    pwd.setFocus();
-	}
-	if (Objects.isNull(shell) || shell.isDisposed()) {
-	    return;
-	}
-	action.fillGroupList();
-	action.updateUI();
     }
 
     Shell open(final boolean confirm) {
