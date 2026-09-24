@@ -162,7 +162,7 @@ class JsonUtil {
      *   "encryptedDEK":  "&lt;base64 wrapped DEK&gt;",
      *   "dekSalt":       "envelope",
      *   "deflate":       true,
-     *   "formatVersion": 2
+     *   "formatVersion": 1
      * }
      * </pre>
      *
