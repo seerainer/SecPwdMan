@@ -34,6 +34,7 @@ import static io.github.seerainer.secpwdman.config.StringConstants.errorOut;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorPwd;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorSev;
 import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.decryptWithDek;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.generateDek;
@@ -236,11 +237,22 @@ public class IO {
 		// Previously unseal() + unwrapDek() derived the KEK twice.
 		dek = unwrapDek(wrappedDek, password, cConf);
 		bytes = decryptWithDek(ciphertext, dek, cConf);
-		bytes = cConf.isCompress() ? IOUtil.inflate(bytes) : bytes;
+		var compressed = cConf.isCompress();
+		if (compressed) {
+		    try {
+			bytes = IOUtil.inflate(bytes);
+		    } catch (final IOException e) {
+			if (cConf.getVaultFormatVersion() != VAULT_FORMAT_LEGACY) {
+			    throw e;
+			}
+			compressed = false;
+		    }
+		}
 		if (!action.fillTable(true, bytes, false)) {
 		    throw new IllegalArgumentException(errorImp.formatted(IOUtil.getFilePath(file)));
 		}
-		cData.setCompress(cConf.isCompress());
+		cConf.setCompress(compressed);
+		cData.setCompress(compressed);
 
 		// Keep both the plaintext DEK and the wrapped DEK for this session
 		final var sensitiveData = cData.getSensitiveData();

@@ -96,10 +96,11 @@ public class SerializationUtils {
 	    byte[] secureData = null;
 	    try {
 		secureData = SecureMemory.readFromNative(dataSegment);
-		final var bais = new ByteArrayInputStream(secureData);
-		final var ois = new ObjectInputStream(bais);
-		ois.setObjectInputFilter(SerializationUtils::checkInput);
-		return ois.readObject();
+		try (final var bais = new ByteArrayInputStream(secureData);
+			final var ois = new ObjectInputStream(bais)) {
+		    ois.setObjectInputFilter(SerializationUtils::checkInput);
+		    return ois.readObject();
+		}
 	    } catch (final Exception e) {
 		LOG.error(DESERIAL_FAILED, e);
 		throw new RuntimeException(DESERIAL_FAILED, e);

@@ -36,6 +36,9 @@ public class CharsetUtil {
     }
 
     private static void clearByteBuffer(final ByteBuffer buffer) {
+	if (isNull(buffer)) {
+	    return;
+	}
 	byte[] array = null;
 	try {
 	    if (buffer.hasArray()) {
@@ -62,6 +65,9 @@ public class CharsetUtil {
      * @param buffer the CharBuffer to clear
      */
     public static void clearCharBuffer(final CharBuffer buffer) {
+	if (isNull(buffer)) {
+	    return;
+	}
 	char[] array = null;
 	try {
 	    if (buffer.hasArray()) {

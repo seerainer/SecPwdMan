@@ -78,6 +78,7 @@ public class RandomPassword {
 	var attempts = 1;
 	final var maxAttempts = 100;
 	while (isCustomBlank && isWeakPassword(select, randomPwd) && attempts < maxAttempts) {
+	    Util.clear(randomPwd);
 	    randomPwd = generate(spinner, sb);
 	    attempts++;
 	}
