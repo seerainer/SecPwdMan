@@ -197,7 +197,7 @@ class StorageHardeningTest {
     void vaultScryptMetadataIsBounded() throws Exception {
 	final var json = """
 		{"appName":"SecPwdMan","keydf":"scrypt","scryptR":2147483647,
-		 "encryptedData":"eA==","encryptedDEK":"eQ==","formatVersion":1}
+		 "encryptedData":"eA==","encryptedDEK":"eQ==","deflate":false,"formatVersion":1}
 		""";
 	final var cData = new ConfigData();
 	try (final var is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
