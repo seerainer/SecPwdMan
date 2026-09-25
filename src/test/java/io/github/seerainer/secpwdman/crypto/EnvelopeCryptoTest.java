@@ -323,6 +323,21 @@ class EnvelopeCryptoTest {
 		.isInstanceOf(BadPaddingException.class);
     }
 
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("v2 compression metadata tampering fails authentication")
+    void v2CompressionTamperRejected() throws Exception {
+	final var v2 = new CryptoConfig();
+	v2.setVaultFormatVersion(2);
+	v2.setCompress(true);
+	final var dek = EnvelopeCrypto.generateDek();
+	final var result = EnvelopeCrypto.seal(PLAINTEXT, dek, PASSWORD.clone(), v2);
+	v2.setCompress(false);
+	assertThatThrownBy(
+		() -> EnvelopeCrypto.unseal(result.encryptedData(), result.wrappedDek(), PASSWORD.clone(), v2))
+		.isInstanceOf(BadPaddingException.class);
+    }
+
     // -------------------------------------------------------------------------
     // Parameterized: Argon2 variants
     // -------------------------------------------------------------------------

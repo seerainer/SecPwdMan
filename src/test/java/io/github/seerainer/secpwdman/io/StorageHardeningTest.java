@@ -21,6 +21,8 @@ package io.github.seerainer.secpwdman.io;
 
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.DELIMITER;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_FILE_SIZE;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SCRYPT_R_MAX;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -187,6 +189,53 @@ class StorageHardeningTest {
 	try (final var is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
 	    assertThatThrownBy(() -> JsonUtil.setJsonFile(cData, is)).isInstanceOf(IllegalArgumentException.class);
 	}
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Vault scrypt metadata is bounded before KDF use")
+    void vaultScryptMetadataIsBounded() throws Exception {
+	final var json = """
+		{"appName":"SecPwdMan","keydf":"scrypt","scryptR":2147483647,
+		 "encryptedData":"eA==","encryptedDEK":"eQ==","deflate":false,"formatVersion":1}
+		""";
+	final var cData = new ConfigData();
+	try (final var is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
+	    JsonUtil.setJsonFile(cData, is);
+	}
+	assertThat(cData.getCryptoConfig().getScryptR()).isEqualTo(SCRYPT_R_MAX);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Current vault JSON includes compression metadata")
+    void currentVaultJsonIncludesCompressionMetadata() {
+	final var cData = new ConfigData();
+	cData.getCryptoConfig().setVaultFormatVersion(VAULT_FORMAT_VERSION);
+	cData.getCryptoConfig().setCompress(true);
+	final var json = new String(JsonUtil.getJsonFile(cData, new byte[] { 1 }, new byte[] { 2 }),
+		StandardCharsets.UTF_8);
+	assertThat(json).contains("\"deflate\":true");
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Current vault format requires compression metadata")
+    void currentVaultFormatRequiresCompressionMetadata() throws Exception {
+	final var json = """
+		{"appName":"SecPwdMan","formatVersion":2,"encryptedData":"eA==","encryptedDEK":"eQ=="}
+		""";
+	final var cData = new ConfigData();
+	try (final var is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
+	    assertThatThrownBy(() -> JsonUtil.setJsonFile(cData, is)).isInstanceOf(IllegalArgumentException.class);
+	}
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
+    @DisplayName("Malformed compressed data fails closed")
+    void malformedCompressedDataFailsClosed() {
+	assertThatThrownBy(() -> IOUtil.inflate(new byte[] { 1, 2, 3, 4 })).isInstanceOf(IOException.class);
     }
 
     @SuppressWarnings("static-method")

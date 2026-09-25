@@ -44,7 +44,9 @@ public final class CryptoConstants {
     public static final int PBKDF2_MIN_SHA512 = 210000;
     public static final int PBKDF2_MAX = 0x1000000;
     public static final int[] SCRYPT_N = { 8, 16, 32, 64, 128, 256, 512 };
+    public static final int SCRYPT_R_MIN = 1;
     public static final int SCRYPT_R = 8;
+    public static final int SCRYPT_R_MAX = 8;
     public static final int SCRYPT_P_MIN = 1;
     public static final int SCRYPT_P_MAX = 10;
     public static final String alias = "secpwdman";
@@ -79,10 +81,10 @@ public final class CryptoConstants {
     public static final String unexpectedValue = "Unexpected value: ";
     /** Vault files without a {@code formatVersion} field predate AAD binding. */
     public static final int VAULT_FORMAT_LEGACY = 0;
-    /** Current vault format: KDF/cipher metadata bound as AEAD associated data. */
     public static final int VAULT_FORMAT_VERSION = 1;
     public static final String unsupportedFormat = "Unsupported vault format version.";
     public static final String dekMissing = "Encrypted DEK is missing from file; cannot decrypt.";
+    public static final String compressionMissing = "Compression metadata is missing from file.";
     public static final int MIN_WRAPPED_DEK_LENGTH = IV_LENGTH + SALT_LENGTH + 16;
 
     private CryptoConstants() {

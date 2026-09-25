@@ -259,20 +259,20 @@ public abstract class Action {
 	}
 	final var password = CharsetUtil.toChars(getPassword());
 	final var bytes = CharsetUtil.toBytes(data);
-	final var keyData = getBase64Decode(bytes);
-	if (isNull(keyData)) {
+	try {
+	    final var keyData = getBase64Decode(bytes);
+	    if (isNull(keyData)) {
+		return CharsetUtil.toChars(bytes);
+	    }
+	    final var dec = KeyStoreManager.getPasswordFromKeyStore(password, keyData);
+	    if (isNull(dec)) {
+		return CharsetUtil.toChars(bytes);
+	    }
+	    return CharsetUtil.toChars(dec);
+	} finally {
 	    clear(password);
-	    return CharsetUtil.toChars(bytes);
+	    clear(bytes);
 	}
-	final var dec = KeyStoreManager.getPasswordFromKeyStore(password, keyData);
-	if (isNull(dec)) {
-	    clear(password);
-	    return CharsetUtil.toChars(bytes);
-	}
-	final var decChar = CharsetUtil.toChars(dec);
-	clear(password);
-	clear(bytes);
-	return decChar;
     }
 
     /**
@@ -351,10 +351,13 @@ public abstract class Action {
 	}
 	final var key = CharsetUtil.toChars(getPassword());
 	final var bytes = CharsetUtil.toBytes(password);
-	final var kst = KeyStoreManager.putPasswordInKeyStore(key, bytes);
-	clear(key);
-	clear(bytes);
-	return CharsetUtil.toChars(getBase64Encode(kst));
+	try {
+	    final var kst = KeyStoreManager.putPasswordInKeyStore(key, bytes);
+	    return CharsetUtil.toChars(getBase64Encode(kst));
+	} finally {
+	    clear(key);
+	    clear(bytes);
+	}
     }
 
     private String escapeSpecialChar(final char[] chars) {
@@ -424,13 +427,16 @@ public abstract class Action {
 	    final var itemText = new String[table.getColumnCount()];
 	    for (var i = 0; i < itemText.length; i++) {
 		var text = item.getText(i).toCharArray();
-		if (decrypt && i == pwdIndex) {
-		    text = decryptPassword(text);
-		} else if (!decrypt && isImport && i == pwdIndex) {
-		    text = encryptPassword(text);
+		try {
+		    if (decrypt && i == pwdIndex) {
+			text = decryptPassword(text);
+		    } else if (!decrypt && isImport && i == pwdIndex) {
+			text = encryptPassword(text);
+		    }
+		    itemText[i] = escapeSpecialChar(text);
+		} finally {
+		    clear(text);
 		}
-		itemText[i] = escapeSpecialChar(text);
-		clear(text);
 	    }
 	    final var line = new StringBuilder();
 	    for (var j = 0; j < itemText.length; j++) {
@@ -472,26 +478,40 @@ public abstract class Action {
      * @param withHeader true if filled with header
      * @param tableData  the data
      */
-    public void fillTable(final boolean withHeader, final byte[] tableData) {
+    public boolean fillTable(final boolean withHeader, final byte[] tableData) {
+	return fillTable(withHeader, tableData, true);
+    }
+
+    public boolean fillTable(final boolean withHeader, final byte[] tableData, final boolean showError) {
 	final var bufferLength = cData.getBufferLength();
 	final var devider = cData.getDivider();
 	final var config = CSVConfiguration.builder().initialBufferSize(bufferLength).delimiter(devider).build();
 	final var options = CSVParsingOptions.builder().build();
 	final var parser = new CSVParser(config, options);
 	java.util.List<CSVRecord> record = null;
+	var success = false;
 
 	table.setRedraw(false);
 	resetTable();
 
 	try {
 	    record = parser.parseByteArray(tableData.clone());
-	    fillTable(withHeader, record.iterator());
+	    if (record.stream().anyMatch(CSVRecord::hadErrors)) {
+		throw new CSVParseException("CSV record contains errors.", -1, -1);
+	    }
+	    if (!fillTable(withHeader, record.iterator())) {
+		throw new CSVParseException("CSV header is missing.", -1, -1);
+	    }
 	    if (withHeader) {
 		storeTableData(tableData);
 	    }
-	} catch (final CSVParseException e) {
+	    success = true;
+	} catch (final CSVParseException | RuntimeException e) {
 	    LOG.error(ERROR, e);
-	    msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+	    if (showError) {
+		msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+	    }
+	    resetTable();
 	} finally {
 	    clear(tableData);
 	    if (nonNull(record)) {
@@ -503,11 +523,12 @@ public abstract class Action {
 	table.setRedraw(true);
 	resizeColumns();
 	table.redraw();
+	return success;
     }
 
-    private void fillTable(final boolean withHeader, final Iterator<CSVRecord> iterator) {
+    private boolean fillTable(final boolean withHeader, final Iterator<CSVRecord> iterator) {
 	if (!iterator.hasNext()) {
-	    return;
+	    return !withHeader;
 	}
 	final var header = iterator.next().getFields();
 	if (withHeader) {
@@ -522,6 +543,7 @@ public abstract class Action {
 	    final var listSelection = list.getItem(list.getSelectionIndex());
 	    fillTable(iterator, listSelection.equals(listFirs) ? null : listSelection);
 	}
+	return true;
     }
 
     private void fillTable(final Iterator<CSVRecord> iterator, final String selection) {
@@ -529,6 +551,10 @@ public abstract class Action {
 	final var groupIndex = cData.isCustomHeader() ? -1 : cData.getColumnMap().get(csvHeader[1]).intValue();
 	while (iterator.hasNext()) {
 	    final var txt = iterator.next().getFields();
+	    // if (txt.length != table.getColumnCount()) {
+	    // throw new CSVParseException("CSV field count does not match the header.", -1,
+	    // -1);
+	    // }
 	    if (isNull(selection) || selection.equals(txt[groupIndex])) {
 		if (count++ == MAX_TABLE_ENTRIES && !msgYesNo(cData, shell, warnMaxE)) {
 		    LOG.warn(MAX_ENTRY);
@@ -717,20 +743,23 @@ public abstract class Action {
 	final var sealedData = sensitiveData.getSealedData();
 	final var dataKey = sensitiveData.getDataKey();
 	byte[] bytes = null;
-	if (nonNull(sealedData) && nonNull(dataKey)) {
-	    try {
-		final var obj = SerializationUtils.deserialize(sealedData.clone());
-		final var so = SealedObject.class.cast(obj);
-		final var key = Crypto.getSecretKey(dataKey, keyAES);
-		bytes = ((ByteContainer) so.getObject(key)).getData();
-	    } catch (ClassCastException | ClassNotFoundException | InvalidKeyException | IOException
-		    | NoSuchAlgorithmException e) {
-		LOG.error(ERROR, e);
-		msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+	try {
+	    if (nonNull(sealedData) && nonNull(dataKey)) {
+		try {
+		    final var obj = SerializationUtils.deserialize(sealedData.clone());
+		    final var so = SealedObject.class.cast(obj);
+		    final var key = Crypto.getSecretKey(dataKey, keyAES);
+		    bytes = ((ByteContainer) so.getObject(key)).getData();
+		} catch (ClassCastException | ClassNotFoundException | InvalidKeyException | IOException
+			| NoSuchAlgorithmException e) {
+		    LOG.error(ERROR, e);
+		    msg(shell, SWT.ICON_ERROR | SWT.OK, titleErr, errorSev);
+		}
 	    }
+	    fillTable(false, isNull(bytes) ? extractData(false) : bytes);
+	} finally {
+	    clear(bytes);
 	}
-	fillTable(false, isNull(bytes) ? extractData(false) : bytes);
-	clear(bytes);
     }
 
     private void setText() {
@@ -814,9 +843,9 @@ public abstract class Action {
 	    LOG.error(DATA_NOT_NULL);
 	    return;
 	}
-	final var sensitiveData = cData.getSensitiveData();
-	var key = sensitiveData.getDataKey();
 	try {
+	    final var sensitiveData = cData.getSensitiveData();
+	    var key = sensitiveData.getDataKey();
 	    if (isNull(key)) {
 		key = Crypto.generateSecretKey(keyAES).getEncoded();
 		sensitiveData.setDataKey(key);

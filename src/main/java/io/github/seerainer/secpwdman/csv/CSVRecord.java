@@ -85,7 +85,7 @@ public class CSVRecord {
 	return (int) Arrays.stream(fields).filter(CSVFieldInfo::isNull).count();
     }
 
-    boolean hadErrors() {
+    public boolean hadErrors() {
 	return hadErrors;
     }
 

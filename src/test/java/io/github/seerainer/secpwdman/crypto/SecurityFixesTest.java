@@ -67,6 +67,19 @@ class SecurityFixesTest {
 
     @SuppressWarnings("static-method")
     @Test
+    @DisplayName("scrypt R is clamped to the supported range")
+    void scryptRIsClamped() {
+	final var config = new CryptoConfig();
+	config.setScryptR(Integer.MIN_VALUE);
+	assertThat(config.getScryptR()).isEqualTo(CryptoConstants.SCRYPT_R_MIN);
+	config.setScryptR(CryptoConstants.SCRYPT_R_MAX);
+	assertThat(config.getScryptR()).isEqualTo(CryptoConstants.SCRYPT_R_MAX);
+	config.setScryptR(Integer.MAX_VALUE);
+	assertThat(config.getScryptR()).isEqualTo(CryptoConstants.SCRYPT_R_MAX);
+    }
+
+    @SuppressWarnings("static-method")
+    @Test
     @DisplayName("Weak PBKDF2 iterations are raised to OWASP minimum")
     void weakPbkdf2IterIsClamped() {
 	final var config = new CryptoConfig();

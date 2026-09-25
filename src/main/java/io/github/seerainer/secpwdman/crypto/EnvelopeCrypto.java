@@ -25,6 +25,7 @@ import static io.github.seerainer.secpwdman.crypto.CryptoConstants.MIN_WRAPPED_D
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.SALT_LENGTH;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.TAG_LENGTH;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.cipherAES;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.dekMissing;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.keyAES;
@@ -98,7 +99,7 @@ public final class EnvelopeCrypto {
     }
 
     /**
-     * Canonical associated-data binding for format v1 vaults: every file metadata
+     * Canonical associated-data binding for versioned vaults: every file metadata
      * value that decryption depends on, in stable order. Both the wrap side and the
      * unwrap side derive identical bytes from the same {@code CryptoConfig}, so any
      * tampering with the stored metadata fails GCM/Poly1305 authentication.
@@ -116,6 +117,9 @@ public final class EnvelopeCrypto {
 		.append(cConf.getHmac()).append('|').append(cConf.getPBKDF2Iter()).append('|')
 		.append(cConf.getScryptN()).append('|').append(cConf.getScryptR()).append('|')
 		.append(cConf.getScryptP());
+	if (cConf.getVaultFormatVersion() >= VAULT_FORMAT_VERSION) {
+	    sb.append("|compress=").append(cConf.isCompress());
+	}
 	return sb.toString().getBytes(UTF_8);
     }
 
@@ -331,6 +335,7 @@ public final class EnvelopeCrypto {
 	kek.setKeyALGO(keyAES);
 	kek.setCipherALGO(cipherAES);
 	kek.setVaultFormatVersion(source.getVaultFormatVersion());
+	kek.setCompress(source.isCompress());
 	kek.setKeyDerivation(source.getKeyDerivation());
 	kek.setArgon2Type(source.getArgon2Type());
 	kek.setArgon2Memo(source.getArgon2Memo());

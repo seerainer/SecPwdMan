@@ -36,51 +36,72 @@ public class CharsetUtil {
     }
 
     private static void clearByteBuffer(final ByteBuffer buffer) {
-	if (buffer.hasArray()) {
-	    // For heap buffers, clear the backing array
-	    final var array = buffer.array();
-	    Util.clear(array);
-	} else {
-	    // For direct buffers, overwrite with zeros
-	    buffer.clear();
-	    while (buffer.hasRemaining()) {
-		buffer.put((byte) 0);
-	    }
+	if (isNull(buffer)) {
+	    return;
 	}
-	buffer.clear();
+	byte[] array = null;
+	try {
+	    if (buffer.hasArray()) {
+		// For heap buffers, clear the backing array
+		array = buffer.array();
+	    } else {
+		// For direct buffers, overwrite with zeros
+		buffer.clear();
+		while (buffer.hasRemaining()) {
+		    buffer.put((byte) 0);
+		}
+	    }
+	} finally {
+	    Util.clear(array);
+	    buffer.clear();
+	}
     }
 
-    private static void clearCharBuffer(final CharBuffer buffer) {
-	if (buffer.hasArray()) {
-	    // For heap buffers, clear the backing array
-	    final var array = buffer.array();
-	    Util.clear(array);
-	} else {
-	    // For direct buffers, overwrite with zeros
-	    buffer.clear();
-	    while (buffer.hasRemaining()) {
-		buffer.put(Character.MIN_VALUE);
-	    }
+    /**
+     * Clears the contents of a CharBuffer securely. If the buffer is backed by an
+     * array, it clears the array. If it's a direct buffer, it overwrites the
+     * contents with zeros.
+     *
+     * @param buffer the CharBuffer to clear
+     */
+    public static void clearCharBuffer(final CharBuffer buffer) {
+	if (isNull(buffer)) {
+	    return;
 	}
-	buffer.clear();
+	char[] array = null;
+	try {
+	    if (buffer.hasArray()) {
+		// For heap buffers, clear the backing array
+		array = buffer.array();
+	    } else {
+		// For direct buffers, overwrite with zeros
+		buffer.clear();
+		while (buffer.hasRemaining()) {
+		    buffer.put(Character.MIN_VALUE);
+		}
+	    }
+	} finally {
+	    Util.clear(array);
+	    buffer.clear();
+	}
     }
 
     private static byte[] convertCharsToBytes(final char[] chars) {
+	ByteBuffer byteBuffer = null;
 	final var charBuffer = CharBuffer.wrap(chars);
 	final var encoder = UTF_8.newEncoder();
 
 	try {
-	    final var byteBuffer = encoder.encode(charBuffer);
+	    byteBuffer = encoder.encode(charBuffer);
 	    final var bytes = new byte[byteBuffer.remaining()];
 	    byteBuffer.get(bytes);
 
-	    clearCharBuffer(charBuffer);
-	    clearByteBuffer(byteBuffer);
-
 	    return bytes;
 	} catch (final Exception e) {
-	    clearCharBuffer(charBuffer);
 	    throw new RuntimeException(SECURE_CHARSET_CONVERSION_FAILED, e);
+	} finally {
+	    clearCharBuffer(charBuffer);
+	    clearByteBuffer(byteBuffer);
 	}
     }
 
@@ -161,12 +182,9 @@ public class CharsetUtil {
 	final var tempBytes = convertCharsToBytes(chars);
 
 	try {
-	    return SecureMemory.withSecretMemory(tempBytes, segment -> {
-		final var result = SecureMemory.readFromNative(segment);
-		Util.clear(chars);
-		return result;
-	    });
+	    return SecureMemory.withSecretMemory(tempBytes, SecureMemory::readFromNative);
 	} finally {
+	    Util.clear(chars);
 	    Util.clear(tempBytes);
 	}
     }
@@ -185,6 +203,7 @@ public class CharsetUtil {
 	final var chars = new char[sb.length()];
 	sb.getChars(0, sb.length(), chars, 0);
 	sb.setLength(0);
+
 	return toBytes(chars);
     }
 
@@ -201,17 +220,17 @@ public class CharsetUtil {
 	}
 
 	return SecureMemory.withSecretMemory(bytes, segment -> {
+	    CharBuffer charBuffer = null;
 	    final var sourceBytes = SecureMemory.readFromNative(segment);
 	    try {
-		final var charBuffer = UTF_8.decode(ByteBuffer.wrap(sourceBytes));
+		charBuffer = UTF_8.decode(ByteBuffer.wrap(sourceBytes));
 		final var chars = new char[charBuffer.remaining()];
 		charBuffer.get(chars);
 
-		clearCharBuffer(charBuffer);
-		Util.clear(bytes);
-
 		return chars;
 	    } finally {
+		clearCharBuffer(charBuffer);
+		Util.clear(bytes);
 		Util.clear(sourceBytes);
 	    }
 	});

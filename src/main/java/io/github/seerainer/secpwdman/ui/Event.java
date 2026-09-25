@@ -166,7 +166,7 @@ class Event {
 
 	@Override
 	public void dragOver(final DropTargetEvent event) {
-	    if (cData.isLocked() || cData.isReadOnly()) {
+	    if (cData.isLocked() || cData.isReadOnly() || fileAction.getTable().getItemCount() > 0) {
 		event.detail = DND.DROP_NONE;
 	    }
 	}

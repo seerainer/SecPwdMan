@@ -116,6 +116,7 @@ public class FileAction extends Action {
 	cData.setReadOnly(false);
 	cData.setFile(null);
 	cData.setTempFile(null);
+	clearClipboard();
 	clearConfidentialData();
 	stopAutoLockManager();
 	System.gc();
@@ -134,7 +135,7 @@ public class FileAction extends Action {
 	if (!cData.isCustomHeader() && cData.isModified() && table.getItemCount() > 0) {
 	    modifiedFile();
 	}
-	if (cData.isCustomHeader() || !cData.isModified()) {
+	if (cData.isCustomHeader() || !cData.isModified() || table.getItemCount() == 0) {
 	    clearData();
 	}
     }
@@ -254,6 +255,9 @@ public class FileAction extends Action {
      * @return true if it is a password file
      */
     public boolean isPasswordFileReady(final String file) {
+	if (isBlank(file)) {
+	    return false;
+	}
 	if (!IOUtil.isFileReady(file)) {
 	    handleFileError(file, errorInp);
 	    return false;
@@ -418,9 +422,6 @@ public class FileAction extends Action {
      * next unlock that the file on disk is stale.
      */
     public void setLocked() {
-	if (!IOUtil.isFileReady(cData.getFile())) {
-	    return;
-	}
 	cData.setLocked(true);
 	clearConfidentialData();
 	resetTable();
@@ -433,6 +434,14 @@ public class FileAction extends Action {
 	stopAutoLockManager();
 	System.gc();
 
+	final var file = cData.getFile();
+	if (isBlank(file)) {
+	    return;
+	}
+	if (!IOUtil.isFileReady(file)) {
+	    handleFileError(file, errorInp);
+	    return;
+	}
 	final var trayItem = getTrayItem(shell);
 	if (trayItem == null) {
 	    return;

@@ -34,6 +34,7 @@ import static io.github.seerainer.secpwdman.config.StringConstants.errorOut;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorPwd;
 import static io.github.seerainer.secpwdman.config.StringConstants.errorSev;
 import static io.github.seerainer.secpwdman.config.StringConstants.titleErr;
+import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_LEGACY;
 import static io.github.seerainer.secpwdman.crypto.CryptoConstants.VAULT_FORMAT_VERSION;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.decryptWithDek;
 import static io.github.seerainer.secpwdman.crypto.EnvelopeCrypto.generateDek;
@@ -236,18 +237,34 @@ public class IO {
 		// Previously unseal() + unwrapDek() derived the KEK twice.
 		dek = unwrapDek(wrappedDek, password, cConf);
 		bytes = decryptWithDek(ciphertext, dek, cConf);
+		var compressed = cConf.isCompress();
+		if (compressed) {
+		    try {
+			bytes = IOUtil.inflate(bytes);
+		    } catch (final IOException e) {
+			if (cConf.getVaultFormatVersion() != VAULT_FORMAT_LEGACY) {
+			    throw e;
+			}
+			compressed = false;
+		    }
+		}
+		if (!action.fillTable(true, bytes, false)) {
+		    throw new IllegalArgumentException(errorImp.formatted(IOUtil.getFilePath(file)));
+		}
+		cConf.setCompress(compressed);
+		cData.setCompress(compressed);
 
 		// Keep both the plaintext DEK and the wrapped DEK for this session
 		final var sensitiveData = cData.getSensitiveData();
 		sensitiveData.setDek(dek);
 		sensitiveData.setWrappedDek(wrappedDek);
 		dek = null; // ownership transferred to SensitiveData
-
-		bytes = cData.isCompress() ? IOUtil.inflate(bytes) : bytes;
 	    } else {
 		bytes = is.readAllBytes();
+		if (!action.fillTable(true, bytes, false)) {
+		    throw new IllegalArgumentException(errorImp.formatted(IOUtil.getFilePath(file)));
+		}
 	    }
-	    action.fillTable(true, bytes);
 	    LOG.info(TIME_TO_OPEN, Long.valueOf(System.currentTimeMillis() - startTime));
 	    return true;
 	} catch (final BadPaddingException e) {
@@ -311,7 +328,9 @@ public class IO {
 		final var cConf = cData.getCryptoConfig();
 
 		bytes = action.extractData(false);
-		bytes = cData.isCompress() ? IOUtil.deflate(bytes) : bytes;
+		final var compress = cData.isCompress();
+		cConf.setCompress(compress);
+		bytes = compress ? IOUtil.deflate(bytes) : bytes;
 
 		// New saves always use the current format (with AAD binding);
 		// opening a legacy file and saving migrates it forward.

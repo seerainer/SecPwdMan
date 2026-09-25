@@ -60,17 +60,21 @@ record TextDialog(Action action) {
 	text.setTextChars(tableData);
 
 	dialog.addShellListener(shellClosedAdapter(_ -> {
-	    final var textData = CharsetUtil.replaceSequence(text.getTextChars(), System.lineSeparator().toCharArray(),
-		    newLine.toCharArray());
-	    if (isWriteable && textData.length > 0 && !isEqual(tableData, textData)) {
-		cData.setModified(true);
-		action.fillTable(true, CharsetUtil.toBytes(textData));
-		action.fillGroupList();
-		action.resizeColumns();
-		action.updateUI();
+	    char[] textData = null;
+	    try {
+		textData = CharsetUtil.replaceSequence(text.getTextChars(), System.lineSeparator().toCharArray(),
+			newLine.toCharArray());
+		if (isWriteable && textData.length > 0 && !isEqual(tableData, textData)
+			&& action.fillTable(true, CharsetUtil.toBytes(textData))) {
+		    cData.setModified(true);
+		    action.fillGroupList();
+		    action.resizeColumns();
+		    action.updateUI();
+		}
+	    } finally {
+		clear(tableData);
+		clear(textData);
 	    }
-	    clear(tableData);
-	    clear(textData);
 	}));
 
 	dialog.setSize(800, 600);

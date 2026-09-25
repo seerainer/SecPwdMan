@@ -19,6 +19,7 @@
  */
 package io.github.seerainer.secpwdman.io;
 
+import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MAX_FILE_SIZE;
 import static io.github.seerainer.secpwdman.config.PrimitiveConstants.MEMORY_SIZE;
 import static io.github.seerainer.secpwdman.config.StringConstants.APP_NAME;
 import static io.github.seerainer.secpwdman.config.StringConstants.ERROR;
@@ -120,7 +121,7 @@ public class IOUtil {
 	};
     }
 
-    static byte[] inflate(final byte[] input) {
+    static byte[] inflate(final byte[] input) throws IOException {
 	try (var inflater = new Inflater()) {
 	    inflater.setInput(input);
 
@@ -128,12 +129,18 @@ public class IOUtil {
 	    final var buffer = new byte[MEMORY_SIZE];
 	    try {
 		while (!inflater.finished()) {
-		    outputStream.write(buffer, 0, inflater.inflate(buffer));
+		    final var count = inflater.inflate(buffer);
+		    if (count == 0) {
+			throw new IOException("Compressed data is incomplete.");
+		    }
+		    if (count > MAX_FILE_SIZE - outputStream.size()) {
+			throw new IOException("Compressed data exceeds the maximum size.");
+		    }
+		    outputStream.write(buffer, 0, count);
 		}
 		return outputStream.toByteArray();
 	    } catch (final DataFormatException e) {
-		LOG.error(ERROR, e);
-		return input;
+		throw new IOException("Compressed data is invalid.", e);
 	    } finally {
 		inflater.end();
 	    }

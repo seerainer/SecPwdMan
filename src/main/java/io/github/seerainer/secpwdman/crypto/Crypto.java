@@ -118,22 +118,23 @@ public class Crypto {
 	    throw new NoSuchAlgorithmException(unexpectedValue + transformation);
 	}
 	return SecureMemory.withSecretMemory(key.clone(), keySegment -> {
+	    byte[] keyBytes = null;
+	    ByteContainer bc = null;
 	    try {
 		final var cipherInstance = Cipher.getInstance(transformation);
-		final var keyBytes = SecureMemory.readFromNative(keySegment);
+		keyBytes = SecureMemory.readFromNative(keySegment);
 		final var secretKey = getSecretKey(keyBytes, algorithm);
 		cipherInstance.init(Cipher.ENCRYPT_MODE, secretKey);
-
-		final var bc = new ByteContainer(data);
-		final var so = new SealedObject(bc, cipherInstance);
-
-		Util.clear(data);
-		Util.clear(keyBytes);
-		bc.clear();
-
-		return so;
+		bc = new ByteContainer(data);
+		return new SealedObject(bc, cipherInstance);
 	    } catch (final Exception e) {
 		throw new RuntimeException(secureSealedObjectFailed, e);
+	    } finally {
+		Util.clear(data);
+		Util.clear(keyBytes);
+		if (bc != null) {
+		    bc.clear();
+		}
 	    }
 	});
     }
@@ -157,9 +158,10 @@ public class Crypto {
 
     static SecretKey getKeyTransformation(final byte[] password, final byte[] salt, final CryptoConfig cConf) {
 	return SecureMemory.withSecretMemory(password.clone(), passwordSegment -> {
+	    byte[] passwordBytes = null;
 	    try {
-		final var passwordBytes = SecureMemory.readFromNative(passwordSegment);
-		final var result = switch (cConf.getKeyDerivation()) {
+		passwordBytes = SecureMemory.readFromNative(passwordSegment);
+		return switch (cConf.getKeyDerivation()) {
 		case CryptoConfig.KDF.Argon2 ->
 		    new KeyDerivationContext(new Argon2KeyDerivation(cConf)).deriveKey(passwordBytes, salt);
 		case CryptoConfig.KDF.PBKDF2 ->
@@ -168,11 +170,10 @@ public class Crypto {
 		    new KeyDerivationContext(new ScryptKeyDerivation(cConf)).deriveKey(passwordBytes, salt);
 		default -> throw new IllegalArgumentException(unexpectedValue + cConf.getKeyDerivation());
 		};
-
-		Util.clear(passwordBytes);
-		return result;
 	    } catch (final Exception e) {
 		throw new RuntimeException(secureKeyTransFailed, e);
+	    } finally {
+		Util.clear(passwordBytes);
 	    }
 	});
     }
@@ -200,9 +201,11 @@ public class Crypto {
     public static SecretKey getSecretKey(final byte[] key, final String algorithm) {
 	return SecureMemory.withSecretMemory(key.clone(), keySegment -> {
 	    final var keyBytes = SecureMemory.readFromNative(keySegment);
-	    final var secretKey = new SecretKeySpec(keyBytes, algorithm);
-	    Util.clear(keyBytes);
-	    return secretKey;
+	    try {
+		return new SecretKeySpec(keyBytes, algorithm);
+	    } finally {
+		Util.clear(keyBytes);
+	    }
 	});
     }
 

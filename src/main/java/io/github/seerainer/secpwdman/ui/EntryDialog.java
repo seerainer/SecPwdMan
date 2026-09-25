@@ -109,49 +109,53 @@ record EntryDialog(Action action) {
 	final var cData = action.getCData();
 	final var index = getColumnIndexNumbers(cData);
 	final var textFields = new String[index.length];
-	final var password = ((Text) child[10]).getTextChars();
-	for (var i = 0; i < textFields.length; i++) {
-	    if (i != 5) {
-		textFields[index[i]] = ((Text) child[i * 2]).getText();
-	    }
-	}
-	if (Objects.nonNull(tableItem)) {
-	    final var items = new String[textFields.length];
-	    final var PASSWORD_INDEX = index[5];
-	    for (var j = 0; j < items.length; j++) {
-		if (j != PASSWORD_INDEX) {
-		    items[j] = tableItem.getText(j);
+	char[] itemPassword = null;
+	char[] password = null;
+	CharArrayString cas = null;
+	try {
+	    password = ((Text) child[10]).getTextChars();
+	    for (var i = 0; i < textFields.length; i++) {
+		if (i != 5) {
+		    textFields[index[i]] = ((Text) child[i * 2]).getText();
 		}
 	    }
-	    final var cas = new CharArrayString(tableItem.getText(PASSWORD_INDEX));
-	    final var itemPassword = action.decryptPassword(cas.toCharArray());
-	    if (isEqual(items, textFields) && isEqual(password, itemPassword)) {
-		clear(itemPassword);
-		clear(password);
-		cas.clear();
+	    if (Objects.nonNull(tableItem)) {
+		final var items = new String[textFields.length];
+		final var PASSWORD_INDEX = index[5];
+		for (var j = 0; j < items.length; j++) {
+		    if (j != PASSWORD_INDEX) {
+			items[j] = tableItem.getText(j);
+		    }
+		}
+		cas = new CharArrayString(tableItem.getText(PASSWORD_INDEX));
+		itemPassword = action.decryptPassword(cas.toCharArray());
+		if (isEqual(items, textFields) && isEqual(password, itemPassword)) {
+		    dialog.close();
+		    return;
+		}
+	    }
+	    if (!isBlank(textFields[2]) || !isBlank(textFields[4])) {
+		final var groupChildren = ((Group) child[16]).getChildren();
+		final var selection = Arrays.stream(groupChildren).map(
+			control -> Boolean.valueOf(control instanceof Button && !((Button) control).getSelection()))
+			.toArray(Boolean[]::new);
+		if (Arrays.stream(selection).allMatch(Boolean::booleanValue)) {
+		    for (var i = 0; i < selection.length - 1; i++) {
+			((Button) groupChildren[i]).setSelection(true);
+		    }
+		}
+		editEntry(password.length > 0 ? password : RandomPassword.generate(action, groupChildren), tableItem,
+			textFields);
 		dialog.close();
-		return;
+	    } else {
+		child[4].setFocus();
 	    }
+	} finally {
 	    clear(itemPassword);
-	    cas.clear();
-	}
-	if (!isBlank(textFields[2]) || !isBlank(textFields[4])) {
-	    final var groupChildren = ((Group) child[16]).getChildren();
-	    final var selection = Arrays.stream(groupChildren)
-		    .map(control -> Boolean.valueOf(control instanceof Button && !((Button) control).getSelection()))
-		    .toArray(Boolean[]::new);
-	    if (Arrays.stream(selection).allMatch(Boolean::booleanValue)) {
-		for (var i = 0; i < selection.length - 1; i++) {
-		    ((Button) groupChildren[i]).setSelection(true);
-		}
+	    clear(password);
+	    if (Objects.nonNull(cas)) {
+		cas.clear();
 	    }
-	    editEntry(password.length > 0 ? password : RandomPassword.generate(action, groupChildren), tableItem,
-		    textFields);
-	    clear(password);
-	    dialog.close();
-	} else {
-	    child[4].setFocus();
-	    clear(password);
 	}
     }
 
@@ -246,9 +250,13 @@ record EntryDialog(Action action) {
 	spinner(random, PWD_DEFAULT_LENGTH, PWD_MIN_LENGTH, PWD_MAX_LENGTH, 0, 1, 4);
 
 	final var genBtn = button(random, SWT.PUSH, entrGene, widgetSelectedAdapter(_ -> {
-	    final var randPwd = RandomPassword.generate(action, random.getChildren());
-	    pwd.setTextChars(randPwd);
-	    clear(randPwd);
+	    char[] randPwd = null;
+	    try {
+		randPwd = RandomPassword.generate(action, random.getChildren());
+		pwd.setTextChars(randPwd);
+	    } finally {
+		clear(randPwd);
+	    }
 	}));
 
 	if (!MACOS) { // macOS does not support modification of the echo char
@@ -291,9 +299,12 @@ record EntryDialog(Action action) {
 	    user.setText(item.getText(index[4]));
 	    final var cas = new CharArrayString(item.getText(index[5]));
 	    final var password = action.decryptPassword(cas.toCharArray());
-	    pwd.setTextChars(password);
-	    clear(password);
-	    cas.clear();
+	    try {
+		pwd.setTextChars(password);
+	    } finally {
+		clear(password);
+		cas.clear();
+	    }
 	    notes.setText(item.getText(index[6]));
 
 	    if (cData.isReadOnly()) {
