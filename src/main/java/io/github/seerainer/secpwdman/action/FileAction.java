@@ -436,6 +436,7 @@ public class FileAction extends Action {
 
 	final var file = cData.getFile();
 	if (isBlank(file)) {
+	    cData.setLocked(false);
 	    return;
 	}
 	if (!IOUtil.isFileReady(file)) {

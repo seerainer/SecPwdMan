@@ -1,3 +1,13 @@
+import java.io.IOException
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.util.Locale
+import javax.inject.Inject
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.process.ExecOperations
+
 plugins {
     id 'java'
     id 'eclipse'
@@ -22,11 +32,29 @@ repositories {
 ext {
     swtVersion = '3.135.0'
     swtArtifact = 'org.eclipse.swt.'
-    os = System.getProperty("os.name").toLowerCase()
-    arch = System.getProperty("os.arch").toLowerCase()
+    os = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+    arch = System.getProperty("os.arch").toLowerCase(Locale.getDefault())
     normalizedArch = arch
     swtWS = 'unknown'
     swtOS = 'unknown'
+}
+
+// Lazy provider for the MSVC toolchain environment. The vcvars64.bat script
+// is executed inside a ValueSource via the injected ExecOperations,
+// so no external process is started at configuration time.
+final boolean windowsOs = os.contains('win')
+final def vsInstallDirProvider = providers.environmentVariable('VSINSTALLDIR')
+final def programFilesProvider = providers.environmentVariable('ProgramFiles')
+final def includeProvider = providers.environmentVariable('INCLUDE')
+final def libProvider = providers.environmentVariable('LIB')
+def msvcEnvironment = providers.of(MsvcEnvironmentValueSource) {
+    parameters {
+        windows.set(windowsOs)
+        vsInstallDir.set(vsInstallDirProvider)
+        programFiles.set(programFilesProvider)
+        include.set(includeProvider)
+        lib.set(libProvider)
+    }
 }
 
 def detectSwtArtifact() {
@@ -123,8 +151,9 @@ graalvmNative {
             if (os.contains('mac')) {
                 buildArgs.add('-J-XstartOnFirstThread')
             }
-            if (os.contains('win')) {
+            if (windowsOs) {
                 buildArgs.add('--features=io.github.seerainer.secpwdman.util.ForeignRegistrationFeature')
+                environmentVariables.putAll(msvcEnvironment)
             }
             buildArgs.add('-H:+UnlockExperimentalVMOptions')
             buildArgs.add('-H:+ForeignAPISupport')
@@ -149,7 +178,7 @@ graalvmNative {
             // buildArgs.add('--verbose')
             // Release hardening (ASLR + DEP). Explicit even where the toolchain
             // defaults them on, so release builds never silently lose them.
-            if (os.contains('win')) {
+            if (windowsOs) {
                 buildArgs.add('-H:NativeLinkerOption=/DYNAMICBASE')
                 buildArgs.add('-H:NativeLinkerOption=/NXCOMPAT')
                 buildArgs.add('-H:NativeLinkerOption=/HIGHENTROPYVA')
@@ -177,7 +206,7 @@ graalvmNative {
 }
 
 tasks.withType(Jar).configureEach {
-    if (!os.contains('win')) {
+    if (!windowsOs) {
         exclude(
             'io/github/seerainer/secpwdman/util/ForeignRegistrationFeature*',
             'io/github/seerainer/secpwdman/util/Win32Affinity*',
@@ -283,4 +312,112 @@ task allTests {
     dependsOn unitTest, integrationTest
 
     tasks.findByName('integrationTest').mustRunAfter 'unitTest'
+}
+
+/**
+ * Provides the MSVC toolchain environment (INCLUDE/LIB/LIBPATH/PATH) by
+ * running vcvars64.bat and parsing the resulting environment.
+ *
+ * <p>Runs lazily via the injected {@link ExecOperations} when the value is
+ * first queried (i.e. at execution time of the native-image build), so no
+ * external process is started at configuration time. Returns an empty map
+ * when no MSVC setup is required: on non-Windows platforms, when INCLUDE
+ * and LIB are already set, or when vcvars64.bat cannot be located or
+ * queried.
+ */
+abstract class MsvcEnvironmentValueSource implements ValueSource<Map<String, String>, MsvcEnvironmentValueSource.Params> {
+    interface Params extends ValueSourceParameters {
+        Property<Boolean> getWindows()
+        Property<String> getVsInstallDir()
+        Property<String> getProgramFiles()
+        Property<String> getInclude()
+        Property<String> getLib()
+    }
+
+    @Inject
+    abstract ExecOperations getExecOperations()
+
+    @Override
+    Map<String, String> obtain() {
+        if (!parameters.windows.getOrElse(false)) {
+            return [:]
+        }
+        if (parameters.include.getOrElse('').trim() && parameters.lib.getOrElse('').trim()) {
+            return [:]
+        }
+        final File vcvars = locateVcvars()
+        if (vcvars == null) {
+            return [:]
+        }
+        final ByteArrayOutputStream stdout = new ByteArrayOutputStream()
+        final ByteArrayOutputStream stderr = new ByteArrayOutputStream()
+        final def result
+        try {
+            result = execOperations.exec { spec ->
+                spec.commandLine('cmd', '/d', '/c', "call \"${vcvars.absolutePath}\" >nul && set")
+                spec.standardOutput = stdout
+                spec.errorOutput = stderr
+                spec.ignoreExitValue = true
+            }
+        } catch (Exception ignored) {
+            return [:]
+        }
+        if (result.exitValue != 0) {
+            return [:]
+        }
+        final Map<String, String> env = [:]
+        stdout.toString(Charset.defaultCharset()).readLines().each { line ->
+            final int index = line.indexOf('=')
+            if (index <= 0) {
+                return
+            }
+            final String key = line.substring(0, index)
+            if (key.equalsIgnoreCase('INCLUDE')
+                    || key.equalsIgnoreCase('LIB')
+                    || key.equalsIgnoreCase('LIBPATH')
+                    || key.equalsIgnoreCase('PATH')) {
+                env.put(key, line.substring(index + 1))
+            }
+        }
+        return env
+    }
+
+    private File locateVcvars() {
+        final List<File> candidates = []
+        final String vsInstallDir = parameters.vsInstallDir.getOrElse('').trim()
+        if (vsInstallDir) {
+            candidates.add(new File(vsInstallDir, 'VC/Auxiliary/Build/vcvars64.bat'))
+        }
+        final String programFiles = parameters.programFiles.getOrElse('').trim()
+        if (programFiles) {
+            final File root = new File(programFiles, 'Microsoft Visual Studio')
+            if (root.isDirectory()) {
+                def stream = null
+                try {
+                    stream = Files.walk(root.toPath(), 8)
+                    stream.forEach { path ->
+                        if (Files.isRegularFile(path)
+                            && 'vcvars64.bat'.equalsIgnoreCase(path.fileName?.toString())
+                            && path.parent?.fileName?.toString() == 'Build'
+                            && path.parent?.parent?.fileName?.toString() == 'Auxiliary'
+                            && path.parent?.parent?.parent?.fileName?.toString() == 'VC') {
+                            candidates.add(path.toFile())
+                        }
+                    }
+                } catch (IOException ignored) {
+                    // Fall through to whatever candidates were found so far.
+                } finally {
+                    if (stream != null) {
+                        try {
+                            stream.close()
+                        } catch (IOException ignored) {
+                            // Nothing sensible to do on close failure.
+                        }
+                    }
+                }
+            }
+        }
+        candidates.sort { a, b -> a.absolutePath <=> b.absolutePath }
+        return candidates.find { it.isFile() }
+    }
 }
